@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Title Researcher</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--surface:#13131f;--surface2:#1e1e30;--surface3:#252540;
+  --accent:#e53935;--text:#e2e2f0;--text-dim:#7a7a9a;--text-muted:#4a4a6a;
+  --border:#252535;--border2:#353555;--success:#22c55e;--warn:#f59e0b;--r:8px;--r2:12px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+
+/* HEADER */
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:16px;height:56px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700}
+.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.hdr-space{flex:1}
+.hdr-stats{display:flex;gap:20px;font-size:13px;color:var(--text-dim)}
+.hdr-stats strong{color:var(--text);font-weight:600}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 56px)}
+
+/* SIDEBAR */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:16px;overflow-y:auto;height:calc(100vh - 56px);position:sticky;top:56px}
+.s-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.s-sec{margin-bottom:20px}
+.s-hint{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4}
+
+/* FORM */
+input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);padding:7px 11px;font-size:13px;outline:none;transition:border-color .15s;font-family:inherit}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+input::placeholder{color:var(--text-muted)}
+textarea{resize:vertical}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--r);border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;text-decoration:none}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#ef5350}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-sec:hover{background:var(--surface3);border-color:var(--border2)}
+.btn-ghost{background:transparent;color:var(--text-dim);padding:4px 8px}.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-sm{padding:4px 9px;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+
+/* NICHE/MODE TABS */
+.niche-tabs{display:flex;flex-wrap:wrap;gap:5px}
+.niche-tab{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.niche-tab:hover{color:var(--text);border-color:var(--border2)}
+.niche-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.mode-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:12px}
+.mode-tab{padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-dim);transition:all .15s}
+.mode-tab:hover{color:var(--text)}.mode-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* CHANNEL LIST */
+.ch-list{display:flex;flex-direction:column;gap:4px;max-height:260px;overflow-y:auto}
+.ch-item{display:flex;align-items:center;gap:7px;padding:6px 8px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border)}
+.ch-item.ok{border-color:#22c55e33}.ch-item.err{border-color:#e5393533}
+.ch-avatar{width:24px;height:24px;border-radius:50%;background:var(--surface3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)}
+.ch-avatar img{width:100%;height:100%;object-fit:cover}
+.ch-name{flex:1;font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.ch-dot.ok{background:var(--success)}.ch-dot.err{background:var(--accent)}
+.ch-dot.loading{background:var(--warn);animation:pulse 1s infinite}
+.add-row{display:flex;gap:5px;margin-top:7px}.add-row input{flex:1}
+.bulk-panel{margin-top:8px;display:none}.bulk-panel.open{display:block}
+.bulk-panel textarea{height:90px;font-size:12px}
+.bulk-actions{display:flex;gap:5px;margin-top:5px}
+
+/* PROGRESS */
+.prog-wrap{display:none;margin-bottom:12px}.prog-wrap.show{display:block}
+.prog-track{height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-bottom:5px}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+.prog-row{display:flex;justify-content:space-between}
+.prog-text,.prog-count{font-size:12px;color:var(--text-dim)}
+
+/* TOOLBAR */
+.toolbar{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);position:sticky;top:56px;z-index:90}
+.tb-search{flex:1;min-width:180px;max-width:340px;position:relative}
+.tb-search input{padding-left:30px}
+.search-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;pointer-events:none}
+.tb-space{flex:1}
+.view-toggle{display:flex;gap:2px;background:var(--surface2);padding:2px;border-radius:var(--r)}
+.view-btn{padding:5px 10px;border-radius:6px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;font-family:inherit}
+.view-btn.active{background:var(--surface3);color:var(--text)}
+
+/* FRAMEWORK VIEW */
+.fw-wrap{padding:18px}
+.fw-cat-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.fw-cat-pill{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.fw-cat-pill:hover{color:var(--text);border-color:var(--border2)}
+.fw-cat-pill.active{background:var(--surface3);color:var(--text);border-color:var(--border2)}
+
+.fw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(500px,1fr));gap:20px}
+
+/* FRAMEWORK CARD */
+.fw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:24px;display:flex;flex-direction:column;gap:16px;transition:border-color .15s}
+.fw-card:hover{border-color:var(--border2)}
+.fw-hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.fw-cat-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 9px;border-radius:4px}
+.fw-meta{font-size:12px;color:var(--text-muted)}
+.fw-meta strong{color:var(--text-dim)}
+
+/* THE FRAMEWORK TEMPLATE — the hero element */
+.fw-tpl{font-size:20px;font-weight:600;line-height:1.7;color:var(--text);word-break:break-word}
+
+/* OUTLIER BADGE */
+.ol{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap;flex-shrink:0;margin-left:6px}
+.ol-fire{background:#451a03;color:#fbbf24;border:1px solid #92400e}
+.ol-great{background:#14532d;color:#4ade80;border:1px solid #16a34a}
+.ol-good{background:#1a3a2a;color:#86efac;border:1px solid #166534}
+.ol-above{background:#1e2d1e;color:#6ee7b7;border:1px solid #14532d}
+.ol-avg{background:var(--surface3);color:var(--text-muted);border:1px solid var(--border)}
+.ol-below{background:#2d1a0a;color:#fb923c;border:1px solid #9a3412}
+.ol-low{background:#3d0f0f;color:#fca5a5;border:1px solid #7f1d1d}
+
+/* FRAMEWORK SORT BAR */
+.fw-sort-bar{display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.fw-sort-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-right:2px}
+.fw-sort-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.fw-sort-btn:hover{color:var(--text);border-color:var(--border2)}
+.fw-sort-btn.active{background:var(--surface3);color:var(--text);border-color:var(--border2)}
+
+/* PLACEHOLDERS */
+.ph{display:inline-flex;align-items:center;padding:1px 8px;border-radius:5px;font-size:13px;font-weight:700;font-family:'Courier New',monospace;vertical-align:middle;margin:0 1px}
+.ph-n{background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb33}
+.ph-dollar{background:#14532d;color:#4ade80;border:1px solid #16a34a33}
+.ph-pct{background:#44250a;color:#fb923c;border:1px solid #ea580c33}
+.ph-topic{background:#3b0764;color:#c084fc;border:1px solid #9333ea33}
+
+.fw-divider{height:1px;background:var(--border)}
+
+.fw-examples{display:flex;flex-direction:column;gap:5px}
+.fw-ex{font-size:12px;color:var(--text-dim);line-height:1.4}
+.fw-ex a{color:inherit;text-decoration:none}
+.fw-ex a:hover{color:var(--accent)}
+.fw-ex-src{display:flex;align-items:center;gap:6px;margin-top:4px}
+.fw-ch-avatar{width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--surface3)}
+.fw-ch-fallback{display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-muted);font-weight:700;background:var(--surface3)}
+.fw-ch-name{font-size:12px;color:var(--text-dim);font-weight:500}
+.fw-ex-views{font-size:11px;color:var(--text-muted);margin-left:2px}
+.fw-more-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:3px 0}
+.fw-more-btn:hover{color:var(--text-dim)}
+
+.fw-actions{display:flex;gap:6px;flex-wrap:wrap}
+.fw-avg-views{font-size:11px;color:var(--text-muted);margin-left:auto;align-self:center}
+.fw-avg-views strong{color:var(--success)}
+
+/* RESULTS TABLE */
+.results{padding:18px;flex:1}
+.res-table{width:100%;border-collapse:collapse}
+.res-table th{text-align:left;padding:9px 11px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
+.res-table td{padding:9px 11px;border-bottom:1px solid var(--border);vertical-align:middle}
+.res-table tr:hover td{background:var(--surface)}
+.title-cell{display:flex;align-items:flex-start;gap:9px}
+.thumb-sm{width:80px;height:45px;object-fit:cover;border-radius:4px;flex-shrink:0;background:var(--surface3)}
+.title-txt a{color:var(--text);text-decoration:none;font-weight:500;line-height:1.4;font-size:13px}
+.title-txt a:hover{color:var(--accent)}
+.ch-link{color:var(--text-dim);text-decoration:none;font-size:12px}.ch-link:hover{color:var(--accent)}
+.views{color:var(--text-dim);font-size:13px}.views.hot{color:var(--success);font-weight:600}
+.date-txt{color:var(--text-muted);font-size:12px;white-space:nowrap}
+.act-cell{display:flex;gap:3px}
+
+/* GRID */
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.v-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .15s}.v-card:hover{border-color:var(--border2)}
+.card-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--surface3);display:block}
+.card-body{padding:11px}
+.card-title{font-weight:600;line-height:1.4;margin-bottom:7px;font-size:13px}
+.card-title a{color:inherit;text-decoration:none}.card-title a:hover{color:var(--accent)}
+.card-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim)}
+.card-acts{display:flex;gap:5px;margin-top:9px}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;text-align:center;color:var(--text-dim)}
+.empty-ico{font-size:48px;margin-bottom:14px;opacity:.4}
+.empty h3{font-size:18px;color:var(--text);margin-bottom:6px}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:7px;z-index:1000}
+.toast{padding:11px 15px;border-radius:var(--r);font-size:13px;font-weight:500;max-width:340px;animation:slideIn .2s ease;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.toast-err{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
+.toast-ok{background:#14532d;color:#86efac;border:1px solid #166534}
+.toast-info{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* PAGE NAVIGATION */
+.page-nav{display:flex;gap:2px;background:var(--surface2);padding:2px;border-radius:var(--r)}
+.page-nav-btn{padding:5px 14px;border-radius:6px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;font-family:inherit}
+.page-nav-btn.active{background:var(--accent);color:#fff}
+.page-nav-btn:not(.active):hover{background:var(--surface3);color:var(--text)}
+
+/* MY TOPICS PAGE */
+#myTitlesPage{display:none}
+.tp-page{max-width:1100px;margin:0 auto;padding:36px 24px 80px}
+.tp-header{text-align:center;margin-bottom:36px}
+.tp-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(229,57,53,0.08);border:1px solid rgba(229,57,53,0.25);border-radius:100px;padding:4px 16px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.tp-eyebrow-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;flex-shrink:0}
+.tp-title{font-size:clamp(20px,3vw,32px);font-weight:800;letter-spacing:-0.02em;color:var(--text);margin-bottom:6px}
+.tp-sub{font-size:13px;color:var(--text-muted);max-width:460px;margin:0 auto}
+.tp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:10px;align-items:start}
+.tp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;transition:border-color .15s;cursor:pointer;user-select:none}
+.tp-card:hover,.tp-card.open{border-color:var(--border2)}
+.tp-card-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.tp-num{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.tp-card-title{font-size:16px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:5px}
+.tp-card-desc{font-size:12px;color:var(--text-dim);line-height:1.55}
+.tp-chevron{font-size:11px;color:var(--text-muted);flex-shrink:0;margin-top:16px;transition:transform .2s}
+.tp-card.open .tp-chevron{transform:rotate(180deg);color:var(--accent)}
+.tp-card-body{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.tp-card.open .tp-card-body{display:block}
+.tp-bullets{list-style:none;display:flex;flex-direction:column;gap:6px;padding:0;margin:0}
+.tp-bullets li{font-size:12px;color:var(--text-dim);line-height:1.55;padding-left:16px;position:relative}
+.tp-bullets li::before{content:'—';position:absolute;left:0;color:var(--accent);font-weight:700}
+.tp-sub-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin:12px 0 6px;padding:0}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo"><div class="logo-icon">▶</div> YT Title Researcher</div>
+  <div class="page-nav">
+    <button class="page-nav-btn active" id="pNavResearch" onclick="setPage('research')">Research</button>
+    <button class="page-nav-btn" id="pNavMyTitles" onclick="setPage('mytitles')">My Titles</button>
+  </div>
+  <div class="hdr-space"></div>
+  <div class="hdr-stats">
+    <span><strong id="statFw">0</strong> frameworks</span>
+    <span><strong id="statTotal">0</strong> titles</span>
+    <span><strong id="statResolved">0</strong>/<strong id="statChTotal">0</strong> channels</span>
+  </div>
+</div>
+
+<div class="layout" id="researchPage">
+<aside class="sidebar">
+
+  <div class="s-sec">
+    <div class="s-label">Your Topic Words</div>
+    <input type="text" id="topicWords" placeholder="cold email, copywriting, agency..."
+           oninput="rebuildFrameworks()">
+    <div class="s-hint">These replace with <span style="color:#c084fc;font-weight:600">[Topic]</span> in frameworks so you can see the structure</div>
+  </div>
+
+  <div class="s-sec">
+    <div class="s-label">Niche Preset</div>
+    <div class="niche-tabs" id="nicheTabs">
+      <div class="niche-tab active" data-niche="business">Business</div>
+      <div class="niche-tab" data-niche="finance">Finance</div>
+      <div class="niche-tab" data-niche="fitness">Fitness</div>
+      <div class="niche-tab" data-niche="tech">Tech</div>
+      <div class="niche-tab" data-niche="custom">Custom</div>
+    </div>
+  </div>
+
+  <div class="s-sec">
+    <div class="mode-tabs">
+      <div class="mode-tab active" id="mTab1" onclick="setMode('channels')">By Channel</div>
+      <div class="mode-tab" id="mTab2" onclick="setMode('keywords')">By Keyword</div>
+    </div>
+
+    <div id="chPanel">
+      <div class="s-label">
+        <span id="chCountLabel">Channels (0)</span>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="toggleBulk()">+ Bulk</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearChannels()">Clear</button>
+        </div>
+      </div>
+      <div class="bulk-panel" id="bulkPanel">
+        <textarea id="bulkInput" placeholder="One channel per line:&#10;https://youtube.com/@handle&#10;@handle"></textarea>
+        <div class="bulk-actions">
+          <button class="btn btn-sec btn-sm" onclick="addBulk()" style="flex:1">Add All</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleBulk()">Cancel</button>
+        </div>
+      </div>
+      <input type="text" id="chSearchInput" placeholder="Search channels..." oninput="renderChList()" style="margin-bottom:6px">
+      <div class="ch-list" id="chList"></div>
+      <div class="add-row">
+        <input type="text" id="chInput" placeholder="@handle or URL" onkeydown="if(event.key==='Enter')addCh()">
+        <button class="btn btn-sec btn-sm" onclick="addCh()">Add</button>
+      </div>
+    </div>
+
+    <div id="kwPanel" style="display:none">
+      <div class="s-label">Keywords (one per line)</div>
+      <textarea id="kwInput" style="height:90px" placeholder="cold email strategy&#10;how to get B2B clients&#10;outreach tips"></textarea>
+    </div>
+  </div>
+
+  <div class="s-sec">
+    <div class="s-label">Options</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div>
+        <label class="s-hint" style="display:block;margin-bottom:3px">Videos per channel</label>
+        <select id="maxVids"><option value="50">50</option><option value="100" selected>100</option><option value="200">200</option><option value="500">500</option></select>
+      </div>
+      <div>
+        <label class="s-hint" style="display:block;margin-bottom:3px">Fetch view counts</label>
+        <select id="doStats"><option value="1" selected>Yes</option><option value="0">No (faster)</option></select>
+      </div>
+      <div>
+        <label class="s-hint" style="display:block;margin-bottom:3px">Parallel workers</label>
+        <select id="workers"><option value="3">3 (safe)</option><option value="5" selected>5</option><option value="8">8 (fast)</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="prog-wrap" id="progWrap">
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="prog-row">
+      <div class="prog-text" id="progText">Fetching...</div>
+      <div class="prog-count" id="progCount"></div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary btn-full" id="fetchBtn" onclick="startFetch()">Fetch Titles</button>
+</aside>
+
+<main style="display:flex;flex-direction:column;min-width:0">
+  <div class="toolbar">
+    <div class="tb-search">
+      <span class="search-ico">🔍</span>
+      <input type="text" id="filterTxt" placeholder="Filter..." oninput="applyFilters()">
+    </div>
+    <select id="sortSel" onchange="applyFilters()" style="width:148px">
+      <option value="views_d">Most Viewed</option>
+      <option value="views_a">Least Viewed</option>
+      <option value="date_d">Newest First</option>
+      <option value="date_a">Oldest First</option>
+      <option value="title_a">Title A–Z</option>
+      <option value="channel">By Channel</option>
+    </select>
+    <select id="chFilter" onchange="applyFilters()" style="width:150px">
+      <option value="">All Channels</option>
+    </select>
+    <div class="tb-space"></div>
+    <button class="btn btn-sec btn-sm" onclick="copyAll()">Copy All Titles</button>
+    <button class="btn btn-sec btn-sm" onclick="exportCSV()">Export CSV</button>
+    <div class="view-toggle">
+      <button class="view-btn active" id="vFw"    onclick="setView('frameworks')">Frameworks</button>
+      <button class="view-btn"       id="vTable"  onclick="setView('table')">Table</button>
+      <button class="view-btn"       id="vGrid"   onclick="setView('grid')">Grid</button>
+    </div>
+  </div>
+
+  <div id="mainContent" style="flex:1;overflow:auto">
+    <div class="empty" style="padding:80px 20px;text-align:center">
+      <div class="empty-ico">🎬</div>
+      <h3>No titles yet</h3>
+      <p>Add your topic words in the sidebar, then click <strong>Fetch Titles</strong></p>
+    </div>
+  </div>
+</main>
+</div>
+
+<div id="myTitlesPage">
+  <div class="tp-page">
+    <div class="tp-header">
+      <div class="tp-eyebrow"><span class="tp-eyebrow-dot"></span>Lincko Content Strategy</div>
+      <h2 class="tp-title">Your Topic Buckets</h2>
+      <p class="tp-sub">11 content pillars — click any card to expand the sub-topics</p>
+    </div>
+    <div class="tp-grid">
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">01</div>
+            <div class="tp-card-title">The 5 Laws of Signing Whale Clients in 2026</div>
+            <div class="tp-card-desc">The non-negotiable rules every founder must follow to consistently land enterprise clients.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>The Attention Law — earn the right to be looked at before asking for anything</li>
+            <li>The Individual Law — outreach is for a human, not a job title</li>
+            <li>The Pre-Sell Law — 80% of the close happens before the first call</li>
+            <li>The Volume-Inverse Law — fewer outreaches sign more whales</li>
+            <li>The Compounding Law — one great outreach pays for itself many times over</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">02</div>
+            <div class="tp-card-title">How to Think About the Whale Buyer</div>
+            <div class="tp-card-desc">The mindset shift required to understand how enterprise decision-makers think, evaluate, and buy.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>How a VP at a $200M+ company actually processes outreach</li>
+            <li>How senior buyers pattern-match in the first half-second</li>
+            <li>How whales consume outreach and what they share with their team</li>
+            <li>How to build outreach for a roomful of stakeholders, not one reader</li>
+            <li>How to design outreach that survives Slack threads, procurement, and legal</li>
+            <li>Why bigger whales are easier to impress than smaller ones</li>
+            <li>Why senior buyers can smell effort faster than any other audience</li>
+            <li>Why your prospect is a human first, job title second</li>
+            <li>Why great outreach gets treated like a referral</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">03</div>
+            <div class="tp-card-title">How to Think About the 2026 Market</div>
+            <div class="tp-card-desc">What is shifting in B2B outbound right now — and how to position ahead of every competitor who hasn't noticed.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>How AI lowered the barrier to bad outbound and made high-effort outbound rarer</li>
+            <li>How to spot whether your industry is saturated with the same playbook</li>
+            <li>Why creative outbound is currently outside the channel decay curve</li>
+            <li>Why every operator in your space is running identical motions</li>
+            <li>Why first-mover advantage in creative outbound is closing</li>
+            <li>Why the market is tired of low-effort messages</li>
+            <li>Why your competitors all sound the same right now</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">04</div>
+            <div class="tp-card-title">What a Whale Client Actually Is</div>
+            <div class="tp-card-desc">The exact criteria separating a whale from a regular client — and why most founders target the wrong accounts.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>How to know if a client is genuinely a whale for your business</li>
+            <li>How to spot which competitor is about to go up-market and why it matters</li>
+            <li>The mindset shift that separates founders who sign whales from those who don't</li>
+            <li>Why one whale is worth more than 50 small clients</li>
+            <li>Why senior buyers ignore anything that looks like cold outreach</li>
+            <li>Why the bar isn't good outreach — it's unprecedented outreach</li>
+            <li>Why "unreachable" whales make the best target list</li>
+            <li>Why your biggest client is your pricing ceiling</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">05</div>
+            <div class="tp-card-title">Whale Economics — The Six Dimensions of Value</div>
+            <div class="tp-card-desc">The math behind why one whale beats ten small clients — shown so clearly you can never unsee it.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>Direct LTV (the floor, 15–25% of real value)</li>
+            <li>Brand gravity as a revenue line</li>
+            <li>Network effect as a revenue line</li>
+            <li>Case study value as a revenue line</li>
+            <li>Cost-curve shift as a revenue line</li>
+            <li>Founder leverage as a revenue line</li>
+            <li>How to calculate the true 18-month value of one whale</li>
+            <li>How to think about CAC when one whale = six assets</li>
+            <li>Why a 2× LTV-to-CAC ratio is the minimum bar</li>
+            <li>Why one whale logo compresses every other sales cycle for 18 months</li>
+            <li>Why most founders price line one and ignore the other five</li>
+            <li>Why optimising for contract value alone is the most expensive mistake in B2B services</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">06</div>
+            <div class="tp-card-title">The Cost of Having No Whales</div>
+            <div class="tp-card-desc">What founders silently lose in revenue, margin, and market position every month they delay going enterprise.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>How much money you're losing every month without a whale</li>
+            <li>How operational bloat compounds the longer you go without big clients</li>
+            <li>How the cost of going up-market doubles the longer you wait</li>
+            <li>The hidden discount applied to every deal closed without a whale case study</li>
+            <li>The pricing ceiling problem — your biggest client caps your average deal size</li>
+            <li>Why a $30M business with 800 clients earns $70M less than a $100M business with 300 clients</li>
+            <li>Why margin compresses as your small-client base grows</li>
+            <li>Why service businesses without whales stay at the same revenue ceiling for years</li>
+            <li>Why the absence of a whale case study is felt on every sales call</li>
+            <li>Why volume-model agencies hit a ceiling and never break through</li>
+            <li>Why your fulfilment cost per pound of revenue worsens without big clients</li>
+            <li>Why your revenue ceiling is locked to founder bandwidth without whales</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">07</div>
+            <div class="tp-card-title">Why Creative Outbound Works (And Traditional Doesn't)</div>
+            <div class="tp-card-desc">The case for personalized, non-template outreach and the real reason it cuts through when everything else gets ignored.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>How AI saturation made high-effort outbound more valuable, not less</li>
+            <li>How great outbound builds brand and pipeline simultaneously</li>
+            <li>How warm inbound becomes the byproduct of one great outreach</li>
+            <li>The compounding effect of one shared whale outreach vs 1,000 cold emails</li>
+            <li>The two ways prospects buy — cold transactional vs warm pre-sold</li>
+            <li>Why creative outbound is genuinely hard (and why that's the moat)</li>
+            <li>Why first-mover advantage in creative outbound is closing fast</li>
+            <li>Why your outreach should make the prospect look good when they share it</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">08</div>
+            <div class="tp-card-title">Why Other Channels Are Worse</div>
+            <div class="tp-card-desc">Why cold email, LinkedIn, paid ads, and content consistently underperform creative outbound for landing whale clients.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <div class="tp-sub-label">Cold Email / Automation</div>
+          <ul class="tp-bullets">
+            <li>The deliverability collapse killing cold email in 2026</li>
+            <li>Why automated cold email is fighting for a 3.43% reply rate and falling</li>
+            <li>Why cold email cannot sign whale clients by definition</li>
+            <li>Why every founder running the same Instantly playbook competes for the same 4%</li>
+            <li>Why mass automation means you can't control who responds</li>
+            <li>Why the average cold email gets archived in under two seconds</li>
+          </ul>
+          <div class="tp-sub-label">LinkedIn / DMs / SDR</div>
+          <ul class="tp-bullets">
+            <li>How cold DMs on LinkedIn became indistinguishable from cold email</li>
+            <li>Why cold DMs hit the same pattern-recognition wall as cold email</li>
+            <li>Why SDR cold calling hits the same pattern filter</li>
+            <li>Why Gong-recorded SDR scripts have flattened the entire B2B sales floor</li>
+          </ul>
+          <div class="tp-sub-label">Paid / Inbound / Content</div>
+          <ul class="tp-bullets">
+            <li>How paid ads punish service businesses with long sales cycles</li>
+            <li>Why paid ads aren't built to reach senior buyers with gatekeepers</li>
+            <li>Why paid ad costs are climbing while conversion rates are falling</li>
+            <li>Why content marketing alone is too slow for whale acquisition</li>
+            <li>Why inbound marketing alone won't bring you whales</li>
+            <li>Why organic content takes years to produce a whale meeting</li>
+            <li>Why webinars and lead magnets struggle to attract whale-tier prospects</li>
+            <li>Why referrals alone are not a scalable whale acquisition channel</li>
+          </ul>
+          <div class="tp-sub-label">The Shared Root Cause</div>
+          <ul class="tp-bullets">
+            <li>Why every vendor in your space is running the exact same motions</li>
+            <li>Why the same software, templates, and sequences guarantee invisibility</li>
+            <li>Why your buyers receive 50+ identical outreach attempts every week</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">09</div>
+            <div class="tp-card-title">Why Your Outreach Gets Ignored — The Filter Stack</div>
+            <div class="tp-card-desc">The real reasons prospects delete your messages and what makes enterprise buyers actually stop and respond.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>The 1.7-second verdict — how senior buyers archive your email</li>
+            <li>The Pattern Filter (99% of outbound dies here)</li>
+            <li>The Effort Filter</li>
+            <li>The Relevance Filter</li>
+            <li>The internal forwarding chain and how to survive it</li>
+            <li>Where enterprise outreach dies inside the organisation</li>
+            <li>Why "Hi {first_name}" is dead</li>
+            <li>Why "Quick 15 minutes this week?" is dead</li>
+            <li>Why your offer doesn't matter if you fail the first filter</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">10</div>
+            <div class="tp-card-title">Mistakes Founders Make in Outbound</div>
+            <div class="tp-card-desc">The most common errors silently killing deals before the conversation even starts.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>Asking for the meeting before earning attention</li>
+            <li>Building outreach for a single reader instead of a roomful</li>
+            <li>Copying creative outbound without understanding the principles</li>
+            <li>Leading with your offer</li>
+            <li>Measuring outbound success by reply rate instead of close rate</li>
+            <li>Optimising outbound around contract value</li>
+            <li>Researching the company and ignoring the human</li>
+            <li>Sending the same outreach to multiple whales</li>
+            <li>Stopping research at Layer 1</li>
+            <li>Treating creative outbound as one-and-done</li>
+            <li>Trusting AI personalisation tools</li>
+            <li>Using generic ICP language with senior buyers</li>
+            <li>Writing outreach the prospect would never want to share</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tp-card" onclick="toggleTopic(this)">
+        <div class="tp-card-hdr">
+          <div>
+            <div class="tp-num">11</div>
+            <div class="tp-card-title">How to Actually Sign Whales — The Playbook</div>
+            <div class="tp-card-desc">The complete end-to-end system: how to identify, approach, and close enterprise clients with creative outbound.</div>
+          </div>
+          <span class="tp-chevron">▼</span>
+        </div>
+        <div class="tp-card-body">
+          <ul class="tp-bullets">
+            <li>Attention vs expertise — which lever to pull first</li>
+            <li>How to build a 10–25 name dream client list that prints money</li>
+            <li>How to design outreach the whale will share with their entire network</li>
+            <li>How to make your outreach impossible to ignore</li>
+            <li>How to pre-sell a whale before the first call</li>
+            <li>How the Insanity &amp; Results (I&amp;R) framework transforms marketing copy</li>
+            <li>How the law of reciprocity actually works in outbound</li>
+            <li>Why you need the "if I closed this person it changes my year" filter</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────
+let allVideos = [];
+let shown = [];
+let frameworks = [];
+let fwCatFilter = '';
+let fwSortBy = 'cross-channel';
+let channels = [];
+let mode = 'channels';
+let view = 'frameworks';
+let expandedCards = new Set();
+
+// ── CATEGORY CONFIG ───────────────────────────────────────────────
+const CAT = {
+  'List':           '#3b82f6',
+  'How To':         '#06b6d4',
+  'Results':        '#22c55e',
+  'Income/Results': '#22c55e',
+  'Mistakes':       '#ef4444',
+  'Why':            '#f59e0b',
+  'Problem':        '#ef4444',
+  'Warning':        '#ef4444',
+  'Truth/Secret':   '#ef4444',
+  'Lessons':        '#8b5cf6',
+  'Story':          '#8b5cf6',
+  'Transformation': '#8b5cf6',
+  'Experiment':     '#06b6d4',
+  'Comparison':     '#06b6d4',
+  'Guide':          '#06b6d4',
+  'Experience':     '#f59e0b',
+  'Question':       '#7c3aed',
+  'Case Study':     '#22c55e',
+  'Other':          '#4a4a6a',
+};
+
+// ── NICHE PRESETS ─────────────────────────────────────────────────
+const NICHES = {
+  business: {
+    channels: [
+      'https://www.youtube.com/@maxwellcopy',
+      'https://www.youtube.com/@matthewlucero',
+      'https://www.youtube.com/@InstantlyAI',
+      'https://www.youtube.com/@JeremyHaynesTraining',
+      'https://www.youtube.com/@danielfazio',
+      'https://www.youtube.com/@TaylorAHaren',
+      'https://www.youtube.com/@retentionadam',
+      'https://www.youtube.com/@SamDunning',
+      'https://www.youtube.com/@ed-lawrence',
+    ],
+    topicWords: 'cold email, copywriting, agency, outreach, leads, clients, B2B, SaaS',
+    keywords: ['cold email strategy','B2B lead generation','agency growth tips','how to get clients']
+  },
+  finance:  { channels:['@GrahamStephan','@AndreiJikh','@MarkTilbury','@MeetKevin'], topicWords:'investing,stocks,crypto,real estate,passive income', keywords:['how to invest','personal finance tips'] },
+  fitness:  { channels:['@JeffNippard','@AthleanX','@ChrisHeria','@HamzaAhmedOfficial'], topicWords:'workout,muscle,fat loss,gym,training', keywords:['best workout routine','how to lose weight'] },
+  tech:     { channels:['@mkbhd','@LinusTechTips','@fireship','@ThePrimeTimeagen'], topicWords:'coding,programming,AI,software,developer', keywords:['best AI tools','programming tutorial'] },
+  custom:   { channels:[], topicWords:'', keywords:[] }
+};
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.querySelectorAll('.niche-tab').forEach(t =>
+  t.addEventListener('click', () => loadNiche(t.dataset.niche))
+);
+loadNiche('business');
+
+function loadNiche(n) {
+  document.querySelectorAll('.niche-tab').forEach(t => t.classList.toggle('active', t.dataset.niche === n));
+  const p = NICHES[n]; if (!p) return;
+  channels = p.channels.map(h => mkCh(h));
+  document.getElementById('kwInput').value = p.keywords.join('\n');
+  document.getElementById('topicWords').value = p.topicWords || '';
+  renderChList();
+}
+
+function mkCh(input) {
+  const clean = input.trim().replace(/\/(videos|shorts|playlists)\/?$/, '');
+  return { input: clean, name: clean, id: null, uploadsId: null, thumb: null, status: 'pending', count: 0 };
+}
+
+// ── CHANNEL UI ────────────────────────────────────────────────────
+function addCh() {
+  const v = document.getElementById('chInput').value.trim();
+  if (!v) return;
+  const clean = v.replace(/\/(videos|shorts)\/?$/, '');
+  if (channels.some(c => c.input.toLowerCase() === clean.toLowerCase())) { toast('Already in list','info'); return; }
+  channels.push(mkCh(clean));
+  document.getElementById('chInput').value = '';
+  renderChList();
+}
+
+function toggleBulk() {
+  const p = document.getElementById('bulkPanel');
+  p.classList.toggle('open');
+  if (p.classList.contains('open')) document.getElementById('bulkInput').focus();
+}
+
+function addBulk() {
+  const lines = document.getElementById('bulkInput').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  let added = 0;
+  for (const line of lines) {
+    const clean = line.replace(/\/(videos|shorts)\/?$/, '');
+    if (!channels.some(c => c.input.toLowerCase() === clean.toLowerCase())) { channels.push(mkCh(clean)); added++; }
+  }
+  document.getElementById('bulkInput').value = '';
+  document.getElementById('bulkPanel').classList.remove('open');
+  renderChList();
+  toast(`Added ${added} channels`, 'ok');
+}
+
+function removeCh(i) { channels.splice(i,1); renderChList(); }
+function clearChannels() { channels=[]; renderChList(); }
+
+function renderChList() {
+  const q = (document.getElementById('chSearchInput')?.value||'').toLowerCase();
+  const ok = channels.filter(c=>c.status==='ok').length;
+  document.getElementById('statResolved').textContent = ok;
+  document.getElementById('statChTotal').textContent = channels.length;
+  document.getElementById('chCountLabel').textContent = `Channels (${channels.length})`;
+
+  const visible = channels.filter(c => !q || c.name.toLowerCase().includes(q) || c.input.toLowerCase().includes(q));
+  document.getElementById('chList').innerHTML = visible.map((c) => {
+    const ri = channels.indexOf(c);
+    return `<div class="ch-item ${c.status==='ok'?'ok':c.status==='err'?'err':''}">
+      <div class="ch-avatar">${c.thumb?`<img src="${esc(c.thumb)}" alt="">`:(c.name[0]||'?').toUpperCase()}</div>
+      <span class="ch-name" title="${esc(c.input)}">${esc(c.name)}</span>
+      ${c.count?`<span style="font-size:11px;color:var(--text-muted)">${c.count}</span>`:''}
+      <div class="ch-dot ${c.status==='ok'?'ok':c.status==='err'?'err':c.status==='loading'?'loading':''}"></div>
+      <button class="btn btn-ghost btn-sm" onclick="removeCh(${ri})" style="padding:2px 6px;line-height:1">×</button>
+    </div>`;
+  }).join('');
+}
+
+// ── YOUTUBE API ───────────────────────────────────────────────────
+function apiKey() { return 'AIzaSyAuuNvqjo_jhGYzJSeEUhO70VYMpEmTDDs'; }
+
+async function yt(ep, params) {
+  const u = new URL(`https://www.googleapis.com/youtube/v3/${ep}`);
+  u.searchParams.set('key', apiKey());
+  Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));
+  const r = await fetch(u.toString());
+  if (!r.ok) { let m=`API error ${r.status}`; try{const e=await r.json();m=e.error?.message||m;}catch{}throw new Error(m); }
+  return r.json();
+}
+
+async function resolveChannel(ch) {
+  let input = ch.input.trim();
+  if (/^UC[\w-]{22}$/.test(input)) { ch.id = input; }
+  else if (input.includes('youtube.com')) {
+    try {
+      const u = new URL(input.startsWith('http')?input:'https://'+input);
+      const p = u.pathname.replace(/\/$/,'');
+      if (p.startsWith('/channel/'))    ch.id = p.split('/channel/')[1];
+      else if (p.startsWith('/@'))      input = p.slice(1);
+      else if (p.startsWith('/c/'))     input = p.slice(3);
+      else if (p.startsWith('/user/'))  input = p.slice(6);
+    } catch {}
+  }
+  if (ch.id) { await enrichFromId(ch); return; }
+  const handle = input.startsWith('@')?input:'@'+input;
+  try {
+    const d = await yt('channels',{part:'id,snippet,contentDetails',forHandle:handle});
+    if (d.items?.length) { applyChData(ch,d.items[0]); return; }
+  } catch {}
+  try {
+    const q = input.startsWith('@')?input.slice(1):input;
+    const d = await yt('search',{part:'snippet',type:'channel',q,maxResults:1});
+    if (d.items?.length) { ch.id=d.items[0].snippet.channelId; await enrichFromId(ch); return; }
+  } catch {}
+  ch.status='err';
+}
+
+async function enrichFromId(ch) {
+  try {
+    const d = await yt('channels',{part:'snippet,contentDetails',id:ch.id});
+    if (d.items?.length) applyChData(ch,d.items[0]); else ch.status='err';
+  } catch { ch.status='err'; }
+}
+
+function applyChData(ch,item) {
+  ch.id=item.id; ch.name=item.snippet.title;
+  ch.thumb=item.snippet.thumbnails?.default?.url;
+  ch.uploadsId=item.contentDetails.relatedPlaylists.uploads;
+  ch.status='ok';
+}
+
+async function fetchChVideos(ch, max) {
+  const vids=[]; let token=null, page=0, pages=Math.ceil(max/50);
+  do {
+    const p={part:'snippet',playlistId:ch.uploadsId,maxResults:50};
+    if (token) p.pageToken=token;
+    const d = await yt('playlistItems',p);
+    for (const it of d.items||[]) {
+      if (['Deleted video','Private video'].includes(it.snippet.title)) continue;
+      vids.push({
+        videoId:it.snippet.resourceId.videoId, title:it.snippet.title,
+        date:it.snippet.publishedAt,
+        thumb:it.snippet.thumbnails?.medium?.url||it.snippet.thumbnails?.default?.url||'',
+        channelName:ch.name, channelId:ch.id, channelThumb:ch.thumb||null, views:null
+      });
+    }
+    token=d.nextPageToken; page++;
+    if (vids.length>=max) break;
+  } while (token && page<pages);
+  ch.count=vids.length;
+  return vids.slice(0,max);
+}
+
+// Fetches duration (always) + view counts (if includeStats).
+// Returns number of videos removed as Shorts (< 2 min).
+async function fetchVideoDetails(vids, includeStats) {
+  const part = includeStats ? 'contentDetails,statistics' : 'contentDetails';
+  const ids = vids.map(v => v.videoId);
+  const map = {};
+  const batches = [];
+  for (let i = 0; i < ids.length; i += 50) batches.push(ids.slice(i, i+50));
+  await Promise.all(batches.map(async batch => {
+    try {
+      const d = await yt('videos', { part, id: batch.join(',') });
+      for (const it of d.items || []) {
+        map[it.id] = {
+          duration: parseDuration(it.contentDetails?.duration),
+          views: includeStats ? (+it.statistics?.viewCount || 0) : undefined
+        };
+      }
+    } catch {}
+  }));
+  vids.forEach(v => {
+    const data = map[v.videoId];
+    if (!data) return;
+    v.duration = data.duration;
+    if (data.views !== undefined) v.views = data.views;
+  });
+}
+
+function parseDuration(iso) {
+  if (!iso) return null;
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!m) return null;
+  return (parseInt(m[1]||0) * 3600) + (parseInt(m[2]||0) * 60) + parseInt(m[3]||0);
+}
+
+async function searchKw(kw) {
+  try {
+    const d=await yt('search',{part:'snippet',q:kw,type:'video',maxResults:50,order:'viewCount'});
+    return (d.items||[]).map(it=>({
+      videoId:it.id.videoId, title:it.snippet.title, date:it.snippet.publishedAt,
+      thumb:it.snippet.thumbnails?.medium?.url||'',
+      channelName:it.snippet.channelTitle, channelId:it.snippet.channelId, views:null
+    }));
+  } catch(e) { toast(`"${kw}": ${e.message}`,'err'); return []; }
+}
+
+async function runPool(items, n, fn, onProg) {
+  let i=0, done=0;
+  async function worker() {
+    while (i<items.length) { const idx=i++; await fn(items[idx],idx); done++; if(onProg) onProg(done,items.length); }
+  }
+  await Promise.all(Array.from({length:Math.min(n,items.length)},worker));
+}
+
+// ── FETCH ─────────────────────────────────────────────────────────
+let fetching=false;
+
+async function startFetch() {
+  if (fetching) return;
+  if (!apiKey()) { toast('Enter your API key','err'); return; }
+  fetching=true; allVideos=[];
+  const btn=document.getElementById('fetchBtn');
+  btn.innerHTML='<span class="spin"></span> Fetching...'; btn.disabled=true;
+  document.getElementById('progWrap').classList.add('show');
+
+  try {
+    mode==='channels' ? await fetchByChannels() : await fetchByKeywords();
+  } catch(e) { toast('Error: '+e.message,'err'); }
+
+  fetching=false; btn.innerHTML='Fetch Titles'; btn.disabled=false;
+  document.getElementById('progWrap').classList.remove('show');
+  // Deduplicate by videoId (catches any channel duplication or race overlap)
+  const seenIds = new Set();
+  allVideos = allVideos.filter(v => seenIds.has(v.videoId) ? false : (seenIds.add(v.videoId), true));
+  updateChFilter();
+  rebuildFrameworks();
+  applyFilters();
+  toast(`${allVideos.length} titles · ${frameworks.length} frameworks`,'ok');
+}
+
+async function fetchByChannels() {
+  if (!channels.length) { toast('No channels configured','err'); return; }
+  const max=+document.getElementById('maxVids').value;
+  const stats=document.getElementById('doStats').value==='1';
+  const w=+document.getElementById('workers').value;
+
+  channels.forEach(c=>{c.status='loading';}); renderChList();
+  prog(0,'Resolving channels...',`0 / ${channels.length}`);
+
+  await runPool(channels, w, async ch=>{
+    await resolveChannel(ch); renderChList();
+  }, (done,total)=>prog(done/total*40,'Resolving channels...',`${done} / ${total}`));
+
+  const ok=channels.filter(c=>c.status==='ok');
+  if (!ok.length) { toast('No channels resolved','err'); return; }
+
+  await runPool(ok, w, async ch=>{
+    const vids=await fetchChVideos(ch,max); allVideos.push(...vids); renderChList();
+  }, (done,total)=>prog(40+done/total*45,'Fetching videos...',`${done} / ${total} channels`));
+
+  if (allVideos.length) {
+    prog(88, `Filtering shorts & ${stats?'fetching views':'checking durations'}...`, `${allVideos.length} videos`);
+    await fetchVideoDetails(allVideos, stats);
+    const before = allVideos.length;
+    allVideos = allVideos.filter(v => v.duration == null || v.duration >= 120);
+    const removed = before - allVideos.length;
+    if (removed > 0) prog(96, `Removed ${removed} short-form videos`, `${allVideos.length} remaining`);
+  }
+  prog(100,'Done!',`${allVideos.length} titles`);
+}
+
+async function fetchByKeywords() {
+  const kws=document.getElementById('kwInput').value.trim().split('\n').map(s=>s.trim()).filter(Boolean);
+  if (!kws.length) { toast('No keywords entered','err'); return; }
+  const stats=document.getElementById('doStats').value==='1';
+  const w=+document.getElementById('workers').value;
+
+  await runPool(kws, w, async kw=>{
+    allVideos.push(...await searchKw(kw));
+  }, (done,total)=>prog(done/total*80,'Searching keywords...',`${done} / ${total}`));
+
+  const seen=new Set();
+  allVideos=allVideos.filter(v=>seen.has(v.videoId)?false:(seen.add(v.videoId),true));
+
+  if (allVideos.length) {
+    prog(85, `Filtering shorts & ${stats?'fetching views':'checking durations'}...`, `${allVideos.length} videos`);
+    await fetchVideoDetails(allVideos, stats);
+    const before = allVideos.length;
+    allVideos = allVideos.filter(v => v.duration == null || v.duration >= 120);
+    const removed = before - allVideos.length;
+    if (removed > 0) prog(96, `Removed ${removed} short-form videos`, `${allVideos.length} remaining`);
+  }
+  prog(100,'Done!',`${allVideos.length} titles`);
+}
+
+function prog(pct,txt,cnt='') {
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progText').textContent=txt;
+  document.getElementById('progCount').textContent=cnt;
+}
+
+// ── FRAMEWORK EXTRACTION ──────────────────────────────────────────
+function getTopicPhrases() {
+  return document.getElementById('topicWords').value
+    .split(',').map(s=>s.trim()).filter(s=>s.length>1)
+    .sort((a,b)=>b.length-a.length); // longest first so "cold email" matches before "email"
+}
+
+function escRx(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+function normalizeTitle(title, topicPhrases) {
+  let t = title;
+  // Topic words first
+  for (const phrase of topicPhrases) {
+    t = t.replace(new RegExp('\\b'+escRx(phrase)+'\\b','gi'),'[Topic]');
+  }
+  t = t.replace(/\$[\d,]+(?:\.\d+)?[KMBkmb]?/g,'[$]');          // $1,000 / $10K
+  t = t.replace(/\b\d+(?:\.\d+)?%/g,'[X%]');                     // 40%
+  t = t.replace(/\b\d[\d,]*(?:\.\d+)?\b/g,'[N]');                // standalone numbers
+  t = t.replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|fifty|hundred|thousand|million)\b/gi,'[N]');
+  return t;
+}
+
+function categorize(t) {
+  // ── NUMBER-LED LIST PATTERNS ──────────────────────────────────
+  if (/^\[N\] (ways?|methods?|approaches?)\s+to\b/i.test(t))               return 'List';
+  if (/^\[N\] (things?|reasons?|facts?|signs?|examples?)\b/i.test(t))      return 'List';
+  if (/^\[N\] (tips?|tricks?|hacks?|secrets?|strategies?|tactics?|ideas?|moves?)\b/i.test(t)) return 'List';
+  if (/^\[N\] (mistakes?|errors?|pitfalls?|problems?|traps?|sins?|fails?)\b/i.test(t)) return 'Mistakes';
+  if (/^\[N\] (lessons?|takeaways?|insights?|principles?|rules?|laws?|commandments?)\b/i.test(t)) return 'Lessons';
+  if (/^\[N\] (steps?|phases?|stages?|parts?|chapters?)\b/i.test(t))       return 'List';
+  if (/^\[N\] (tools?|resources?|apps?|plugins?|extensions?|software)\b/i.test(t)) return 'Tools';
+  if (/^\[N\] (templates?|scripts?|formulas?|frameworks?|systems?|processes?)\b/i.test(t)) return 'Systems';
+  if (/^\[N\] years? of\b/i.test(t))                                        return 'Experience';
+  if (/^\[N\] months? of\b/i.test(t))                                       return 'Experience';
+  if (/^\[N\] (things?|stuff|advice|tips?) (i|we) wish\b/i.test(t))        return 'Lessons';
+  if (/^\[N\] (questions?|objections?|concerns?)\b/i.test(t))              return 'Q&A';
+  if (/^\[N\] (types?|kinds?|categories?|styles?|modes?|formats?)\b/i.test(t)) return 'Breakdown';
+  if (/^\[N\] (words?|phrases?|lines?|subject lines?|headlines?|hooks?|openers?)\b/i.test(t)) return 'Copywriting';
+  if (/^\[N\] (emails?|messages?|texts?|dms?|pitches?)\b/i.test(t))        return 'Copywriting';
+  if (/^\[N\] (clients?|customers?|leads?|prospects?|deals?|sales?|bookings?|meetings?|appointments?)\b/i.test(t)) return 'Results';
+
+  // ── HOW TO / HOW I ────────────────────────────────────────────
+  if (/^how to\b/i.test(t))                                                 return 'How To';
+  if (/^how (i|we) (got|made|built|grew|earned|scaled|closed|landed|generated|booked|went from|turned|created|signed|acquired)\b/i.test(t)) return 'Results';
+  if (/^how (i|we)\b/i.test(t))                                             return 'Results';
+
+  // ── WHY / PROBLEM ─────────────────────────────────────────────
+  if (/^why (your?|my|their|our|most|every|this|the)\b/i.test(t))          return 'Problem';
+  if (/^why (i|we)\b/i.test(t))                                             return 'Story';
+  if (/^why\b/i.test(t))                                                    return 'Why';
+
+  // ── TRUTH / REVELATION ───────────────────────────────────────
+  if (/^(the truth|the real reason|the secret|the hidden|the dark side)\b/i.test(t)) return 'Truth/Secret';
+  if (/nobody (talks?|tells?|shows?|teaches?|mentions?)\b/i.test(t))       return 'Truth/Secret';
+  if (/everyone (gets? wrong|is wrong|is lying|is missing|ignores?)\b/i.test(t)) return 'Truth/Secret';
+
+  // ── WARNINGS ─────────────────────────────────────────────────
+  if (/^(stop|never|don'?t|do not|quit|avoid)\b/i.test(t))                 return 'Warning';
+  if (/\b(killing|destroying|ruining|sabotaging|hurting) (your|my)\b/i.test(t)) return 'Warning';
+
+  // ── EXPERIMENTS / STORIES ────────────────────────────────────
+  if (/^i (did|tried|tested|spent|sent|ran|built|used|wrote|posted|reached out|applied|read|watched)\b/i.test(t)) return 'Experiment';
+  if (/^we (did|tried|tested|spent|sent|ran|built|used)\b/i.test(t))       return 'Experiment';
+  if (/\[N\] (days?|weeks?|months?|years?) (later|of|ago|challenge|experiment)\b/i.test(t)) return 'Experiment';
+
+  // ── INCOME / MONEY ────────────────────────────────────────────
+  if (/\[\$\]/.test(t))                                                     return 'Income/Results';
+  if (/\b(revenue|profit|income|mrr|arr|arr)\b/i.test(t))                  return 'Income/Results';
+
+  // ── COMPARISON ───────────────────────────────────────────────
+  if (/\bvs\.?\b/i.test(t))                                                 return 'Comparison';
+  if (/\b(better than|worse than|compared to|instead of)\b/i.test(t))      return 'Comparison';
+
+  // ── QUESTIONS ────────────────────────────────────────────────
+  if (/^(is |are |should |can |will |does |do |was |were |has |have ).+\?$/.test(t)) return 'Question';
+
+  // ── WHAT / LESSONS ────────────────────────────────────────────
+  if (/^what (i learned|i found|i discovered|i realised?|i figured)\b/i.test(t)) return 'Lessons';
+  if (/^what (happens?|happened|to do|you need|every|most)\b/i.test(t))    return 'Why';
+  if (/^what\b/i.test(t))                                                   return 'Why';
+
+  // ── TRANSFORMATION ───────────────────────────────────────────
+  if (/from .+ to\b/i.test(t))                                              return 'Transformation';
+  if (/went from\b/i.test(t))                                               return 'Transformation';
+
+  // ── GUIDES ───────────────────────────────────────────────────
+  if (/^the (ultimate|complete|definitive|only|full|beginners?|step.by.step|comprehensive)\b/i.test(t)) return 'Guide';
+  if (/\b(masterclass|bootcamp|course|workshop|training)\b/i.test(t))      return 'Guide';
+  if (/\b(101|basics?|introduction|intro to|getting started|beginner'?s? guide)\b/i.test(t)) return 'Guide';
+  if (/\b(deep dive|breakdown|full breakdown|explained|everything you need)\b/i.test(t)) return 'Breakdown';
+
+  // ── CASE STUDIES ─────────────────────────────────────────────
+  if (/case study/i.test(t))                                                return 'Case Study';
+
+  // ── ANALYSIS / REVIEW ────────────────────────────────────────
+  if (/\b(review|honest review|my thoughts|my take|my opinion|reacting to|react to)\b/i.test(t)) return 'Review/Opinion';
+  if (/\b(analysing?|analyzing?|breaking down|deconstructing?|dissecting?)\b/i.test(t)) return 'Breakdown';
+  if (/\b(audit|teardown|roast|critique)\b/i.test(t))                      return 'Breakdown';
+
+  // ── SYSTEMS / FRAMEWORKS ─────────────────────────────────────
+  if (/^my (exact|full|complete|entire|real|actual|personal|daily|weekly|monthly)\b/i.test(t)) return 'Systems';
+  if (/\b(system|framework|process|workflow|playbook|blueprint|roadmap|formula|method|strategy)\b/i.test(t)) return 'Systems';
+  if (/\b(swipe file|template|script|done.for.you|copy.paste|fill.in)\b/i.test(t)) return 'Copywriting';
+
+  // ── BEHIND THE SCENES ────────────────────────────────────────
+  if (/^(inside|behind|a day in|day in the life|week in my|month in)\b/i.test(t)) return 'Behind the Scenes';
+  if (/\b(behind the scenes|live (session|call|demo|example|walkthrough))\b/i.test(t)) return 'Behind the Scenes';
+
+  // ── Q&A / INTERVIEW ──────────────────────────────────────────
+  if (/\b(interview|q&a|ama|ask me|podcast|episode|talking with|chat with)\b/i.test(t)) return 'Interview/Q&A';
+
+  // ── COPYWRITING / EMAIL SPECIFIC ─────────────────────────────
+  if (/\b(subject line|open rate|click rate|reply rate|conversion rate|deliverability|spam)\b/i.test(t)) return 'Copywriting';
+  if (/\b(cold email|outreach|follow.?up|sequence|campaign|drip)\b/i.test(t)) return 'Outreach';
+
+  // ── TOOLS / SOFTWARE ─────────────────────────────────────────
+  if (/\b(klaviyo|mailchimp|hubspot|salesforce|lemlist|instantly|apollo|outreach\.io|smartlead|reply\.io|woodpecker|close\.io|pipedrive|notion|slack|zapier|make\.com|n8n|chatgpt|openai|gpt)\b/i.test(t)) return 'Tools';
+  if (/\b(setup|set up|install|configure|integrate|connect|automate|automation)\b/i.test(t)) return 'Tutorial';
+  if (/\b(tutorial|walkthrough|how (it|this) works?|step by step)\b/i.test(t)) return 'Tutorial';
+
+  // ── MINDSET / STORY ──────────────────────────────────────────
+  if (/\b(mindset|motivation|discipline|habits?|routine|productivity|focus)\b/i.test(t)) return 'Mindset';
+  if (/^(my story|our story|the story of|how i started|how we started)\b/i.test(t)) return 'Story';
+  if (/\b(quit|fired|failed|lost|mistake i made|biggest regret)\b/i.test(t)) return 'Story';
+
+  return 'Other';
+}
+
+function median(arr) {
+  if (!arr.length) return 0;
+  const s = [...arr].sort((a,b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m-1] + s[m]) / 2;
+}
+
+function buildFrameworks(videos) {
+  const phrases = getTopicPhrases();
+
+  // Compute per-channel MEDIAN views — mean is distorted by viral outliers,
+  // median gives a stable "typical video" baseline per channel.
+  const chViewsList = {};
+  for (const v of videos) {
+    if (v.views === null) continue;
+    if (!chViewsList[v.channelName]) chViewsList[v.channelName] = [];
+    chViewsList[v.channelName].push(v.views);
+  }
+  const chMedian = {};
+  for (const [name, arr] of Object.entries(chViewsList)) {
+    // Need at least 5 videos to get a reliable baseline
+    chMedian[name] = arr.length >= 5 ? median(arr) : null;
+  }
+
+  const groups = {};
+  for (const v of videos) {
+    const tpl = normalizeTitle(v.title, phrases);
+    const cat = categorize(tpl);
+    if (!groups[tpl]) groups[tpl] = { template:tpl, category:cat, videos:[], channels:new Set(), seenIds:new Set() };
+    // Deduplicate within each group by videoId
+    if (groups[tpl].seenIds.has(v.videoId)) continue;
+    groups[tpl].seenIds.add(v.videoId);
+    // Attach outlier ratio: this video's views ÷ channel's typical (median) views
+    const base = chMedian[v.channelName];
+    const outlierRatio = (v.views !== null && base && base > 0) ? v.views / base : null;
+    groups[tpl].videos.push({ ...v, outlierRatio });
+    groups[tpl].channels.add(v.channelName);
+  }
+
+  // Sort: multi-channel patterns first, then by video count
+  return Object.values(groups).sort((a,b)=>{
+    if (b.channels.size !== a.channels.size) return b.channels.size - a.channels.size;
+    return b.videos.length - a.videos.length;
+  });
+}
+
+function rebuildFrameworks() {
+  frameworks = buildFrameworks(allVideos);
+  document.getElementById('statFw').textContent = frameworks.length;
+  if (view==='frameworks') renderView();
+}
+
+// ── OUTLIER BADGE ─────────────────────────────────────────────────
+function outlierBadge(ratio) {
+  if (ratio === null) return '';
+  if (ratio >= 8)    return `<span class="ol ol-fire">🔥 ${ratio.toFixed(1)}× outlier</span>`;
+  if (ratio >= 4)    return `<span class="ol ol-great">↑ ${ratio.toFixed(1)}× avg</span>`;
+  if (ratio >= 2)    return `<span class="ol ol-good">↑ ${ratio.toFixed(1)}× avg</span>`;
+  if (ratio >= 1.3)  return `<span class="ol ol-above">↑ ${ratio.toFixed(1)}× avg</span>`;
+  if (ratio >= 0.77) return `<span class="ol ol-avg">≈ avg</span>`;
+  if (ratio >= 0.4)  return `<span class="ol ol-below">↓ ${Math.round(ratio*100)}% of avg</span>`;
+  return               `<span class="ol ol-low">↓↓ ${Math.round(ratio*100)}% of avg</span>`;
+}
+
+// ── PLACEHOLDER STYLING ───────────────────────────────────────────
+function styleTemplate(escapedTpl) {
+  return escapedTpl
+    .replace(/\[N\]/g,     '<span class="ph ph-n">N</span>')
+    .replace(/\[\$\]/g,    '<span class="ph ph-dollar">$</span>')
+    .replace(/\[X%\]/g,    '<span class="ph ph-pct">X%</span>')
+    .replace(/\[Topic\]/g, '<span class="ph ph-topic">Topic</span>');
+}
+
+// ── FILTER / SORT ─────────────────────────────────────────────────
+function applyFilters() {
+  const q   = document.getElementById('filterTxt').value.toLowerCase();
+  const chf = document.getElementById('chFilter').value;
+  const sort= document.getElementById('sortSel').value;
+
+  shown = allVideos.filter(v=>
+    (!q || v.title.toLowerCase().includes(q)) &&
+    (!chf || v.channelName===chf)
+  );
+  shown.sort((a,b)=>{
+    if (sort==='views_d') return (b.views||0)-(a.views||0);
+    if (sort==='views_a') return (a.views||0)-(b.views||0);
+    if (sort==='date_d')  return new Date(b.date)-new Date(a.date);
+    if (sort==='date_a')  return new Date(a.date)-new Date(b.date);
+    if (sort==='title_a') return a.title.localeCompare(b.title);
+    if (sort==='channel') return a.channelName.localeCompare(b.channelName);
+    return 0;
+  });
+  document.getElementById('statTotal').textContent = shown.length;
+  renderView();
+}
+
+function updateChFilter() {
+  const names=[...new Set(allVideos.map(v=>v.channelName))].sort();
+  document.getElementById('chFilter').innerHTML='<option value="">All Channels</option>'+
+    names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+}
+
+// ── RENDER ────────────────────────────────────────────────────────
+function renderView() {
+  const el = document.getElementById('mainContent');
+  if (view==='frameworks') renderFrameworksView(el);
+  else if (view==='table') renderTable(el);
+  else renderGrid(el);
+}
+
+// FRAMEWORKS VIEW
+function renderFrameworksView(el) {
+  const q = document.getElementById('filterTxt').value.toLowerCase();
+  let fws = [...frameworks];
+
+  if (fwCatFilter) fws = fws.filter(f=>f.category===fwCatFilter);
+  if (q) fws = fws.filter(f=>
+    f.template.toLowerCase().includes(q) ||
+    f.videos.some(v=>v.title.toLowerCase().includes(q))
+  );
+
+  if (!fws.length) {
+    el.innerHTML = allVideos.length
+      ? `<div class="empty"><div class="empty-ico">🔍</div><h3>No frameworks match</h3><p>Try a different filter or category</p></div>`
+      : `<div class="empty"><div class="empty-ico">🎬</div><h3>No titles yet</h3><p>Add your topic words in the sidebar, then click <strong>Fetch Titles</strong></p></div>`;
+    return;
+  }
+
+  // Apply sort
+  fws.sort((a,b) => {
+    switch(fwSortBy) {
+      case 'cross-channel': {
+        if (b.channels.size !== a.channels.size) return b.channels.size - a.channels.size;
+        return b.videos.length - a.videos.length;
+      }
+      case 'most-titles':
+        return b.videos.length - a.videos.length;
+      case 'best-outlier': {
+        const score = fw => {
+          const ratios = fw.videos.map(v=>v.outlierRatio).filter(r=>r!==null);
+          return ratios.length ? median(ratios) : 0;
+        };
+        return score(b) - score(a);
+      }
+      case 'highest-views': {
+        const medV = fw => {
+          const views = fw.videos.map(v=>v.views).filter(v=>v!==null);
+          return views.length ? median(views) : 0;
+        };
+        return medV(b) - medV(a);
+      }
+      case 'a-z':
+        return a.template.localeCompare(b.template);
+      default: return 0;
+    }
+  });
+
+  // Sort buttons
+  const sorts = [
+    { id:'cross-channel', label:'Cross-channel' },
+    { id:'most-titles',   label:'Most Titles'   },
+    { id:'best-outlier',  label:'Best Outlier'  },
+    { id:'highest-views', label:'Highest Views' },
+    { id:'a-z',           label:'A – Z'         },
+  ];
+  const sortHtml = `
+    <div class="fw-sort-bar">
+      <span class="fw-sort-lbl">Sort</span>
+      ${sorts.map(s=>`<button class="fw-sort-btn ${fwSortBy===s.id?'active':''}" onclick="setFwSort('${s.id}')">${s.label}</button>`).join('')}
+    </div>`;
+
+  // Category pills
+  const allCats = [...new Set(frameworks.map(f=>f.category))].sort();
+  const pillsHtml = `
+    <div class="fw-cat-bar">
+      <button class="fw-cat-pill ${!fwCatFilter?'active':''}" onclick="setFwCat('')">All (${frameworks.length})</button>
+      ${allCats.map(c=>{
+        const col=CAT[c]||'#4a4a6a';
+        const cnt=frameworks.filter(f=>f.category===c).length;
+        return `<button class="fw-cat-pill ${fwCatFilter===c?'active':''}"
+          onclick="setFwCat('${c}')"
+          style="${fwCatFilter===c?`background:${col}22;color:${col};border-color:${col}55`:''}"
+        >${c} <span style="opacity:.6">${cnt}</span></button>`;
+      }).join('')}
+    </div>`;
+
+  const cardsHtml = fws.map((fw,i) => renderFwCard(fw, i)).join('');
+  el.innerHTML = `<div class="fw-wrap">${sortHtml}${pillsHtml}<div class="fw-grid">${cardsHtml}</div></div>`;
+}
+
+function setFwSort(s) { fwSortBy = s; renderView(); }
+
+function renderFwCard(fw, i) {
+  const col = CAT[fw.category] || '#4a4a6a';
+  const exs = expandedCards.has(i) ? fw.videos : fw.videos.slice(0,3);
+  const hasMore = fw.videos.length > 3 && !expandedCards.has(i);
+
+  // Median views across this framework's examples (more representative than mean)
+  const withViews = fw.videos.filter(v=>v.views!==null).map(v=>v.views);
+  const medViews = withViews.length >= 2 ? Math.round(median(withViews)) : null;
+
+  const chStr = fw.channels.size > 1
+    ? `<strong>${fw.channels.size}</strong> channels`
+    : `<strong>${fw.channels.size}</strong> channel`;
+
+  return `
+  <div class="fw-card">
+    <div class="fw-hdr">
+      <span class="fw-cat-tag" style="background:${col}22;color:${col};border:1px solid ${col}44">${fw.category}</span>
+      <span class="fw-meta">${fw.videos.length} title${fw.videos.length>1?'s':''} · ${chStr}</span>
+    </div>
+
+    <div class="fw-tpl">${styleTemplate(esc(fw.template))}</div>
+
+    <div class="fw-divider"></div>
+
+    <div class="fw-examples">
+      ${exs.map(v=>`
+        <div class="fw-ex">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+            <a href="https://www.youtube.com/watch?v=${esc(v.videoId)}" target="_blank" rel="noopener" style="flex:1">${esc(v.title)}</a>
+            ${outlierBadge(v.outlierRatio)}
+          </div>
+          <div class="fw-ex-src">
+            ${v.channelThumb
+              ? `<img class="fw-ch-avatar" src="${esc(v.channelThumb)}" alt="${esc(v.channelName)}" title="${esc(v.channelName)}" onerror="this.style.display='none'">`
+              : `<span class="fw-ch-avatar fw-ch-fallback" title="${esc(v.channelName)}">${(v.channelName||'?')[0].toUpperCase()}</span>`}
+            <span class="fw-ch-name">${esc(v.channelName)}</span>
+            ${v.views!==null?`<span class="fw-ex-views">· ${fmtN(v.views)} views</span>`:''}
+          </div>
+        </div>`).join('')}
+      ${hasMore?`<div class="fw-more-btn" onclick="expandCard(${i})">+ ${fw.videos.length-3} more examples</div>`:''}
+    </div>
+
+    <div class="fw-actions">
+      <button class="btn btn-sec btn-sm" onclick="copyFw(${i})">Copy Framework</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyFwTitles(${i})">Copy All Titles</button>
+      ${medViews!==null?`<span class="fw-avg-views">median <strong>${fmtN(medViews)}</strong> views</span>`:''}
+    </div>
+  </div>`;
+}
+
+function setFwCat(cat) {
+  fwCatFilter = cat;
+  renderView();
+}
+
+function expandCard(i) {
+  expandedCards.add(i);
+  renderView();
+}
+
+// TABLE VIEW
+function renderTable(el) {
+  if (!shown.length) { el.innerHTML=emptyHtml(); return; }
+  el.innerHTML=`<div class="results"><table class="res-table">
+    <thead><tr><th style="width:50%">Title</th><th>Channel</th><th>Views</th><th>Published</th><th style="width:68px"></th></tr></thead>
+    <tbody>${shown.map((v,i)=>`<tr>
+      <td><div class="title-cell">
+        ${v.thumb?`<img class="thumb-sm" src="${esc(v.thumb)}" loading="lazy" onerror="this.style.display='none'" alt="">`:''}
+        <div class="title-txt"><a href="https://www.youtube.com/watch?v=${esc(v.videoId)}" target="_blank" rel="noopener">${esc(v.title)}</a></div>
+      </div></td>
+      <td><a class="ch-link" href="https://www.youtube.com/channel/${esc(v.channelId)}" target="_blank" rel="noopener">${esc(v.channelName)}</a></td>
+      <td><span class="views ${v.views>500000?'hot':''}">${v.views!==null?fmtN(v.views):'—'}</span></td>
+      <td><span class="date-txt">${fmtD(v.date)}</span></td>
+      <td><div class="act-cell">
+        <button class="btn btn-ghost btn-sm" title="Copy title" onclick="copyTitle(${i})">⎘</button>
+        <a class="btn btn-ghost btn-sm" href="https://www.youtube.com/watch?v=${esc(v.videoId)}" target="_blank" rel="noopener">↗</a>
+      </div></td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+// GRID VIEW
+function renderGrid(el) {
+  if (!shown.length) { el.innerHTML=emptyHtml(); return; }
+  el.innerHTML=`<div class="results"><div class="res-grid">${shown.map((v,i)=>`
+  <div class="v-card">
+    ${v.thumb?`<img class="card-thumb" src="${esc(v.thumb)}" loading="lazy" onerror="this.style.display='none'" alt="">`:
+              `<div class="card-thumb" style="height:157px"></div>`}
+    <div class="card-body">
+      <div class="card-title"><a href="https://www.youtube.com/watch?v=${esc(v.videoId)}" target="_blank" rel="noopener">${esc(v.title)}</a></div>
+      <div class="card-meta">
+        <a class="ch-link" href="https://www.youtube.com/channel/${esc(v.channelId)}" target="_blank" rel="noopener">${esc(v.channelName)}</a>
+        <span>${v.views!==null?fmtN(v.views)+' views':fmtD(v.date)}</span>
+      </div>
+      <div class="card-acts">
+        <button class="btn btn-sec btn-sm" onclick="copyTitle(${i})">Copy Title</button>
+        <a class="btn btn-ghost btn-sm" href="https://www.youtube.com/watch?v=${esc(v.videoId)}" target="_blank" rel="noopener">Open ↗</a>
+      </div>
+    </div>
+  </div>`).join('')}</div></div>`;
+}
+
+function emptyHtml() {
+  return `<div class="empty"><div class="empty-ico">🎬</div><h3>${allVideos.length?'No matches':'No titles yet'}</h3>
+    <p>${allVideos.length?'Try a different filter':'Click <strong>Fetch Titles</strong> to start'}</p></div>`;
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────
+function copyTitle(i) { navigator.clipboard.writeText(shown[i].title); toast('Copied!','ok'); }
+
+function copyFw(i) {
+  // Find the ith visible framework
+  const fws = getVisibleFrameworks();
+  if (!fws[i]) return;
+  const plain = fws[i].template.replace(/\[N\]/g,'[N]').replace(/\[Topic\]/g,'[Topic]').replace(/\[\$\]/g,'[$]');
+  navigator.clipboard.writeText(plain);
+  toast('Framework copied!','ok');
+}
+
+function copyFwTitles(i) {
+  const fws = getVisibleFrameworks();
+  if (!fws[i]) return;
+  const text = fws[i].videos.map(v=>v.title).join('\n');
+  navigator.clipboard.writeText(text);
+  toast(`Copied ${fws[i].videos.length} titles`,'ok');
+}
+
+function getVisibleFrameworks() {
+  const q = document.getElementById('filterTxt').value.toLowerCase();
+  let fws = frameworks;
+  if (fwCatFilter) fws = fws.filter(f=>f.category===fwCatFilter);
+  if (q) fws = fws.filter(f=>f.template.toLowerCase().includes(q)||f.videos.some(v=>v.title.toLowerCase().includes(q)));
+  return fws;
+}
+
+function copyAll() {
+  if (!shown.length) { toast('Nothing to copy','info'); return; }
+  navigator.clipboard.writeText(shown.map(v=>v.title).join('\n'));
+  toast(`Copied ${shown.length} titles`,'ok');
+}
+
+function exportCSV() {
+  if (!shown.length) { toast('Nothing to export','info'); return; }
+  const rows=[['Title','Framework','Category','Channel','Views','Date','URL'],
+    ...shown.map(v=>{
+      const phrases=getTopicPhrases();
+      const fw=normalizeTitle(v.title,phrases);
+      const cat=categorize(fw);
+      return[
+        `"${v.title.replace(/"/g,'""')}"`,
+        `"${fw.replace(/"/g,'""')}"`,
+        `"${cat}"`,
+        `"${v.channelName}"`,
+        v.views??'',
+        (v.date||'').split('T')[0],
+        `"https://www.youtube.com/watch?v=${v.videoId}"`
+      ];
+    })];
+  const a=Object.assign(document.createElement('a'),{
+    href:URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'})),
+    download:'yt-frameworks.csv'
+  });
+  a.click();
+  toast('CSV exported (includes Framework + Category columns)','ok');
+}
+
+// ── UI ────────────────────────────────────────────────────────────
+function setMode(m) {
+  mode=m;
+  document.getElementById('mTab1').classList.toggle('active',m==='channels');
+  document.getElementById('mTab2').classList.toggle('active',m==='keywords');
+  document.getElementById('chPanel').style.display=m==='channels'?'block':'none';
+  document.getElementById('kwPanel').style.display=m==='keywords'?'block':'none';
+}
+
+function setView(v) {
+  view=v;
+  document.getElementById('vFw').classList.toggle('active',v==='frameworks');
+  document.getElementById('vTable').classList.toggle('active',v==='table');
+  document.getElementById('vGrid').classList.toggle('active',v==='grid');
+  // Sort/filter dropdowns only relevant for table/grid
+  const tableOnly = v!=='frameworks';
+  document.getElementById('sortSel').style.display=tableOnly?'':'none';
+  document.getElementById('chFilter').style.display=tableOnly?'':'none';
+  renderView();
+}
+
+function toast(msg,type='info') {
+  const t=document.createElement('div');
+  t.className=`toast toast-${type==='err'?'err':type==='ok'?'ok':'info'}`;
+  t.textContent=msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(()=>t.remove(),3200);
+}
+
+function fmtN(n) { if(n>=1e6)return(n/1e6).toFixed(1)+'M'; if(n>=1e3)return(n/1e3).toFixed(0)+'K'; return String(n); }
+function fmtD(s) {
+  if(!s)return''; const d=Math.floor((Date.now()-new Date(s))/86400000);
+  if(d===0)return'Today'; if(d===1)return'Yesterday';
+  if(d<30)return d+'d ago'; if(d<365)return Math.floor(d/30)+'mo ago';
+  return Math.floor(d/365)+'y ago';
+}
+function esc(s) { if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Hide table-only controls on start since default view is frameworks
+document.getElementById('sortSel').style.display='none';
+document.getElementById('chFilter').style.display='none';
+
+// ── PAGE TOGGLE ───────────────────────────────────────────────────
+let currentPage = 'research';
+
+
+function setPage(p) {
+  currentPage = p;
+  document.getElementById('researchPage').style.display = p === 'research' ? '' : 'none';
+  document.getElementById('myTitlesPage').style.display = p === 'mytitles' ? 'block' : 'none';
+  document.getElementById('pNavResearch').classList.toggle('active', p === 'research');
+  document.getElementById('pNavMyTitles').classList.toggle('active', p === 'mytitles');
+}
+
+function toggleTopic(card) { card.classList.toggle('open'); }
+
+</script>
+</body>
+</html>
