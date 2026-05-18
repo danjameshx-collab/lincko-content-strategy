@@ -675,6 +675,7 @@ let channels = [];
 let mode = 'channels';
 let view = 'frameworks';
 let expandedCards = new Set();
+let autoResolving = false;
 
 // ── CATEGORY CONFIG ───────────────────────────────────────────────
 const CAT = {
@@ -735,6 +736,7 @@ function loadNiche(n) {
   document.getElementById('kwInput').value = p.keywords.join('\n');
   document.getElementById('topicWords').value = p.topicWords || '';
   renderChList();
+  autoResolveChannels();
 }
 
 function mkCh(input) {
@@ -759,6 +761,7 @@ function addCh() {
   channels.push(mkCh(clean));
   document.getElementById('chInput').value = '';
   renderChList();
+  autoResolveChannels();
 }
 
 function toggleBulk() {
@@ -778,10 +781,25 @@ function addBulk() {
   document.getElementById('bulkPanel').classList.remove('open');
   renderChList();
   toast(`Added ${added} channels`, 'ok');
+  autoResolveChannels();
 }
 
 function removeCh(i) { channels.splice(i,1); renderChList(); }
 function clearChannels() { channels=[]; renderChList(); }
+
+async function autoResolveChannels() {
+  if (autoResolving || fetching) return;
+  const pending = channels.filter(c => c.status === 'pending');
+  if (!pending.length) return;
+  autoResolving = true;
+  pending.forEach(c => { c.status = 'loading'; });
+  renderChList();
+  await runPool(pending, 5, async ch => {
+    await resolveChannel(ch);
+    renderChList();
+  });
+  autoResolving = false;
+}
 
 function renderChList() {
   const q = (document.getElementById('chSearchInput')?.value||'').toLowerCase();
@@ -963,11 +981,12 @@ async function fetchByChannels() {
   const stats=document.getElementById('doStats').value==='1';
   const w=+document.getElementById('workers').value;
 
-  channels.forEach(c=>{c.status='loading';}); renderChList();
+  channels.forEach(c=>{ if(c.status!=='ok') c.status='loading'; }); renderChList();
   prog(0,'Resolving channels...',`0 / ${channels.length}`);
 
   await runPool(channels, w, async ch=>{
-    await resolveChannel(ch); renderChList();
+    if (ch.status !== 'ok') await resolveChannel(ch);
+    renderChList();
   }, (done,total)=>prog(done/total*40,'Resolving channels...',`${done} / ${total}`));
 
   const ok=channels.filter(c=>c.status==='ok');
