@@ -739,7 +739,15 @@ function loadNiche(n) {
 
 function mkCh(input) {
   const clean = input.trim().replace(/\/(videos|shorts|playlists)\/?$/, '');
-  return { input: clean, name: clean, id: null, uploadsId: null, thumb: null, status: 'pending', count: 0 };
+  let displayName = clean;
+  try {
+    const u = new URL(clean.startsWith('http') ? clean : 'https://' + clean);
+    const p = u.pathname.replace(/\/$/, '');
+    if (p.startsWith('/@'))          displayName = p.slice(1);
+    else if (p.startsWith('/c/'))    displayName = p.slice(3);
+    else if (p.startsWith('/user/')) displayName = p.slice(6);
+  } catch { /* already a clean handle or plain text */ }
+  return { input: clean, name: displayName, id: null, uploadsId: null, thumb: null, status: 'pending', count: 0 };
 }
 
 // ── CHANNEL UI ────────────────────────────────────────────────────
