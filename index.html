@@ -307,10 +307,6 @@ textarea{resize:vertical}
         <label class="s-hint" style="display:block;margin-bottom:3px">Fetch view counts</label>
         <select id="doStats"><option value="1" selected>Yes</option><option value="0">No (faster)</option></select>
       </div>
-      <div>
-        <label class="s-hint" style="display:block;margin-bottom:3px">Parallel workers</label>
-        <select id="workers"><option value="3">3 (safe)</option><option value="5" selected>5</option><option value="8">8 (fast)</option></select>
-      </div>
     </div>
   </div>
 
@@ -980,7 +976,7 @@ async function fetchByChannels() {
   if (!channels.length) { toast('No channels configured','err'); return; }
   const max=+document.getElementById('maxVids').value;
   const stats=document.getElementById('doStats').value==='1';
-  const w=+document.getElementById('workers').value;
+  const w=8;
 
   channels.forEach(c=>{ if(c.status!=='ok') c.status='loading'; }); renderChList();
   prog(0,'Resolving channels...',`0 / ${channels.length}`);
@@ -1012,7 +1008,7 @@ async function fetchByKeywords() {
   const kws=document.getElementById('kwInput').value.trim().split('\n').map(s=>s.trim()).filter(Boolean);
   if (!kws.length) { toast('No keywords entered','err'); return; }
   const stats=document.getElementById('doStats').value==='1';
-  const w=+document.getElementById('workers').value;
+  const w=8;
 
   await runPool(kws, w, async kw=>{
     allVideos.push(...await searchKw(kw));
