@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YouTube Title Researcher</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23e53935'/><polygon points='12,9 24,16 12,23' fill='white'/></svg>">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -222,6 +223,37 @@ textarea{resize:vertical}
 .tp-bullets li{font-size:12px;color:var(--text-dim);line-height:1.55;padding-left:16px;position:relative}
 .tp-bullets li::before{content:'—';position:absolute;left:0;color:var(--accent);font-weight:700}
 .tp-sub-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin:12px 0 6px;padding:0}
+
+/* FUNNEL PAGE */
+.fn-page{max-width:860px;margin:0 auto;padding:36px 24px 80px}
+.fn-header{text-align:center;margin-bottom:40px}
+.fn-header-title{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-.02em;color:var(--text);margin-bottom:6px}
+.fn-header-sub{font-size:14px;color:var(--text-muted)}
+.fn-section{margin-bottom:24px;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.fn-section-hdr{padding:16px 22px;display:flex;align-items:center;gap:12px;background:var(--surface)}
+.fn-badge{font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;padding:4px 13px;border-radius:100px;flex-shrink:0}
+.fn-badge-tofu{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
+.fn-badge-mofu{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.fn-badge-bofu{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+.fn-section-name{font-size:17px;font-weight:700;color:var(--text)}
+.fn-section-meta{font-size:13px;color:var(--text-muted);margin-left:auto}
+.fn-group{border-top:1px solid var(--border)}
+.fn-group-hdr{padding:12px 22px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;background:var(--surface);transition:background .1s}
+.fn-group-hdr:hover{background:var(--surface2)}
+.fn-group-name{font-size:14px;font-weight:700;color:var(--text-dim);flex:1}
+.fn-group-count{font-size:12px;color:var(--text-muted);background:var(--surface3);border:1px solid var(--border);padding:1px 8px;border-radius:10px}
+.fn-group-chev{font-size:10px;color:var(--text-muted);transition:transform .2s;margin-left:4px}
+.fn-group.closed .fn-group-chev{transform:rotate(-90deg)}
+.fn-group-body{padding-bottom:8px}
+.fn-group.closed .fn-group-body{display:none}
+.fn-sub-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text-dim);padding:12px 22px 5px;display:flex;align-items:center;gap:10px}
+.fn-sub-label::after{content:'';flex:1;height:1px;background:var(--border2)}
+.fn-item{display:flex;align-items:flex-start;gap:10px;padding:7px 22px;transition:background .1s}
+.fn-item:hover{background:var(--surface2)}
+.fn-dot{width:5px;height:5px;background:var(--border2);border-radius:50%;flex-shrink:0;margin-top:8px}
+.fn-title{font-size:15px;color:var(--text);line-height:1.5;flex:1}
+.fn-desc{font-size:13px;color:var(--text-dim);margin-top:4px;line-height:1.55}
+.fn-adhoc{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:4px;flex-shrink:0;white-space:nowrap;margin-top:4px;background:var(--surface3);color:var(--text-muted);border:1px solid var(--border2)}
 </style>
 </head>
 <body>
@@ -359,302 +391,293 @@ textarea{resize:vertical}
 </div>
 
 <div id="myTitlesPage">
-  <div class="tp-page">
-    <div class="tp-header">
+  <div class="fn-page">
+    <div class="fn-header">
       <div class="tp-eyebrow"><span class="tp-eyebrow-dot"></span>Lincko Content Strategy</div>
-      <h2 class="tp-title">Your Topic Buckets</h2>
-      <p class="tp-sub">11 content pillars — click any card to expand the sub-topics</p>
+      <h2 class="fn-header-title">My Titles</h2>
+      <p class="fn-header-sub">Content mapped across the funnel — click any group header to collapse</p>
     </div>
-    <div class="tp-grid">
 
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">01</div>
-            <div class="tp-card-title">The 5 Laws of Signing Whale Clients in 2026</div>
-            <div class="tp-card-desc">The non-negotiable rules every founder must follow to consistently land enterprise clients.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
+    <!-- ── TOFU ── -->
+    <div class="fn-section">
+      <div class="fn-section-hdr">
+        <span class="fn-badge fn-badge-tofu">TOFU</span>
+        <span class="fn-section-name">Top of Funnel</span>
+        <span class="fn-section-meta">Awareness &amp; attraction</span>
+      </div>
+
+      <div class="fn-group" id="fg-tofu-1">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-tofu-1')">
+          <span class="fn-group-name">How-To (Attack Other Channels)</span>
+          <span class="fn-group-count">4</span>
+          <span class="fn-group-chev">▾</span>
         </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>The Attention Law — earn the right to be looked at before asking for anything</li>
-            <li>The Individual Law — outreach is for a human, not a job title</li>
-            <li>The Pre-Sell Law — 80% of the close happens before the first call</li>
-            <li>The Volume-Inverse Law — fewer outreaches sign more whales</li>
-            <li>The Compounding Law — one great outreach pays for itself many times over</li>
-          </ul>
+        <div class="fn-group-body">
+          <div class="fn-sub-label">AI</div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why AI Is Ruining Your Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why AI Outreach Will Never Sign Whale Clients</span></div>
+          <div class="fn-sub-label">Cold Email</div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Cold Email Can't Sign Whale Clients</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Cold Email Is Dying In 2026</span></div>
         </div>
       </div>
 
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">02</div>
-            <div class="tp-card-title">How to Think About the Whale Buyer</div>
-            <div class="tp-card-desc">The mindset shift required to understand how enterprise decision-makers think, evaluate, and buy.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
+      <div class="fn-group" id="fg-tofu-2">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-tofu-2')">
+          <span class="fn-group-name">How-To (Do Better Outreach)</span>
+          <span class="fn-group-count">7</span>
+          <span class="fn-group-chev">▾</span>
         </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>How a VP at a $200M+ company actually processes outreach</li>
-            <li>How senior buyers pattern-match in the first half-second</li>
-            <li>How whales consume outreach and what they share with their team</li>
-            <li>How to build outreach for a roomful of stakeholders, not one reader</li>
-            <li>How to design outreach that survives Slack threads, procurement, and legal</li>
-            <li>Why bigger whales are easier to impress than smaller ones</li>
-            <li>Why senior buyers can smell effort faster than any other audience</li>
-            <li>Why your prospect is a human first, job title second</li>
-            <li>Why great outreach gets treated like a referral</li>
-          </ul>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Book A Call With Someone Who Ignores Cold Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Do Better Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Earn A Reply From Someone 10x Bigger Than You</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Follow-Up</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Get In Front Of Someone With A Gatekeeper</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Get Inbound Leads From Your Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Guarantee A Response</span></div>
         </div>
       </div>
 
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">03</div>
-            <div class="tp-card-title">How to Think About the 2026 Market</div>
-            <div class="tp-card-desc">What is shifting in B2B outbound right now — and how to position ahead of every competitor who hasn't noticed.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
+      <div class="fn-group" id="fg-tofu-3">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-tofu-3')">
+          <span class="fn-group-name">How-To (Other)</span>
+          <span class="fn-group-count">1</span>
+          <span class="fn-group-chev">▾</span>
         </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>How AI lowered the barrier to bad outbound and made high-effort outbound rarer</li>
-            <li>How to spot whether your industry is saturated with the same playbook</li>
-            <li>Why creative outbound is currently outside the channel decay curve</li>
-            <li>Why every operator in your space is running identical motions</li>
-            <li>Why first-mover advantage in creative outbound is closing</li>
-            <li>Why the market is tired of low-effort messages</li>
-            <li>Why your competitors all sound the same right now</li>
-          </ul>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How to Book A Call with X</span></div>
         </div>
       </div>
 
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">04</div>
-            <div class="tp-card-title">What a Whale Client Actually Is</div>
-            <div class="tp-card-desc">The exact criteria separating a whale from a regular client — and why most founders target the wrong accounts.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
+      <div class="fn-group" id="fg-tofu-4">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-tofu-4')">
+          <span class="fn-group-name">Your Unique Story</span>
+          <span class="fn-group-count">2</span>
+          <span class="fn-group-chev">▾</span>
         </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>How to know if a client is genuinely a whale for your business</li>
-            <li>How to spot which competitor is about to go up-market and why it matters</li>
-            <li>The mindset shift that separates founders who sign whales from those who don't</li>
-            <li>Why one whale is worth more than 50 small clients</li>
-            <li>Why senior buyers ignore anything that looks like cold outreach</li>
-            <li>Why the bar isn't good outreach — it's unprecedented outreach</li>
-            <li>Why "unreachable" whales make the best target list</li>
-            <li>Why your biggest client is your pricing ceiling</li>
-          </ul>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How I Went from 9-5 to Business Owner</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How I Went from 9-5 to Creating Incredible Outreach</span></div>
         </div>
       </div>
-
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">05</div>
-            <div class="tp-card-title">Whale Economics — The Six Dimensions of Value</div>
-            <div class="tp-card-desc">The math behind why one whale beats ten small clients — shown so clearly you can never unsee it.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
-        </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>Direct LTV (the floor, 15–25% of real value)</li>
-            <li>Brand gravity as a revenue line</li>
-            <li>Network effect as a revenue line</li>
-            <li>Case study value as a revenue line</li>
-            <li>Cost-curve shift as a revenue line</li>
-            <li>Founder leverage as a revenue line</li>
-            <li>How to calculate the true 18-month value of one whale</li>
-            <li>How to think about CAC when one whale = six assets</li>
-            <li>Why a 2× LTV-to-CAC ratio is the minimum bar</li>
-            <li>Why one whale logo compresses every other sales cycle for 18 months</li>
-            <li>Why most founders price line one and ignore the other five</li>
-            <li>Why optimising for contract value alone is the most expensive mistake in B2B services</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">06</div>
-            <div class="tp-card-title">The Cost of Having No Whales</div>
-            <div class="tp-card-desc">What founders silently lose in revenue, margin, and market position every month they delay going enterprise.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
-        </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>How much money you're losing every month without a whale</li>
-            <li>How operational bloat compounds the longer you go without big clients</li>
-            <li>How the cost of going up-market doubles the longer you wait</li>
-            <li>The hidden discount applied to every deal closed without a whale case study</li>
-            <li>The pricing ceiling problem — your biggest client caps your average deal size</li>
-            <li>Why a $30M business with 800 clients earns $70M less than a $100M business with 300 clients</li>
-            <li>Why margin compresses as your small-client base grows</li>
-            <li>Why service businesses without whales stay at the same revenue ceiling for years</li>
-            <li>Why the absence of a whale case study is felt on every sales call</li>
-            <li>Why volume-model agencies hit a ceiling and never break through</li>
-            <li>Why your fulfilment cost per pound of revenue worsens without big clients</li>
-            <li>Why your revenue ceiling is locked to founder bandwidth without whales</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">07</div>
-            <div class="tp-card-title">Why Creative Outbound Works (And Traditional Doesn't)</div>
-            <div class="tp-card-desc">The case for personalized, non-template outreach and the real reason it cuts through when everything else gets ignored.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
-        </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>How AI saturation made high-effort outbound more valuable, not less</li>
-            <li>How great outbound builds brand and pipeline simultaneously</li>
-            <li>How warm inbound becomes the byproduct of one great outreach</li>
-            <li>The compounding effect of one shared whale outreach vs 1,000 cold emails</li>
-            <li>The two ways prospects buy — cold transactional vs warm pre-sold</li>
-            <li>Why creative outbound is genuinely hard (and why that's the moat)</li>
-            <li>Why first-mover advantage in creative outbound is closing fast</li>
-            <li>Why your outreach should make the prospect look good when they share it</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">08</div>
-            <div class="tp-card-title">Why Other Channels Are Worse</div>
-            <div class="tp-card-desc">Why cold email, LinkedIn, paid ads, and content consistently underperform creative outbound for landing whale clients.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
-        </div>
-        <div class="tp-card-body">
-          <div class="tp-sub-label">Cold Email / Automation</div>
-          <ul class="tp-bullets">
-            <li>The deliverability collapse killing cold email in 2026</li>
-            <li>Why automated cold email is fighting for a 3.43% reply rate and falling</li>
-            <li>Why cold email cannot sign whale clients by definition</li>
-            <li>Why every founder running the same Instantly playbook competes for the same 4%</li>
-            <li>Why mass automation means you can't control who responds</li>
-            <li>Why the average cold email gets archived in under two seconds</li>
-          </ul>
-          <div class="tp-sub-label">LinkedIn / DMs / SDR</div>
-          <ul class="tp-bullets">
-            <li>How cold DMs on LinkedIn became indistinguishable from cold email</li>
-            <li>Why cold DMs hit the same pattern-recognition wall as cold email</li>
-            <li>Why SDR cold calling hits the same pattern filter</li>
-            <li>Why Gong-recorded SDR scripts have flattened the entire B2B sales floor</li>
-          </ul>
-          <div class="tp-sub-label">Paid / Inbound / Content</div>
-          <ul class="tp-bullets">
-            <li>How paid ads punish service businesses with long sales cycles</li>
-            <li>Why paid ads aren't built to reach senior buyers with gatekeepers</li>
-            <li>Why paid ad costs are climbing while conversion rates are falling</li>
-            <li>Why content marketing alone is too slow for whale acquisition</li>
-            <li>Why inbound marketing alone won't bring you whales</li>
-            <li>Why organic content takes years to produce a whale meeting</li>
-            <li>Why webinars and lead magnets struggle to attract whale-tier prospects</li>
-            <li>Why referrals alone are not a scalable whale acquisition channel</li>
-          </ul>
-          <div class="tp-sub-label">The Shared Root Cause</div>
-          <ul class="tp-bullets">
-            <li>Why every vendor in your space is running the exact same motions</li>
-            <li>Why the same software, templates, and sequences guarantee invisibility</li>
-            <li>Why your buyers receive 50+ identical outreach attempts every week</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">09</div>
-            <div class="tp-card-title">Why Your Outreach Gets Ignored — The Filter Stack</div>
-            <div class="tp-card-desc">The real reasons prospects delete your messages and what makes enterprise buyers actually stop and respond.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
-        </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>The 1.7-second verdict — how senior buyers archive your email</li>
-            <li>The Pattern Filter (99% of outbound dies here)</li>
-            <li>The Effort Filter</li>
-            <li>The Relevance Filter</li>
-            <li>The internal forwarding chain and how to survive it</li>
-            <li>Where enterprise outreach dies inside the organisation</li>
-            <li>Why "Hi {first_name}" is dead</li>
-            <li>Why "Quick 15 minutes this week?" is dead</li>
-            <li>Why your offer doesn't matter if you fail the first filter</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">10</div>
-            <div class="tp-card-title">Mistakes Founders Make in Outbound</div>
-            <div class="tp-card-desc">The most common errors silently killing deals before the conversation even starts.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
-        </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>Asking for the meeting before earning attention</li>
-            <li>Building outreach for a single reader instead of a roomful</li>
-            <li>Copying creative outbound without understanding the principles</li>
-            <li>Leading with your offer</li>
-            <li>Measuring outbound success by reply rate instead of close rate</li>
-            <li>Optimising outbound around contract value</li>
-            <li>Researching the company and ignoring the human</li>
-            <li>Sending the same outreach to multiple whales</li>
-            <li>Stopping research at Layer 1</li>
-            <li>Treating creative outbound as one-and-done</li>
-            <li>Trusting AI personalisation tools</li>
-            <li>Using generic ICP language with senior buyers</li>
-            <li>Writing outreach the prospect would never want to share</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tp-card" onclick="toggleTopic(this)">
-        <div class="tp-card-hdr">
-          <div>
-            <div class="tp-num">11</div>
-            <div class="tp-card-title">How to Actually Sign Whales — The Playbook</div>
-            <div class="tp-card-desc">The complete end-to-end system: how to identify, approach, and close enterprise clients with creative outbound.</div>
-          </div>
-          <span class="tp-chevron">▼</span>
-        </div>
-        <div class="tp-card-body">
-          <ul class="tp-bullets">
-            <li>Attention vs expertise — which lever to pull first</li>
-            <li>How to build a 10–25 name dream client list that prints money</li>
-            <li>How to design outreach the whale will share with their entire network</li>
-            <li>How to make your outreach impossible to ignore</li>
-            <li>How to pre-sell a whale before the first call</li>
-            <li>How the Insanity &amp; Results (I&amp;R) framework transforms marketing copy</li>
-            <li>How the law of reciprocity actually works in outbound</li>
-            <li>Why you need the "if I closed this person it changes my year" filter</li>
-          </ul>
-        </div>
-      </div>
-
     </div>
+
+    <!-- ── MOFU ── -->
+    <div class="fn-section">
+      <div class="fn-section-hdr">
+        <span class="fn-badge fn-badge-mofu">MOFU</span>
+        <span class="fn-section-name">Middle of Funnel</span>
+        <span class="fn-section-meta">Education &amp; authority</span>
+      </div>
+
+      <div class="fn-group" id="fg-mofu-1">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-1')">
+          <span class="fn-group-name">Frameworks</span>
+          <span class="fn-group-count">8</span>
+          <span class="fn-group-chev">▾</span>
+        </div>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The 4-Layer Prospect Research System</div><div class="fn-desc">A way to dig deeper on one prospect by going through four levels of research instead of just looking at their website.</div></div></div>
+          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The 5 Laws Of Signing Whale Clients</div><div class="fn-desc">Five simple rules you have to follow if you want big clients to take you seriously.</div></div></div>
+          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Dream Client List Framework (10-25 Names)</div><div class="fn-desc">A way to pick a short list of the best possible clients to chase, instead of going after hundreds at once.</div></div></div>
+          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Filter Stack (Pattern / Effort / Relevance)</div><div class="fn-desc">The three checks a senior buyer runs on your outreach in the first two seconds to decide if it's worth opening.</div></div></div>
+          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Insanity &amp; Results Framework</div><div class="fn-desc">A way to write outreach by leading with the craziest thing you did, then the result you got, then what it means for the person reading.</div></div></div>
+          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Internal Forwarding Chain Map</div><div class="fn-desc">A way to think about your outreach getting passed around inside a company, so it still works when other people read it.</div></div></div>
+          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Pre-Sell Sequence Framework</div><div class="fn-desc">A way to do most of the selling before the first call even happens.</div></div></div>
+          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Whale Client Filter (LTV / Authority / Network / Case Study Fit)</div><div class="fn-desc">A way to score whether a prospect is actually a whale by checking four things: how much they're worth, how senior they are, who they know, and whether they'd make a great case study.</div></div></div>
+        </div>
+      </div>
+
+      <div class="fn-group" id="fg-mofu-2">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-2')">
+          <span class="fn-group-name">How-To (Industry Breakdown)</span>
+          <span class="fn-group-count">1</span>
+          <span class="fn-group-chev">▾</span>
+        </div>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Whales As An X</span></div>
+        </div>
+      </div>
+
+      <div class="fn-group" id="fg-mofu-3">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-3')">
+          <span class="fn-group-name">How-To (Mechanical)</span>
+          <span class="fn-group-count">11</span>
+          <span class="fn-group-chev">▾</span>
+        </div>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Audit Your Own Outbound</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build A Dream Client List</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Calculate True Whale LTV</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Create Creative Outbound</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Design Outreach For The Internal Forwarding Chain</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make A Solo VSL</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make A Strategy Doc</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make A Super Loom</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make Outreach Shareable</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Pre-Sell A Whale Before The First Call</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Write Outreach For A Roomful Of Stakeholders</span></div>
+        </div>
+      </div>
+
+      <div class="fn-group" id="fg-mofu-4">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-4')">
+          <span class="fn-group-name">Long Style (Deep Dive / Expert Rant)</span>
+          <span class="fn-group-count">52</span>
+          <span class="fn-group-chev">▾</span>
+        </div>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Breaking Down A Bad Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Cold Email vs Creative Outbound</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Good vs Bad Outreach For The Same Prospect</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How I Went From 9-5 To Business Owner</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How I Went From 9-5 To Creating Incredible Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Audit Your Own Outbound</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Book A Call With Someone Who Ignores Cold Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build A Business Through Creative Outbound</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build A Dream Client List</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build And Work A Dream 100</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Calculate True Whale LTV</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Close Whale Clients</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Create Creative Outbound</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Design Outreach For The Internal Forwarding Chain</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Diagnose And Fix Your Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Do Better Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Earn A Reply From Someone 10x Bigger Than You</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Follow Up</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Follow Up And Convert</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Get In Front Of Someone With A Gatekeeper</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Get Inbound Leads From Your Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Guarantee A Response</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make Outreach Shareable</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Pre-Sell A Whale</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Pre-Sell A Whale Before The First Call</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Replace Your Current Outbound Channel</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Replace Your Entire Sales Process</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Whales In Your Industry</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Your First Whale</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Turn Cold Leads Into Red-Hot Leads</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Write Outreach For A Roomful Of Stakeholders</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">My Founder Story</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The 4-Layer Prospect Research System</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The 5 Laws Of Signing Whale Clients</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Dream Client List Framework</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Filter Stack</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Insanity &amp; Results Framework</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Internal Forwarding Chain Map</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Pre-Sell Sequence Framework</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Roadmap To Your First Whale</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Whale Client Filter</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Whale Economics</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why AI Is Ruining Your Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why AI Outreach Will Never Sign Whale Clients</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Cold Email Can't Sign Whale Clients</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Cold Email Is Dying In 2026</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why The Market Is Tired Of Low-Effort Messages</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Follow-Ups Aren't Working</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Offer Isn't The Problem</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Gets Ignored</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Stopped Working</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Works On Small Clients But Not Whales</span></div>
+        </div>
+      </div>
+
+      <div class="fn-group" id="fg-mofu-5">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-5')">
+          <span class="fn-group-name">Outreach Breakdown</span>
+          <span class="fn-group-count">6</span>
+          <span class="fn-group-chev">▾</span>
+        </div>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why The Market Is Tired Of Low-Effort Messages</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Follow-Ups Aren't Working</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Offer Isn't The Problem</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Gets Ignored</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Stopped Working</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Works On Small Clients But Not Whales</span></div>
+        </div>
+      </div>
+
+      <div class="fn-group" id="fg-mofu-6">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-6')">
+          <span class="fn-group-name">Outreach Teardown</span>
+          <span class="fn-group-count">3</span>
+          <span class="fn-group-chev">▾</span>
+        </div>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Breaking Down A Bad Outreach (And How To Fix It)</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Side-By-Side: Cold Email vs Creative Outbound</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Side-By-Side: Good vs Bad Outreach For The Same Prospect</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOFU ── -->
+    <div class="fn-section">
+      <div class="fn-section-hdr">
+        <span class="fn-badge fn-badge-bofu">BOFU</span>
+        <span class="fn-section-name">Bottom of Funnel</span>
+        <span class="fn-section-meta">Decision &amp; conversion</span>
+      </div>
+
+      <div class="fn-group" id="fg-bofu-1">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-bofu-1')">
+          <span class="fn-group-name">Analyzing D100</span>
+          <span class="fn-group-count">2</span>
+          <span class="fn-group-chev">▾</span>
+        </div>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Analyzing My D100</span><span class="fn-adhoc">Ad hoc</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Analyzing Others D100</span><span class="fn-adhoc">Ad hoc</span></div>
+        </div>
+      </div>
+
+      <div class="fn-group" id="fg-bofu-2">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-bofu-2')">
+          <span class="fn-group-name">Course</span>
+          <span class="fn-group-count">19</span>
+          <span class="fn-group-chev">▾</span>
+        </div>
+        <div class="fn-group-body">
+          <div class="fn-sub-label">Full Course</div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build And Work A Dream 100</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Close Whale Clients</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Diagnose And Fix Your Outreach</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Do Creative Outbound</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Follow Up And Convert</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Pre-Sell A Whale</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Replace Your Current Outbound Channel</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Whales In Your Industry</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Your First Whale</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Turn Cold Leads Into Red-Hot Leads</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">My Founder Story</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Roadmap To Your First Whale</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Whale Economics</span></div>
+          <div class="fn-sub-label">Hyper-Long Course</div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Become The Best Operator In Your Space</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build A Business Through Creative Outbound</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Replace Your Entire Sales Process</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Whale Clients (A-Z)</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Complete Outbound System</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Complete Whale Acquisition System</span></div>
+        </div>
+      </div>
+
+      <div class="fn-group" id="fg-bofu-3">
+        <div class="fn-group-hdr" onclick="toggleGroup('fg-bofu-3')">
+          <span class="fn-group-name">Social Proof</span>
+          <span class="fn-group-count">3</span>
+          <span class="fn-group-chev">▾</span>
+        </div>
+        <div class="fn-group-body">
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Case Study Interview</span><span class="fn-adhoc">Ad hoc</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Case Study Interview (Hybrid)</span><span class="fn-adhoc">Ad hoc</span></div>
+          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Social Proof Breakdown</span><span class="fn-adhoc">Ad hoc</span></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1575,6 +1598,7 @@ function setPage(p) {
 }
 
 function toggleTopic(card) { card.classList.toggle('open'); }
+function toggleGroup(id) { document.getElementById(id).classList.toggle('closed'); }
 
 </script>
 </body>
