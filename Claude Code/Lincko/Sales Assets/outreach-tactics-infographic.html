@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1080px;
+      height: 566px;
+      overflow: hidden;
+      background-color: #030806;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(18, 80, 32, 0.55) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 15% 110%, rgba(12, 55, 22, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 40% at 85% 110%, rgba(12, 55, 22, 0.3) 0%, transparent 50%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      color: #e8f0ea;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 48px 36px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header img {
+      height: 28px;
+      width: auto;
+    }
+
+    /* Headline */
+    .headline-block {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .headline {
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+
+    .headline span {
+      color: #1ef560;
+    }
+
+    /* Cards row */
+    .cards {
+      display: flex;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .card {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(30, 245, 96, 0.15);
+      border-radius: 16px;
+      padding: 28px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(30, 245, 96, 0.5), transparent);
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(30, 245, 96, 0.12);
+      border: 1px solid rgba(30, 245, 96, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: #1ef560;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card-number {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #1ef560;
+      margin-bottom: 2px;
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .card-divider {
+      width: 32px;
+      height: 2px;
+      background: rgba(30, 245, 96, 0.4);
+      border-radius: 2px;
+    }
+
+    .card-sub {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(232, 240, 234, 0.6);
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo -->
+  <div class="header">
+    <img src="general assets/Lincko-logo.png" alt="Lincko">
+  </div>
+
+  <!-- Headline -->
+  <div class="headline-block">
+    <div class="headline">Create <span>Incredible Outreach</span> With These Tactics</div>
+  </div>
+
+  <!-- Tactic Cards -->
+  <div class="cards">
+
+    <!-- Card 1 -->
+    <div class="card">
+      <div class="card-icon">
+        <!-- Film / video icon -->
+        <svg viewBox="0 0 24 24">
+          <rect x="2" y="6" width="20" height="14" rx="2"/>
+          <path d="M16 6l-4-4-4 4"/>
+          <line x1="8" y1="11" x2="8" y2="15"/>
+          <line x1="12" y1="11" x2="12" y2="15"/>
+          <line x1="16" y1="11" x2="16" y2="15"/>
+        </svg>
+      </div>
+      <div>
+        <div class="card-number">Tactic 01</div>
+        <div class="card-title">Create A Super Loom</div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-sub">Make a Netflix-level movie for one prospect</div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="card">
+      <div class="card-icon">
+        <!-- Gift box icon -->
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="8" width="18" height="14" rx="2"/>
+          <path d="M3 8h18"/>
+          <path d="M12 8V22"/>
+          <path d="M8 8c0-2.2 1.8-4 4-4s4 1.8 4 4"/>
+          <path d="M8 8c-1.1 0-2-.9-2-2S6.9 4 8 4s2 .9 2 2"/>
+          <path d="M16 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="card-number">Tactic 02</div>
+        <div class="card-title">Send Physical Goods</div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-sub">Send your dream prospect a physical good that they'll love</div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="card">
+      <div class="card-icon">
+        <!-- Document icon -->
+        <svg viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="13" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <div class="card-number">Tactic 03</div>
+        <div class="card-title">Deliverable Doc</div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-sub">Send a ton of free deliverables they can use today</div>
+    </div>
+
+  </div>
+
+</body>
+</html>
