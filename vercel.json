@@ -1,6 +1,7 @@
 {
-  "buildCommand": "node build-config.js",
-  "installCommand": "",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".",
+  "framework": null,
   "rewrites": [
     { "source": "/", "destination": "/Claude Code/Lincko/Content/YT Scraper/index.html" }
   ]
