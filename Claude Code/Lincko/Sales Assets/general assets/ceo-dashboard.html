@@ -458,6 +458,9 @@
         <div class="nav-item" onclick="showPage('cash',this)">
             <span class="ni">◈</span> Income Dashboard
         </div>
+        <div class="nav-item" onclick="showPage('retention',this)">
+            <span class="ni">◉</span> Customer Retention
+        </div>
         <div class="nav-item" onclick="showPage('forecast',this)">
             <span class="ni">◎</span> Pie Projection Dashboard
         </div>
@@ -503,7 +506,7 @@
         <div id="no-data" class="empty">
             <div class="ico">📊</div>
             <p>No data yet. Add your first month in <strong>Data Input</strong> to populate this dashboard.</p>
-            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[4])">+ Add Month</button>
+            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[5])">+ Add Month</button>
         </div>
 
         <div id="dash-content" style="display:none">
@@ -659,9 +662,8 @@
         <!-- Sub-navigation tabs -->
         <div class="cd-tab-bar">
             <button class="cd-tab active" onclick="cashShowTab('overview',this)">Dashboard</button>
-            <button class="cd-tab" onclick="cashShowTab('inputs',this)">Data Inputs</button>
-            <button class="cd-tab" onclick="cashShowTab('calcs',this)">Calculations</button>
             <button class="cd-tab" onclick="cashShowTab('charts',this)">Charts</button>
+            <button class="cd-tab" onclick="cashShowTab('inputs',this)">Data Inputs</button>
         </div>
 
         <!-- ── OVERVIEW ── -->
@@ -688,8 +690,6 @@
                 <div class="kpi-grid g4" id="cd-row2"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Rolling Averages</span></div>
                 <div class="kpi-grid g3" id="cd-rolling-grid"></div>
-                <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Retention Engine</span></div>
-                <div class="kpi-grid g3" id="cd-row3"></div>
             </div>
         </div>
 
@@ -768,41 +768,6 @@
                         <div class="inp-total-val" style="color:var(--amber)" id="cd-coll-rate">—</div>
                     </div>
                 </div>
-                <!-- Recurring Revenue -->
-                <div class="inp-section">
-                    <div class="inp-section-hdr">
-                        <div class="inp-section-dot" style="background:#a78bfa"></div>
-                        <div class="inp-section-title">Recurring Revenue (MRR)</div>
-                    </div>
-                    <div class="inp-row"><div class="inp-row-lbl">Starting MRR</div><input class="inp" type="number" id="cd-inp-startingMRR" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">New MRR</div><input class="inp" type="number" id="cd-inp-newMRR" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Expansion MRR</div><input class="inp" type="number" id="cd-inp-expansionMRR" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Contraction MRR</div><input class="inp" type="number" id="cd-inp-contractionMRR" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Churned MRR</div><input class="inp" type="number" id="cd-inp-churnedMRR" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Ending MRR Override <span style="font-size:12px;color:var(--text3)">(optional)</span></div><input class="inp" type="number" id="cd-inp-endingMRROverride" min="0" step="0.01" oninput="cashAutoSave()" placeholder="Auto-calc"></div>
-                    <div class="inp-row-total" style="border-top-color:rgba(167,139,250,.2);background:rgba(167,139,250,.03)">
-                        <div class="inp-total-lbl" style="color:#a78bfa">Ending MRR (calc)</div>
-                        <div class="inp-total-val" style="color:#a78bfa" id="cd-ending-mrr">—</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── CALCULATIONS ── -->
-        <div class="cd-section" id="cd-sec-calcs">
-            <div id="cd-calcs-empty" class="empty" style="display:none">
-                <div class="ico">≡</div>
-                <p>No data yet. Add months in Data Inputs.</p>
-            </div>
-            <div id="cd-calcs-content" style="display:none">
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-                    <span class="fc-period-lbl">Period</span>
-                    <select class="period-sel" id="cd-calcs-sel" onchange="cashRenderCalcs()"></select>
-                </div>
-                <div class="sec-hdr"><span class="sec-title">Cash Flow Calculations</span></div>
-                <div id="cd-calcs-cash-table" style="overflow-x:auto;margin-bottom:28px"></div>
-                <div class="sec-hdr"><span class="sec-title">Retention &amp; Recurring Revenue Calculations</span></div>
-                <div id="cd-calcs-mrr-table" style="overflow-x:auto"></div>
             </div>
         </div>
 
@@ -839,37 +804,129 @@
                         <canvas id="cd-chart-waterfall" height="140"></canvas>
                     </div>
                 </div>
-                <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Recurring Revenue</span></div>
-                <div class="charts-row cr2">
-                    <div class="chart-card">
-                        <div class="chart-title"><span class="cdot" style="color:#a78bfa"></span> MRR Trend</div>
-                        <canvas id="cd-chart-mrr" height="200"></canvas>
+            </div>
+        </div>
+
+    </div><!-- /page-cash -->
+
+    <!-- ══════════════════ CUSTOMER RETENTION PAGE ══════════════════ -->
+    <div class="page" id="page-retention">
+
+        <!-- Sub-navigation tabs -->
+        <div class="cd-tab-bar">
+            <button class="cd-tab active" onclick="retShowTab('overview',this)">Dashboard</button>
+            <button class="cd-tab" onclick="retShowTab('inputs',this)">Data Inputs</button>
+            <button class="cd-tab" onclick="retShowTab('calcs',this)">Calculations</button>
+            <button class="cd-tab" onclick="retShowTab('charts',this)">Charts</button>
+        </div>
+
+        <!-- ── OVERVIEW ── -->
+        <div class="cd-section active" id="ret-sec-overview">
+            <div id="ret-dash-empty" class="empty" style="display:none">
+                <div class="ico">◉</div>
+                <p>No months yet. Add your first month via the Income Dashboard to start tracking retention.</p>
+                <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Add First Month</button>
+            </div>
+            <div id="ret-dash-content" style="display:none">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                        <span class="fc-period-lbl">Period</span>
+                        <select class="period-sel" id="ret-period-sel" onchange="retRenderOverview()"></select>
                     </div>
-                    <div class="chart-card">
-                        <div class="chart-title"><span class="cdot" style="color:var(--g1)"></span> NRR &amp; GR Trend</div>
-                        <canvas id="cd-chart-nrr" height="200"></canvas>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <button class="kw-tog-all" id="ret-btn-tog-all" onclick="retToggleAllWorkings(this)">▸ Workings</button>
+                        <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Month</button>
                     </div>
                 </div>
-                <div class="charts-row cr2">
-                    <div class="chart-card">
-                        <div class="chart-title"><span class="cdot" style="color:var(--red)"></span> Churn vs Expansion</div>
-                        <canvas id="cd-chart-churnexp" height="200"></canvas>
-                    </div>
-                    <div class="chart-card">
-                        <div class="chart-title"><span class="cdot" style="color:var(--amber)"></span> Churn Rate Trend</div>
-                        <canvas id="cd-chart-churnrate" height="200"></canvas>
-                    </div>
+                <div class="sec-hdr"><span class="sec-title">MRR Position</span></div>
+                <div class="kpi-grid g3" id="ret-row1"></div>
+                <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Retention Metrics</span></div>
+                <div class="kpi-grid g3" id="ret-row2"></div>
+            </div>
+        </div>
+
+        <!-- ── DATA INPUTS ── -->
+        <div class="cd-section" id="ret-sec-inputs">
+            <div id="ret-inp-empty" class="empty" style="display:none">
+                <div class="ico">✎</div>
+                <p>No months yet.</p>
+                <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Add First Month</button>
+            </div>
+            <div id="ret-inp-content" style="display:none">
+                <div class="inp-month-bar">
+                    <select class="period-sel" id="ret-inp-sel" onchange="retRenderInputs()"></select>
                 </div>
-                <div class="charts-row" style="grid-template-columns:1fr">
-                    <div class="chart-card">
-                        <div class="chart-title"><span class="cdot" style="color:#a78bfa"></span> MRR Revenue Bridge — <span id="cd-mrr-bridge-lbl" style="font-size:14px;color:var(--text3);font-weight:400"></span></div>
-                        <canvas id="cd-chart-mrrbridge" height="140"></canvas>
+                <div class="inp-section">
+                    <div class="inp-section-hdr">
+                        <div class="inp-section-dot" style="background:#a78bfa"></div>
+                        <div class="inp-section-title">Recurring Revenue (MRR)</div>
+                    </div>
+                    <div class="inp-row"><div class="inp-row-lbl">Starting MRR</div><input class="inp" type="number" id="ret-inp-startingMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">New MRR</div><input class="inp" type="number" id="ret-inp-newMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Expansion MRR</div><input class="inp" type="number" id="ret-inp-expansionMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Contraction MRR</div><input class="inp" type="number" id="ret-inp-contractionMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Churned MRR</div><input class="inp" type="number" id="ret-inp-churnedMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Ending MRR Override <span style="font-size:12px;color:var(--text3)">(optional)</span></div><input class="inp" type="number" id="ret-inp-endingMRROverride" min="0" step="0.01" oninput="retAutoSave()" placeholder="Auto-calc"></div>
+                    <div class="inp-row-total" style="border-top-color:rgba(167,139,250,.2);background:rgba(167,139,250,.03)">
+                        <div class="inp-total-lbl" style="color:#a78bfa">Ending MRR (calc)</div>
+                        <div class="inp-total-val" style="color:#a78bfa" id="ret-ending-mrr">—</div>
                     </div>
                 </div>
             </div>
         </div>
 
-    </div><!-- /page-cash -->
+        <!-- ── CALCULATIONS ── -->
+        <div class="cd-section" id="ret-sec-calcs">
+            <div id="ret-calcs-empty" class="empty" style="display:none">
+                <div class="ico">≡</div>
+                <p>No data yet. Add MRR figures in Data Inputs.</p>
+            </div>
+            <div id="ret-calcs-content" style="display:none">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+                    <span class="fc-period-lbl">Period</span>
+                    <select class="period-sel" id="ret-calcs-sel" onchange="retRenderCalcs()"></select>
+                </div>
+                <div id="ret-calcs-table" style="overflow-x:auto"></div>
+            </div>
+        </div>
+
+        <!-- ── CHARTS ── -->
+        <div class="cd-section" id="ret-sec-charts">
+            <div id="ret-charts-empty" class="empty" style="display:none">
+                <div class="ico">◑</div>
+                <p>No data yet. Add MRR figures in Data Inputs.</p>
+            </div>
+            <div id="ret-charts-content" style="display:none">
+                <div class="charts-row cr2">
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:#a78bfa"></span> MRR Trend</div>
+                        <canvas id="ret-chart-mrr" height="200"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--g1)"></span> NRR &amp; GR Trend</div>
+                        <canvas id="ret-chart-nrr" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="charts-row cr2">
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--red)"></span> Churn vs Expansion</div>
+                        <canvas id="ret-chart-churnexp" height="200"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--amber)"></span> Churn Rate Trend</div>
+                        <canvas id="ret-chart-churnrate" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="charts-row" style="grid-template-columns:1fr">
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:#a78bfa"></span> MRR Revenue Bridge — <span id="ret-mrr-bridge-lbl" style="font-size:14px;color:var(--text3);font-weight:400"></span></div>
+                        <canvas id="ret-chart-mrrbridge" height="140"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /page-retention -->
 
     <!-- ══════════════════ BUSINESS OVERVIEW PAGE ══════════════════ -->
     <div class="page" id="page-analytics">
@@ -877,7 +934,7 @@
         <div id="analytics-no-data" class="empty">
             <div class="ico">▣</div>
             <p>No data yet. Add your first month in <strong>Data Input</strong> to populate charts.</p>
-            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[4])">+ Add Month</button>
+            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[5])">+ Add Month</button>
         </div>
 
         <div id="analytics-content" style="display:none">
@@ -998,7 +1055,7 @@
         <div id="forecast-no-data" class="empty">
             <div class="ico">◎</div>
             <p>No data yet. Add your first month in <strong>Data Input</strong> to generate forecasts.</p>
-            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[4])">+ Add Month</button>
+            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[5])">+ Add Month</button>
         </div>
 
         <div id="forecast-content" style="display:none">
@@ -1474,7 +1531,7 @@ function showPage(id, el) {
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     document.getElementById('page-'+id).classList.add('active');
     if (el) el.classList.add('active');
-    const titles = { dashboard:'Monthly Overview', analytics:'Full Business Overview', forecast:'Pie Projection Dashboard', input:'Data Input', cash:'Income Dashboard' };
+    const titles = { dashboard:'Monthly Overview', analytics:'Full Business Overview', forecast:'Pie Projection Dashboard', input:'Data Input', cash:'Income Dashboard', retention:'Customer Retention' };
     document.getElementById('tb-title').textContent = titles[id] || id;
     document.getElementById('period-sel').style.display = 'none';
     if (id === 'dashboard') renderDashboard();
@@ -1482,6 +1539,7 @@ function showPage(id, el) {
     if (id === 'analytics') renderAnalytics();
     if (id === 'forecast') renderForecast();
     if (id === 'cash') cashRenderPage();
+    if (id === 'retention') retRenderPage();
 }
 
 // ══ Period Select ══
@@ -2579,7 +2637,6 @@ function cashRenderPage() {
 function cashRenderTab() {
     if      (cashActiveTab === 'overview') cashRenderOverview();
     else if (cashActiveTab === 'inputs')   cashRenderInputs();
-    else if (cashActiveTab === 'calcs')    cashRenderCalcs();
     else if (cashActiveTab === 'charts')   cashRenderCharts();
 }
 
@@ -2732,61 +2789,6 @@ function cashRenderOverview() {
         }).join('');
     }
 
-    /* Retention Engine KPIs */
-    function pctFmt(v) { return v !== null ? (v * 100).toFixed(1) + '%' : '—'; }
-    function mrrDelta(cur, prv, field) {
-        if (!prv || prv[field] === null || cur[field] === null) return '';
-        const d = cur[field] - prv[field];
-        if (Math.abs(d) < 0.0001) return '';
-        return `<div class="kpi-delta ${d > 0 ? 'up' : 'dn'}">${d > 0 ? '▲' : '▼'} ${(Math.abs(d)*100).toFixed(1)}pp</div>`;
-    }
-    const hasMRR = c.startMRR > 0 || c.endMRR > 0;
-    const r3 = document.getElementById('cd-row3');
-    if (r3) {
-        r3.innerHTML = hasMRR ? `
-        <div class="kpi" title="Starting MRR this month">
-            <div class="kpi-lbl">Starting MRR</div>
-            <div class="kpi-val" style="color:#a78bfa">${cdFmt(c.startMRR)}</div>
-            <div class="kpi-work">Manual entry for ${cdLabel(cashMonths[idx].id)}</div>
-            <div class="kpi-fml">Input — opening recurring revenue</div>
-        </div>
-        <div class="kpi" title="Ending MRR = Starting + New + Expansion − Contraction − Churned">
-            <div class="kpi-lbl">Ending MRR</div>
-            <div class="kpi-val" style="color:#a78bfa">${cdFmt(c.endMRR)}</div>
-            <div class="kpi-work">${cdFmt(c.startMRR)} + ${cdFmt(c.newMRR)} + ${cdFmt(c.expMRR)} − ${cdFmt(c.conMRR)} − ${cdFmt(c.churnMRR)}</div>
-            <div class="kpi-fml">Starting + New + Expansion − Contraction − Churned</div>
-            ${dBadge(c, prev, 'endMRR')}
-        </div>
-        <div class="kpi" title="Net Revenue Retention = Ending MRR ÷ Starting MRR. >100% means expansion exceeds churn.">
-            <div class="kpi-lbl">NRR</div>
-            <div class="kpi-val ${c.nrr === null ? '' : c.nrr >= 1 ? 'g' : 'r'}">${pctFmt(c.nrr)}</div>
-            <div class="kpi-work">${cdFmt(c.endMRR)} ÷ ${cdFmt(c.startMRR)}</div>
-            <div class="kpi-fml">Ending MRR ÷ Starting MRR</div>
-            ${mrrDelta(c, prev, 'nrr')}
-        </div>
-        <div class="kpi" title="Gross Retention = (Starting − Contraction − Churn) ÷ Starting. Ignores expansion.">
-            <div class="kpi-lbl">Gross Retention</div>
-            <div class="kpi-val ${c.gr === null ? '' : c.gr >= 0.85 ? 'g' : c.gr >= 0.7 ? 'a' : 'r'}">${pctFmt(c.gr)}</div>
-            <div class="kpi-work">(${cdFmt(c.startMRR)} − ${cdFmt(c.conMRR)} − ${cdFmt(c.churnMRR)}) ÷ ${cdFmt(c.startMRR)}</div>
-            <div class="kpi-fml">(Starting − Contraction − Churn) ÷ Starting</div>
-            ${mrrDelta(c, prev, 'gr')}
-        </div>
-        <div class="kpi" title="Churn Rate = Churned MRR ÷ Starting MRR. Lower is better.">
-            <div class="kpi-lbl">Churn Rate</div>
-            <div class="kpi-val ${c.churnRate === null ? '' : c.churnRate <= 0.02 ? 'g' : c.churnRate <= 0.05 ? 'a' : 'r'}">${pctFmt(c.churnRate)}</div>
-            <div class="kpi-work">${cdFmt(c.churnMRR)} ÷ ${cdFmt(c.startMRR)}</div>
-            <div class="kpi-fml">Churned MRR ÷ Starting MRR</div>
-            ${mrrDelta(c, prev, 'churnRate')}
-        </div>
-        <div class="kpi" title="Expansion Rate = Expansion MRR ÷ Starting MRR.">
-            <div class="kpi-lbl">Expansion Rate</div>
-            <div class="kpi-val ${c.expRate !== null && c.expRate > 0 ? 'g' : ''}">${pctFmt(c.expRate)}</div>
-            <div class="kpi-work">${cdFmt(c.expMRR)} ÷ ${cdFmt(c.startMRR)}</div>
-            <div class="kpi-fml">Expansion MRR ÷ Starting MRR</div>
-            ${mrrDelta(c, prev, 'expRate')}
-        </div>` : `<div style="color:var(--text3);font-size:14px;padding:16px 0;grid-column:1/-1">No MRR data entered for this month. Add Recurring Revenue figures in Data Inputs.</div>`;
-    }
-
     /* Inject workings toggles (guard inside prevents duplicates) */
     initWorkingToggles();
     /* Sync the "Workings" all-toggle button state */
@@ -2836,13 +2838,10 @@ function cashRenderInputs() {
         noteEl.textContent = 'Auto-set from ' + cdLabel(cashMonths[idx - 1].id) + ' closing (' + cdFmtFull(calcs[idx - 1].closing) + ').';
     }
 
-    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived',
-     'startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
+    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived'].forEach(k => {
         const el = document.getElementById('cd-inp-' + k);
         if (el) el.value = m[k] || '';
     });
-    const overEl = document.getElementById('cd-inp-endingMRROverride');
-    if (overEl) overEl.value = (m.endingMRROverride !== null && m.endingMRROverride !== undefined && m.endingMRROverride !== '') ? m.endingMRROverride : '';
     cdUpdateTotals();
 }
 
@@ -2855,14 +2854,6 @@ function cdUpdateTotals() {
     document.getElementById('cd-total-in').textContent  = cdFmtFull(totalIn);
     document.getElementById('cd-total-out').textContent = cdFmtFull(totalOut);
     document.getElementById('cd-coll-rate').textContent = cr !== null ? (cr * 100).toFixed(1) + '%' : '—';
-    /* Ending MRR calc preview */
-    const overEl = document.getElementById('cd-inp-endingMRROverride');
-    const endEl  = document.getElementById('cd-ending-mrr');
-    if (endEl) {
-        const overVal = overEl && overEl.value !== '' ? parseFloat(overEl.value) : null;
-        const endMRR  = overVal !== null ? overVal : g('startingMRR') + g('newMRR') + g('expansionMRR') - g('contractionMRR') - g('churnedMRR');
-        endEl.textContent = cdFmtFull(endMRR);
-    }
 }
 
 function cashAutoSave() {
@@ -2877,13 +2868,10 @@ function cdCommitInputs() {
     if (idx < 0) return;
     const m = cashMonths[idx];
     if (idx === 0) m.openingCash = parseFloat(document.getElementById('cd-inp-openingCash').value) || 0;
-    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived',
-     'startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
+    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived'].forEach(k => {
         const el = document.getElementById('cd-inp-' + k);
         if (el) m[k] = parseFloat(el.value) || 0;
     });
-    const overEl = document.getElementById('cd-inp-endingMRROverride');
-    m.endingMRROverride = (overEl && overEl.value !== '') ? parseFloat(overEl.value) : null;
     cashSave();
 }
 
@@ -2899,85 +2887,6 @@ function cdToggleAllWorkings(btn) {
         if (tog) tog.textContent = cdWorkingsOpen ? '▾ Hide working' : '▸ Show working';
     });
     btn.textContent = cdWorkingsOpen ? '▾ Workings' : '▸ Workings';
-}
-
-// ── Calculations Tab ──
-function cashRenderCalcs() {
-    const empty   = document.getElementById('cd-calcs-empty');
-    const content = document.getElementById('cd-calcs-content');
-    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
-    empty.style.display = 'none'; content.style.display = 'block';
-
-    const sel = document.getElementById('cd-calcs-sel');
-    if (sel) {
-        const cur = sel.value;
-        sel.innerHTML = '';
-        cashMonths.slice().reverse().forEach(mo => {
-            const o = document.createElement('option');
-            o.value = mo.id; o.textContent = cdLabel(mo.id);
-            sel.appendChild(o);
-        });
-        if (cur && cashMonths.find(mo => mo.id === cur)) sel.value = cur;
-        else if (cashMonths.length) sel.value = cashMonths[cashMonths.length - 1].id;
-    }
-
-    const id  = sel ? sel.value : cashMonths[cashMonths.length - 1].id;
-    const idx = cashMonths.findIndex(mo => mo.id === id);
-    if (idx < 0) return;
-    const calcs = cdCalcAll();
-    const c  = calcs[idx];
-    const m  = cashMonths[idx];
-    const pr = idx > 0 ? calcs[idx - 1] : null;
-
-    function row(label, value, formula, cls='') {
-        return `<tr><td style="padding:8px 14px;color:var(--text3)">${label}</td><td style="padding:8px 14px;font-family:monospace;font-size:13px;color:var(--text2)">${formula}</td><td style="padding:8px 14px;font-weight:700;text-align:right${cls ? ';color:' + cls : ''}">${value}</td></tr>`;
-    }
-    const tStyle = 'width:100%;border-collapse:collapse;font-size:14px';
-    const thStyle = 'padding:8px 14px;text-align:left;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)';
-
-    document.getElementById('cd-calcs-cash-table').innerHTML = `
-    <table style="${tStyle}">
-        <thead><tr>
-            <th style="${thStyle}">Metric</th>
-            <th style="${thStyle}">Formula</th>
-            <th style="${thStyle};text-align:right">Value</th>
-        </tr></thead>
-        <tbody>
-            ${row('Opening Cash', cdFmtFull(c.opening), pr ? 'Prior month closing' : 'Manual entry')}
-            ${row('Total Cash In', cdFmtFull(c.totalIn), 'Sum of all inflows', 'var(--g1)')}
-            ${row('Total Cash Out', cdFmtFull(c.totalOut), 'Sum of all outflows', 'var(--red)')}
-            ${row('Net Cash Flow', cdFmtFull(c.net), 'Total In − Total Out', c.net >= 0 ? 'var(--g1)' : 'var(--red)')}
-            ${row('Closing Cash', cdFmtFull(c.closing), 'Opening + Net Cash Flow', c.closing >= 0 ? 'var(--g1)' : 'var(--red)')}
-            ${row('Burn Rate', c.burn > 0 ? cdFmtFull(c.burn) : '£0', '|Net| when Net < 0, else £0', c.burn > 0 ? 'var(--red)' : 'var(--g1)')}
-            ${row('3-Mo Avg Burn', cdFmtFull(c.avgBurn), 'Avg of last 3 months burn')}
-            ${row('Runway', cdFmtRw(c.runway), 'Closing ÷ 3-Mo Avg Burn', c.runway === null || c.runway >= 12 ? 'var(--g1)' : c.runway >= 3 ? 'var(--amber)' : 'var(--red)')}
-            ${row('Collection Rate', c.collRate !== null ? (c.collRate*100).toFixed(1)+'%' : '—', 'Cash Received ÷ Invoices Sent', c.collRate !== null ? (c.collRate >= 0.9 ? 'var(--g1)' : c.collRate >= 0.75 ? 'var(--amber)' : 'var(--red)') : '')}
-        </tbody>
-    </table>`;
-
-    const hasMRR = c.startMRR > 0 || c.endMRR > 0;
-    document.getElementById('cd-calcs-mrr-table').innerHTML = hasMRR ? `
-    <table style="${tStyle}">
-        <thead><tr>
-            <th style="${thStyle}">Metric</th>
-            <th style="${thStyle}">Formula</th>
-            <th style="${thStyle};text-align:right">Value</th>
-        </tr></thead>
-        <tbody>
-            ${row('Starting MRR', cdFmtFull(c.startMRR), 'Manual entry', '#a78bfa')}
-            ${row('New MRR', cdFmtFull(c.newMRR), 'Manual entry', 'var(--g1)')}
-            ${row('Expansion MRR', cdFmtFull(c.expMRR), 'Manual entry', 'var(--teal)')}
-            ${row('Contraction MRR', cdFmtFull(c.conMRR), 'Manual entry', 'var(--amber)')}
-            ${row('Churned MRR', cdFmtFull(c.churnMRR), 'Manual entry', 'var(--red)')}
-            ${row('Ending MRR', cdFmtFull(c.endMRR), m.endingMRROverride !== null && m.endingMRROverride !== undefined && m.endingMRROverride !== '' ? 'Manual override' : 'Starting + New + Exp − Con − Churn', '#a78bfa')}
-            ${row('Net MRR Growth', cdFmtFull(c.netMRRGrowth), 'Ending − Starting', c.netMRRGrowth >= 0 ? 'var(--g1)' : 'var(--red)')}
-            ${row('MRR Growth %', c.mrrGrowthPct !== null ? (c.mrrGrowthPct*100).toFixed(1)+'%' : '—', 'Net Growth ÷ Starting', c.mrrGrowthPct !== null ? (c.mrrGrowthPct >= 0 ? 'var(--g1)' : 'var(--red)') : '')}
-            ${row('NRR', c.nrr !== null ? (c.nrr*100).toFixed(1)+'%' : '—', 'Ending ÷ Starting', c.nrr !== null ? (c.nrr >= 1 ? 'var(--g1)' : 'var(--red)') : '')}
-            ${row('Gross Retention', c.gr !== null ? (c.gr*100).toFixed(1)+'%' : '—', '(Starting − Con − Churn) ÷ Starting', c.gr !== null ? (c.gr >= 0.85 ? 'var(--g1)' : c.gr >= 0.7 ? 'var(--amber)' : 'var(--red)') : '')}
-            ${row('Churn Rate', c.churnRate !== null ? (c.churnRate*100).toFixed(1)+'%' : '—', 'Churned ÷ Starting', c.churnRate !== null ? (c.churnRate <= 0.02 ? 'var(--g1)' : c.churnRate <= 0.05 ? 'var(--amber)' : 'var(--red)') : '')}
-            ${row('Expansion Rate', c.expRate !== null ? (c.expRate*100).toFixed(1)+'%' : '—', 'Expansion ÷ Starting', c.expRate !== null && c.expRate > 0 ? 'var(--g1)' : '')}
-        </tbody>
-    </table>` : `<div style="color:var(--text3);font-size:14px;padding:16px 0">No MRR data entered for this month.</div>`;
 }
 
 // ── Charts Tab ──
@@ -3050,80 +2959,6 @@ function cashRenderCharts() {
         }
     });
 
-    /* ── Retention Charts ── */
-    const mrrYAxis = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12},callback:v=>'£'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:'rgba(255,255,255,.05)'} };
-    const pctYAxis = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12},callback:v=>v+'%'}, grid:{color:'rgba(255,255,255,.05)'} };
-    const mrrTip   = ctx => ' £' + ctx.parsed.y.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0});
-    const pctTip   = ctx => ' ' + ctx.parsed.y.toFixed(1) + '%';
-
-    /* 6. MRR Trend — Starting, Ending stacked area */
-    cdMkChart('cd-chart-mrr', {
-        type:'line',
-        data:{ labels, datasets:[
-            { label:'Ending MRR',  data:calcs.map(c=>c.endMRR),   borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,.12)', tension:.35, fill:true, borderWidth:2, pointBackgroundColor:'#a78bfa' },
-            { label:'Starting MRR',data:calcs.map(c=>c.startMRR), borderColor:'rgba(167,139,250,.4)', backgroundColor:'transparent', tension:.35, fill:false, borderWidth:1.5, borderDash:[4,4] }
-        ]},
-        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:mrrTip}}}, scales:{x:xAxis,y:mrrYAxis} }
-    });
-
-    /* 7. NRR & GR Trend */
-    cdMkChart('cd-chart-nrr', {
-        type:'line',
-        data:{ labels, datasets:[
-            { label:'NRR %', data:calcs.map(c=>c.nrr!==null?(c.nrr*100):null), borderColor:'var(--g1)', backgroundColor:'rgba(76,217,123,.07)', tension:.35, fill:true, borderWidth:2, pointBackgroundColor:'var(--g1)', spanGaps:true },
-            { label:'GR %',  data:calcs.map(c=>c.gr!==null?(c.gr*100):null),   borderColor:'var(--teal)', backgroundColor:'transparent', tension:.35, fill:false, borderWidth:2, pointBackgroundColor:'var(--teal)', spanGaps:true }
-        ]},
-        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:pctTip}}},
-            scales:{ x:xAxis, y:{...pctYAxis, suggestedMin:70, suggestedMax:120,
-                ticks:{...pctYAxis.ticks,callback:v=>v+'%'},
-                afterDataLimits: ax => { ax.min = Math.min(ax.min, 70); }
-            }}
-        }
-    });
-
-    /* 8. Churn vs Expansion — grouped bar */
-    cdMkChart('cd-chart-churnexp', {
-        type:'bar',
-        data:{ labels, datasets:[
-            { label:'Expansion MRR', data:calcs.map(c=>c.expMRR),   backgroundColor:'rgba(76,217,123,.75)',  borderRadius:4 },
-            { label:'Churned MRR',   data:calcs.map(c=>-c.churnMRR),backgroundColor:'rgba(248,113,113,.75)', borderRadius:4 }
-        ]},
-        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:ctx=>' £'+Math.abs(ctx.parsed.y).toLocaleString('en-GB',{minimumFractionDigits:0})}}}, scales:{x:xAxis,y:mrrYAxis} }
-    });
-
-    /* 9. Churn Rate Trend */
-    cdMkChart('cd-chart-churnrate', {
-        type:'line',
-        data:{ labels, datasets:[
-            { label:'Churn Rate %', data:calcs.map(c=>c.churnRate!==null?(c.churnRate*100):null), borderColor:'var(--amber)', backgroundColor:'rgba(251,191,36,.07)', tension:.35, fill:true, borderWidth:2, pointBackgroundColor:'var(--amber)', spanGaps:true }
-        ]},
-        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:pctTip}}}, scales:{x:xAxis,y:pctYAxis} }
-    });
-
-    /* 10. MRR Revenue Bridge waterfall — most recent month */
-    const mrLast = calcs[calcs.length - 1];
-    const mrLbl  = cdLabel(cashMonths[cashMonths.length - 1].id);
-    document.getElementById('cd-mrr-bridge-lbl').textContent = mrLbl;
-    cdMkChart('cd-chart-mrrbridge', {
-        type:'bar',
-        data:{ labels:['Starting MRR','New MRR','Expansion','Contraction','Churn','Ending MRR'], datasets:[{
-            label:'MRR Bridge',
-            data:[
-                [0, mrLast.startMRR],
-                [mrLast.startMRR, mrLast.startMRR + mrLast.newMRR],
-                [mrLast.startMRR + mrLast.newMRR, mrLast.startMRR + mrLast.newMRR + mrLast.expMRR],
-                [mrLast.startMRR + mrLast.newMRR + mrLast.expMRR - mrLast.conMRR, mrLast.startMRR + mrLast.newMRR + mrLast.expMRR],
-                [mrLast.endMRR, mrLast.endMRR + mrLast.churnMRR],
-                [0, mrLast.endMRR]
-            ],
-            backgroundColor:['rgba(167,139,250,.85)','rgba(76,217,123,.85)','rgba(45,212,191,.85)','rgba(251,191,36,.85)','rgba(248,113,113,.85)','rgba(167,139,250,.85)'],
-            borderRadius:5, borderSkipped:false
-        }]},
-        options:{ responsive:true, maintainAspectRatio:true,
-            plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>' £'+Math.abs(ctx.raw[1]-ctx.raw[0]).toLocaleString('en-GB',{minimumFractionDigits:0})}} },
-            scales:{x:xAxis,y:mrrYAxis}
-        }
-    });
 }
 
 // ── Add Month Modal ──
@@ -3192,8 +3027,8 @@ function cashConfirmAddMonth() {
     cashSave();
     cashCloseAddMonth();
 
-    // Jump to inputs tab for new month (index 1: Dashboard=0, Data Inputs=1)
-    cashShowTab('inputs', document.querySelectorAll('#page-cash .cd-tab')[1]);
+    // Jump to inputs tab for new month (index 2: Dashboard=0, Charts=1, Data Inputs=2)
+    cashShowTab('inputs', document.querySelectorAll('#page-cash .cd-tab')[2]);
     cdPopulateInpSel();
     document.getElementById('cd-inp-sel').value = id;
     cashRenderInputs();
@@ -3205,6 +3040,345 @@ function cashDeleteMonth() {
     cashMonths = cashMonths.filter(m => m.id !== id);
     cashSave();
     cashRenderInputs();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  CUSTOMER RETENTION DASHBOARD
+//  Shares cashMonths[] data — MRR fields stored alongside cash.
+// ══════════════════════════════════════════════════════════════
+
+let retActiveTab = 'overview';
+let retSaveTimer = null;
+
+function retShowTab(id, el) {
+    document.querySelectorAll('#page-retention .cd-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('#page-retention .cd-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('ret-sec-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+    retActiveTab = id;
+    retRenderTab();
+}
+
+function retRenderPage() { retRenderTab(); }
+
+function retRenderTab() {
+    if      (retActiveTab === 'overview') retRenderOverview();
+    else if (retActiveTab === 'inputs')   retRenderInputs();
+    else if (retActiveTab === 'calcs')    retRenderCalcs();
+    else if (retActiveTab === 'charts')   retRenderCharts();
+}
+
+// ── Overview ──
+function retPopulateSel(selId, onchange) {
+    const sel = document.getElementById(selId);
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '';
+    cashMonths.slice().reverse().forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.id; o.textContent = cdLabel(m.id);
+        sel.appendChild(o);
+    });
+    if (cur && cashMonths.find(m => m.id === cur)) sel.value = cur;
+    else if (cashMonths.length) sel.value = cashMonths[cashMonths.length - 1].id;
+    sel.onchange = onchange;
+}
+
+function retRenderOverview() {
+    const empty   = document.getElementById('ret-dash-empty');
+    const content = document.getElementById('ret-dash-content');
+    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
+    empty.style.display = 'none'; content.style.display = 'block';
+    retPopulateSel('ret-period-sel', retRenderOverview);
+
+    const id  = document.getElementById('ret-period-sel').value || cashMonths[cashMonths.length-1].id;
+    const idx = cashMonths.findIndex(m => m.id === id);
+    if (idx < 0) return;
+    const calcs = cdCalcAll();
+    const c    = calcs[idx];
+    const prev = idx > 0 ? calcs[idx - 1] : null;
+
+    function pct(v)  { return v !== null ? (v * 100).toFixed(1) + '%' : '—'; }
+    function pp(cur, prv, field) {
+        if (!prv || prv[field] === null || cur[field] === null) return '';
+        const d = cur[field] - prv[field];
+        if (Math.abs(d) < 0.0001) return '';
+        return `<div class="kpi-delta ${d > 0 ? 'up' : 'dn'}">${d > 0 ? '▲' : '▼'} ${(Math.abs(d)*100).toFixed(1)}pp</div>`;
+    }
+    function mb(cur, prv, field) {
+        if (!prv) return '';
+        const d = cur[field] - prv[field];
+        const cls = d > 0 ? 'up' : d < 0 ? 'dn' : 'nul';
+        return `<div class="kpi-delta ${cls}">${d > 0 ? '▲' : d < 0 ? '▼' : '—'} ${cdFmt(Math.abs(d))}</div>`;
+    }
+
+    document.getElementById('ret-row1').innerHTML = `
+        <div class="kpi" title="Starting MRR this month">
+            <div class="kpi-lbl">Starting MRR</div>
+            <div class="kpi-val" style="color:#a78bfa">${cdFmt(c.startMRR)}</div>
+            <div class="kpi-work">Manual entry for ${cdLabel(cashMonths[idx].id)}</div>
+            <div class="kpi-fml">Input — opening recurring revenue</div>
+            ${mb(c, prev, 'startMRR')}
+        </div>
+        <div class="kpi" title="Ending MRR = Starting + New + Expansion − Contraction − Churned">
+            <div class="kpi-lbl">Ending MRR</div>
+            <div class="kpi-val" style="color:#a78bfa">${cdFmt(c.endMRR)}</div>
+            <div class="kpi-work">${cdFmt(c.startMRR)} + ${cdFmt(c.newMRR)} + ${cdFmt(c.expMRR)} − ${cdFmt(c.conMRR)} − ${cdFmt(c.churnMRR)}</div>
+            <div class="kpi-fml">Starting + New + Expansion − Contraction − Churned</div>
+            ${mb(c, prev, 'endMRR')}
+        </div>
+        <div class="kpi" title="Net MRR Growth = Ending − Starting">
+            <div class="kpi-lbl">Net MRR Growth</div>
+            <div class="kpi-val ${c.netMRRGrowth >= 0 ? 'g' : 'r'}">${cdFmt(c.netMRRGrowth)}</div>
+            <div class="kpi-work">${cdFmt(c.endMRR)} − ${cdFmt(c.startMRR)}</div>
+            <div class="kpi-fml">Ending MRR − Starting MRR</div>
+            ${mb(c, prev, 'netMRRGrowth')}
+        </div>`;
+
+    document.getElementById('ret-row2').innerHTML = `
+        <div class="kpi" title="Net Revenue Retention = Ending ÷ Starting. >100% = expansion beats churn.">
+            <div class="kpi-lbl">NRR</div>
+            <div class="kpi-val ${c.nrr === null ? '' : c.nrr >= 1 ? 'g' : 'r'}">${pct(c.nrr)}</div>
+            <div class="kpi-work">${cdFmt(c.endMRR)} ÷ ${cdFmt(c.startMRR)}</div>
+            <div class="kpi-fml">Ending MRR ÷ Starting MRR</div>
+            ${pp(c, prev, 'nrr')}
+        </div>
+        <div class="kpi" title="Gross Retention = (Starting − Contraction − Churn) ÷ Starting">
+            <div class="kpi-lbl">Gross Retention</div>
+            <div class="kpi-val ${c.gr === null ? '' : c.gr >= 0.85 ? 'g' : c.gr >= 0.7 ? 'a' : 'r'}">${pct(c.gr)}</div>
+            <div class="kpi-work">(${cdFmt(c.startMRR)} − ${cdFmt(c.conMRR)} − ${cdFmt(c.churnMRR)}) ÷ ${cdFmt(c.startMRR)}</div>
+            <div class="kpi-fml">(Starting − Contraction − Churn) ÷ Starting</div>
+            ${pp(c, prev, 'gr')}
+        </div>
+        <div class="kpi" title="Churn Rate = Churned MRR ÷ Starting MRR. Lower is better.">
+            <div class="kpi-lbl">Churn Rate</div>
+            <div class="kpi-val ${c.churnRate === null ? '' : c.churnRate <= 0.02 ? 'g' : c.churnRate <= 0.05 ? 'a' : 'r'}">${pct(c.churnRate)}</div>
+            <div class="kpi-work">${cdFmt(c.churnMRR)} ÷ ${cdFmt(c.startMRR)}</div>
+            <div class="kpi-fml">Churned MRR ÷ Starting MRR</div>
+            ${pp(c, prev, 'churnRate')}
+        </div>
+        <div class="kpi" title="Expansion Rate = Expansion MRR ÷ Starting MRR">
+            <div class="kpi-lbl">Expansion Rate</div>
+            <div class="kpi-val ${c.expRate !== null && c.expRate > 0 ? 'g' : ''}">${pct(c.expRate)}</div>
+            <div class="kpi-work">${cdFmt(c.expMRR)} ÷ ${cdFmt(c.startMRR)}</div>
+            <div class="kpi-fml">Expansion MRR ÷ Starting MRR</div>
+            ${pp(c, prev, 'expRate')}
+        </div>
+        <div class="kpi" title="MRR Growth % = Net Growth ÷ Starting MRR">
+            <div class="kpi-lbl">MRR Growth %</div>
+            <div class="kpi-val ${c.mrrGrowthPct === null ? '' : c.mrrGrowthPct >= 0 ? 'g' : 'r'}">${pct(c.mrrGrowthPct)}</div>
+            <div class="kpi-work">${cdFmt(c.netMRRGrowth)} ÷ ${cdFmt(c.startMRR)}</div>
+            <div class="kpi-fml">Net MRR Growth ÷ Starting MRR</div>
+            ${pp(c, prev, 'mrrGrowthPct')}
+        </div>`;
+
+    initWorkingToggles();
+    const togBtn = document.getElementById('ret-btn-tog-all');
+    if (togBtn) togBtn.textContent = '▸ Workings';
+}
+
+let retWorkingsOpen = false;
+function retToggleAllWorkings(btn) {
+    retWorkingsOpen = !retWorkingsOpen;
+    document.querySelectorAll('#page-retention .kpi').forEach(kpi => {
+        if (!kpi.querySelector('.kpi-work')) return;
+        kpi.classList.toggle('wk-closed', !retWorkingsOpen);
+        const tog = kpi.querySelector('.kw-tog');
+        if (tog) tog.textContent = retWorkingsOpen ? '▾ Hide working' : '▸ Show working';
+    });
+    btn.textContent = retWorkingsOpen ? '▾ Workings' : '▸ Workings';
+}
+
+// ── Data Inputs ──
+function retRenderInputs() {
+    const empty   = document.getElementById('ret-inp-empty');
+    const content = document.getElementById('ret-inp-content');
+    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
+    empty.style.display = 'none'; content.style.display = 'block';
+    retPopulateSel('ret-inp-sel', retRenderInputs);
+
+    const id  = document.getElementById('ret-inp-sel').value;
+    const idx = cashMonths.findIndex(m => m.id === id);
+    if (idx < 0) return;
+    const m = cashMonths[idx];
+
+    ['startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
+        const el = document.getElementById('ret-inp-' + k);
+        if (el) el.value = m[k] || '';
+    });
+    const overEl = document.getElementById('ret-inp-endingMRROverride');
+    if (overEl) overEl.value = (m.endingMRROverride !== null && m.endingMRROverride !== undefined && m.endingMRROverride !== '') ? m.endingMRROverride : '';
+    retUpdateMRRPreview();
+}
+
+function retUpdateMRRPreview() {
+    const g = k => parseFloat(document.getElementById('ret-inp-' + k)?.value) || 0;
+    const overEl = document.getElementById('ret-inp-endingMRROverride');
+    const endEl  = document.getElementById('ret-ending-mrr');
+    if (endEl) {
+        const overVal = overEl && overEl.value !== '' ? parseFloat(overEl.value) : null;
+        const endMRR  = overVal !== null ? overVal : g('startingMRR') + g('newMRR') + g('expansionMRR') - g('contractionMRR') - g('churnedMRR');
+        endEl.textContent = cdFmtFull(endMRR);
+    }
+}
+
+function retAutoSave() {
+    retUpdateMRRPreview();
+    clearTimeout(retSaveTimer);
+    retSaveTimer = setTimeout(retCommitInputs, 350);
+}
+
+function retCommitInputs() {
+    const id  = document.getElementById('ret-inp-sel').value;
+    const idx = cashMonths.findIndex(m => m.id === id);
+    if (idx < 0) return;
+    const m = cashMonths[idx];
+    ['startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
+        const el = document.getElementById('ret-inp-' + k);
+        if (el) m[k] = parseFloat(el.value) || 0;
+    });
+    const overEl = document.getElementById('ret-inp-endingMRROverride');
+    m.endingMRROverride = (overEl && overEl.value !== '') ? parseFloat(overEl.value) : null;
+    cashSave();
+}
+
+// ── Calculations ──
+function retRenderCalcs() {
+    const empty   = document.getElementById('ret-calcs-empty');
+    const content = document.getElementById('ret-calcs-content');
+    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
+    empty.style.display = 'none'; content.style.display = 'block';
+    retPopulateSel('ret-calcs-sel', retRenderCalcs);
+
+    const id  = document.getElementById('ret-calcs-sel').value;
+    const idx = cashMonths.findIndex(mo => mo.id === id);
+    if (idx < 0) return;
+    const calcs = cdCalcAll();
+    const c = calcs[idx];
+    const m = cashMonths[idx];
+
+    function row(label, value, formula, cls='') {
+        return `<tr>
+            <td style="padding:8px 14px;color:var(--text3)">${label}</td>
+            <td style="padding:8px 14px;font-family:monospace;font-size:13px;color:var(--text2)">${formula}</td>
+            <td style="padding:8px 14px;font-weight:700;text-align:right${cls?';color:'+cls:''}">${value}</td>
+        </tr>`;
+    }
+    const tS  = 'width:100%;border-collapse:collapse;font-size:14px';
+    const thS = 'padding:8px 14px;text-align:left;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)';
+
+    const hasMRR = c.startMRR > 0 || c.endMRR > 0;
+    document.getElementById('ret-calcs-table').innerHTML = hasMRR ? `
+    <table style="${tS}">
+        <thead><tr>
+            <th style="${thS}">Metric</th>
+            <th style="${thS}">Formula</th>
+            <th style="${thS};text-align:right">Value</th>
+        </tr></thead>
+        <tbody>
+            ${row('Starting MRR', cdFmtFull(c.startMRR), 'Manual entry', '#a78bfa')}
+            ${row('New MRR', cdFmtFull(c.newMRR), 'Manual entry', 'var(--g1)')}
+            ${row('Expansion MRR', cdFmtFull(c.expMRR), 'Manual entry', 'var(--teal)')}
+            ${row('Contraction MRR', cdFmtFull(c.conMRR), 'Manual entry', 'var(--amber)')}
+            ${row('Churned MRR', cdFmtFull(c.churnMRR), 'Manual entry', 'var(--red)')}
+            ${row('Ending MRR', cdFmtFull(c.endMRR), m.endingMRROverride != null && m.endingMRROverride !== '' ? 'Manual override' : 'Starting + New + Exp − Con − Churn', '#a78bfa')}
+            ${row('Net MRR Growth', cdFmtFull(c.netMRRGrowth), 'Ending − Starting', c.netMRRGrowth >= 0 ? 'var(--g1)' : 'var(--red)')}
+            ${row('MRR Growth %', c.mrrGrowthPct !== null ? (c.mrrGrowthPct*100).toFixed(1)+'%' : '—', 'Net Growth ÷ Starting', c.mrrGrowthPct !== null ? (c.mrrGrowthPct >= 0 ? 'var(--g1)' : 'var(--red)') : '')}
+            ${row('NRR', c.nrr !== null ? (c.nrr*100).toFixed(1)+'%' : '—', 'Ending ÷ Starting', c.nrr !== null ? (c.nrr >= 1 ? 'var(--g1)' : 'var(--red)') : '')}
+            ${row('Gross Retention', c.gr !== null ? (c.gr*100).toFixed(1)+'%' : '—', '(Starting − Con − Churn) ÷ Starting', c.gr !== null ? (c.gr >= 0.85 ? 'var(--g1)' : c.gr >= 0.7 ? 'var(--amber)' : 'var(--red)') : '')}
+            ${row('Churn Rate', c.churnRate !== null ? (c.churnRate*100).toFixed(1)+'%' : '—', 'Churned ÷ Starting', c.churnRate !== null ? (c.churnRate <= 0.02 ? 'var(--g1)' : c.churnRate <= 0.05 ? 'var(--amber)' : 'var(--red)') : '')}
+            ${row('Expansion Rate', c.expRate !== null ? (c.expRate*100).toFixed(1)+'%' : '—', 'Expansion ÷ Starting', c.expRate !== null && c.expRate > 0 ? 'var(--g1)' : '')}
+        </tbody>
+    </table>` : `<div style="color:var(--text3);font-size:14px;padding:16px 0">No MRR data entered for this month. Go to Data Inputs to add figures.</div>`;
+}
+
+// ── Charts ──
+const retCharts = {};
+function retMkChart(id, cfg) {
+    if (retCharts[id]) retCharts[id].destroy();
+    const el = document.getElementById(id);
+    if (el) retCharts[id] = new Chart(el, cfg);
+}
+
+function retRenderCharts() {
+    const empty   = document.getElementById('ret-charts-empty');
+    const content = document.getElementById('ret-charts-content');
+    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
+    empty.style.display = 'none'; content.style.display = 'block';
+
+    const calcs  = cdCalcAll();
+    const labels = cashMonths.map(m => cdLabel(m.id));
+    const xAxis  = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12}}, grid:{color:'rgba(255,255,255,.05)'} };
+    const mrrY   = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12},callback:v=>'£'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:'rgba(255,255,255,.05)'} };
+    const pctY   = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12},callback:v=>v+'%'}, grid:{color:'rgba(255,255,255,.05)'} };
+    const lgd    = { labels:{color:'rgba(220,240,228,.5)',font:{size:13}} };
+    const mrrTip = ctx => ' £' + ctx.parsed.y.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0});
+    const pctTip = ctx => ' ' + ctx.parsed.y.toFixed(1) + '%';
+
+    /* MRR Trend */
+    retMkChart('ret-chart-mrr', {
+        type:'line',
+        data:{ labels, datasets:[
+            { label:'Ending MRR',  data:calcs.map(c=>c.endMRR),   borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,.12)', tension:.35, fill:true, borderWidth:2, pointBackgroundColor:'#a78bfa' },
+            { label:'Starting MRR',data:calcs.map(c=>c.startMRR), borderColor:'rgba(167,139,250,.4)', backgroundColor:'transparent', tension:.35, fill:false, borderWidth:1.5, borderDash:[4,4] }
+        ]},
+        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:mrrTip}}}, scales:{x:xAxis,y:mrrY} }
+    });
+
+    /* NRR & GR Trend */
+    retMkChart('ret-chart-nrr', {
+        type:'line',
+        data:{ labels, datasets:[
+            { label:'NRR %', data:calcs.map(c=>c.nrr!==null?(c.nrr*100):null), borderColor:'var(--g1)', backgroundColor:'rgba(76,217,123,.07)', tension:.35, fill:true, borderWidth:2, pointBackgroundColor:'var(--g1)', spanGaps:true },
+            { label:'GR %',  data:calcs.map(c=>c.gr!==null?(c.gr*100):null),   borderColor:'var(--teal)', backgroundColor:'transparent', tension:.35, fill:false, borderWidth:2, pointBackgroundColor:'var(--teal)', spanGaps:true }
+        ]},
+        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:pctTip}}},
+            scales:{ x:xAxis, y:{...pctY, suggestedMin:70, suggestedMax:120, ticks:{...pctY.ticks,callback:v=>v+'%'}} }
+        }
+    });
+
+    /* Churn vs Expansion */
+    retMkChart('ret-chart-churnexp', {
+        type:'bar',
+        data:{ labels, datasets:[
+            { label:'Expansion MRR', data:calcs.map(c=>c.expMRR),    backgroundColor:'rgba(76,217,123,.75)',  borderRadius:4 },
+            { label:'Churned MRR',   data:calcs.map(c=>-c.churnMRR), backgroundColor:'rgba(248,113,113,.75)', borderRadius:4 }
+        ]},
+        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:ctx=>' £'+Math.abs(ctx.parsed.y).toLocaleString('en-GB',{minimumFractionDigits:0})}}}, scales:{x:xAxis,y:mrrY} }
+    });
+
+    /* Churn Rate Trend */
+    retMkChart('ret-chart-churnrate', {
+        type:'line',
+        data:{ labels, datasets:[
+            { label:'Churn Rate %', data:calcs.map(c=>c.churnRate!==null?(c.churnRate*100):null), borderColor:'var(--amber)', backgroundColor:'rgba(251,191,36,.07)', tension:.35, fill:true, borderWidth:2, pointBackgroundColor:'var(--amber)', spanGaps:true }
+        ]},
+        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:pctTip}}}, scales:{x:xAxis,y:pctY} }
+    });
+
+    /* MRR Revenue Bridge — most recent month */
+    const last = calcs[calcs.length - 1];
+    document.getElementById('ret-mrr-bridge-lbl').textContent = cdLabel(cashMonths[cashMonths.length - 1].id);
+    retMkChart('ret-chart-mrrbridge', {
+        type:'bar',
+        data:{ labels:['Starting MRR','New MRR','Expansion','Contraction','Churn','Ending MRR'], datasets:[{
+            label:'MRR Bridge',
+            data:[
+                [0, last.startMRR],
+                [last.startMRR, last.startMRR + last.newMRR],
+                [last.startMRR + last.newMRR, last.startMRR + last.newMRR + last.expMRR],
+                [last.startMRR + last.newMRR + last.expMRR - last.conMRR, last.startMRR + last.newMRR + last.expMRR],
+                [last.endMRR, last.endMRR + last.churnMRR],
+                [0, last.endMRR]
+            ],
+            backgroundColor:['rgba(167,139,250,.85)','rgba(76,217,123,.85)','rgba(45,212,191,.85)','rgba(251,191,36,.85)','rgba(248,113,113,.85)','rgba(167,139,250,.85)'],
+            borderRadius:5, borderSkipped:false
+        }]},
+        options:{ responsive:true, maintainAspectRatio:true,
+            plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>' £'+Math.abs(ctx.raw[1]-ctx.raw[0]).toLocaleString('en-GB',{minimumFractionDigits:0})}} },
+            scales:{x:xAxis,y:mrrY}
+        }
+    });
 }
 // ══════════════════════════════════════════════════════════════
 </script>
