@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <style>
         :root {
             --bg: #030806;
@@ -1011,17 +1012,8 @@
 
 <script>
 // ══ Firebase ══
-// Paste your Firebase project config here (Firebase console → Project settings → Your apps)
-const firebaseConfig = {
-    apiKey:            "AIzaSyAHXKhRH6XJ-l-q5uAqEm0XPUqPFS3yYZ8",
-    authDomain:        "ceo-dashboard-c5089.firebaseapp.com",
-    databaseURL:       "https://ceo-dashboard-c5089-default-rtdb.firebaseio.com",
-    projectId:         "ceo-dashboard-c5089",
-    storageBucket:     "ceo-dashboard-c5089.firebasestorage.app",
-    messagingSenderId: "189541799561",
-    appId:             "1:189541799561:web:380b7ac15e4d349e41d858"
-};
-firebase.initializeApp(firebaseConfig);
+// Config is loaded from firebase-config.js (gitignored) — see firebase-config.example.js
+firebase.initializeApp(window.FIREBASE_CONFIG);
 const auth = firebase.auth();
 const db   = firebase.database();
 
