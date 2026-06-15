@@ -367,6 +367,75 @@
         .tmt-switch input:checked + .tmt-slider{background:#f97316}
         .tmt-switch input:checked + .tmt-slider::before{transform:translateX(16px)}
 
+        /* ── Light Mode ── */
+        body.light-mode {
+            --bg: #f2f5f2;
+            --bg-card: rgba(0,0,0,.028);
+            --bg-card-h: rgba(0,0,0,.05);
+            --border: rgba(0,0,0,.10);
+            --border-g: rgba(20,100,50,.28);
+            --g1: #16a34a;
+            --g2: #166534;
+            --g3: #dcfce7;
+            --g4: #14532d;
+            --gm: rgba(22,163,74,.08);
+            --text: #0d1710;
+            --text2: rgba(13,23,16,.62);
+            --text3: rgba(13,23,16,.42);
+            --red: #dc2626;
+            --red-bg: rgba(220,38,38,.09);
+            --teal: #0891b2;
+            --purple: #7c3aed;
+            --amber: #b45309;
+            --orange: #c2410c;
+            background-image: none;
+        }
+        body.light-mode .sidebar { background: rgba(255,255,255,.82); backdrop-filter:blur(8px); }
+        body.light-mode .topbar  { background: rgba(242,245,242,.94); }
+        body.light-mode .modal   { background: #fff; }
+        body.light-mode .modal-ov { background: rgba(0,0,0,.55); }
+        body.light-mode .period-sel option,
+        body.light-mode .fs option { background: #fff; color: #0d1710; }
+        body.light-mode thead th { background: rgba(0,0,0,.035); }
+        body.light-mode .proj-wrap thead th { background: #eaf0ea; }
+        body.light-mode tbody tr:hover { background: rgba(0,0,0,.025); }
+        body.light-mode .tmt-slider { background: rgba(0,0,0,.14); }
+        body.light-mode .tmt-wrap  { background: rgba(0,0,0,.04); }
+        body.light-mode .kpi-work  { color: rgba(13,23,16,.5); }
+        body.light-mode .kpi-fml   { color: rgba(13,23,16,.3); }
+        body.light-mode .kw-tog    { color: rgba(13,23,16,.3); }
+        body.light-mode .kw-tog:hover { color: rgba(13,23,16,.7); }
+        body.light-mode .kw-tog-all { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); }
+        body.light-mode .kw-tog-all:hover { background: rgba(0,0,0,.11); }
+        body.light-mode .inp:hover:not(:focus) { background: rgba(0,0,0,.03); border-color: rgba(0,0,0,.1); }
+        body.light-mode .inp:focus { background: rgba(22,163,74,.06); }
+        body.light-mode .fi,
+        body.light-mode .fs { background: rgba(0,0,0,.04); }
+        body.light-mode #pw-inp  { background: rgba(0,0,0,.04); }
+        body.light-mode .sat-bar { background: rgba(0,0,0,.09); }
+        body.light-mode .ftabs,
+        body.light-mode .cd-tab-bar { background: rgba(0,0,0,.04); }
+        body.light-mode .ftab:hover,
+        body.light-mode .cd-tab:hover { background: rgba(0,0,0,.05); }
+        body.light-mode .kpi-delta.nul { background: rgba(0,0,0,.05); }
+        body.light-mode .status-badge.unknown { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08); }
+        body.light-mode .di-calc-row { border-bottom-color: rgba(0,0,0,.05); }
+        body.light-mode .referral-inp { background: rgba(0,0,0,.04); }
+        body.light-mode .coll-bar-wrap { background: rgba(0,0,0,.07); }
+        body.light-mode #pw-btn:hover { color: #fff; }
+        /* Theme toggle button */
+        .theme-btn {
+            display:inline-flex;align-items:center;gap:5px;
+            background:rgba(255,255,255,.06);border:1px solid var(--border);
+            border-radius:100px;padding:4px 13px;cursor:pointer;
+            font-size:13px;color:var(--text3);font-weight:600;
+            letter-spacing:.04em;font-family:inherit;
+            transition:background .15s,color .15s;
+        }
+        .theme-btn:hover { background:rgba(255,255,255,.12); color:var(--text); }
+        body.light-mode .theme-btn { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.1); }
+        body.light-mode .theme-btn:hover { background:rgba(0,0,0,.11); color:var(--text); }
+
         /* ── Test Mode Theme Override ── */
         body.test-mode{
             --g1:#fb923c;
@@ -497,6 +566,7 @@
                     <span class="tmt-slider"></span>
                 </span>
             </label>
+            <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
             <div class="badge-live"><span class="dot"></span><span id="badge-txt"> Live</span></div>
             <button class="kw-tog-all" id="btn-tog-all" onclick="toggleAllWorkings(this)">▸ Workings</button>
             <select class="period-sel" id="period-sel" onchange="renderDashboard()">
@@ -1645,23 +1715,33 @@ function renderDashboard() {
 }
 
 // ══ Charts ══
-const CD = {
-    responsive:true, maintainAspectRatio:false,
-    plugins:{
-        legend:{labels:{color:'rgba(220,240,228,.55)',font:{size:16},boxWidth:14,padding:16}},
-        tooltip:{backgroundColor:'#081208',borderColor:'rgba(60,160,90,.3)',borderWidth:1,titleColor:'#e8f0ea',bodyColor:'rgba(220,240,228,.7)',padding:12,cornerRadius:8,titleFont:{size:16},bodyFont:{size:15}}
-    },
-    scales:{
-        x:{ticks:{color:'rgba(220,240,228,.6)',font:{size:15}},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.08)'}},
-        y:{ticks:{color:'rgba(220,240,228,.6)',font:{size:15}},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.08)'}}
-    }
-};
+function isLight() { return document.body.classList.contains('light-mode'); }
+function getCD() {
+    const lm = isLight();
+    const tc = lm ? 'rgba(13,23,16,.55)'   : 'rgba(220,240,228,.55)';
+    const gc = lm ? 'rgba(0,0,0,.07)'       : 'rgba(255,255,255,.04)';
+    const bc = lm ? 'rgba(0,0,0,.1)'        : 'rgba(255,255,255,.08)';
+    const tbg= lm ? '#ffffff'               : '#081208';
+    const ttl= lm ? '#0d1710'               : '#e8f0ea';
+    const tbd= lm ? 'rgba(13,23,16,.7)'    : 'rgba(220,240,228,.7)';
+    return {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+            legend:{labels:{color:tc,font:{size:16},boxWidth:14,padding:16}},
+            tooltip:{backgroundColor:tbg,borderColor:'rgba(60,160,90,.3)',borderWidth:1,titleColor:ttl,bodyColor:tbd,padding:12,cornerRadius:8,titleFont:{size:16},bodyFont:{size:15}}
+        },
+        scales:{
+            x:{ticks:{color:tc,font:{size:15}},grid:{color:gc},border:{color:bc}},
+            y:{ticks:{color:tc,font:{size:15}},grid:{color:gc},border:{color:bc}}
+        }
+    };
+}
 
 function mkChart(id, type, data, opts) {
     if (charts[id]) charts[id].destroy();
     const ctx = document.getElementById(id)?.getContext('2d');
     if (!ctx) return;
-    charts[id] = new Chart(ctx, {type, data, options: deepMerge(CD, opts||{})});
+    charts[id] = new Chart(ctx, {type, data, options: deepMerge(getCD(), opts||{})});
 }
 
 function deepMerge(base, over) {
@@ -2544,8 +2624,35 @@ function checkPw() {
     }
 }
 
+// ══ Theme ══
+function applyTheme(light) {
+    document.body.classList.toggle('light-mode', light);
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = light ? '🌙 Dark' : '☀ Light';
+    localStorage.setItem('lincko_theme', light ? 'light' : 'dark');
+}
+function toggleTheme() {
+    const nowLight = !document.body.classList.contains('light-mode');
+    applyTheme(nowLight);
+    // Re-render the current page so charts pick up new colors
+    const activePage = document.querySelector('.page.active');
+    if (activePage) {
+        const id = activePage.id.replace('page-', '');
+        if (id === 'dashboard')  { renderDashboard(); }
+        else if (id === 'analytics') renderAnalytics();
+        else if (id === 'forecast')  renderForecast();
+        else if (id === 'cash')      cashRenderPage();
+        else if (id === 'retention') retRenderPage();
+    }
+}
+function initTheme() {
+    const saved = localStorage.getItem('lincko_theme');
+    applyTheme(saved === 'light');
+}
+
 // ══ Init ══
 function startApp() {
+    initTheme();
     populateSel();
     renderDashboard();
     initWorkingToggles();
@@ -2879,9 +2986,12 @@ function cashRenderCharts() {
 
     const calcs  = cdCalcAll();
     const labels = cashMonths.map(m => cdLabel(m.id));
-    const xAxis  = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12}}, grid:{color:'rgba(255,255,255,.05)'} };
-    const yAxis  = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12},callback:v=>'£'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:'rgba(255,255,255,.05)'} };
-    const lgd    = { labels:{color:'rgba(220,240,228,.5)',font:{size:13}} };
+    const _tc    = isLight() ? 'rgba(13,23,16,.48)'  : 'rgba(220,240,228,.4)';
+    const _gc    = isLight() ? 'rgba(0,0,0,.07)'     : 'rgba(255,255,255,.05)';
+    const _lc    = isLight() ? 'rgba(13,23,16,.55)'  : 'rgba(220,240,228,.5)';
+    const xAxis  = { ticks:{color:_tc,font:{size:12}}, grid:{color:_gc} };
+    const yAxis  = { ticks:{color:_tc,font:{size:12},callback:v=>'£'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:_gc} };
+    const lgd    = { labels:{color:_lc,font:{size:13}} };
     const gbpTip = ctx => ' £' + ctx.parsed.y.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0});
 
     /* 1. Cash Balance Trend */
@@ -3152,10 +3262,13 @@ function retRenderCharts() {
 
     const calcs  = cdCalcAll();
     const labels = cashMonths.map(m => cdLabel(m.id));
-    const xAxis  = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12}}, grid:{color:'rgba(255,255,255,.05)'} };
-    const mrrY   = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12},callback:v=>'£'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:'rgba(255,255,255,.05)'} };
-    const pctY   = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12},callback:v=>v+'%'}, grid:{color:'rgba(255,255,255,.05)'} };
-    const lgd    = { labels:{color:'rgba(220,240,228,.5)',font:{size:13}} };
+    const _tc2   = isLight() ? 'rgba(13,23,16,.48)'  : 'rgba(220,240,228,.4)';
+    const _gc2   = isLight() ? 'rgba(0,0,0,.07)'     : 'rgba(255,255,255,.05)';
+    const _lc2   = isLight() ? 'rgba(13,23,16,.55)'  : 'rgba(220,240,228,.5)';
+    const xAxis  = { ticks:{color:_tc2,font:{size:12}}, grid:{color:_gc2} };
+    const mrrY   = { ticks:{color:_tc2,font:{size:12},callback:v=>'£'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:_gc2} };
+    const pctY   = { ticks:{color:_tc2,font:{size:12},callback:v=>v+'%'}, grid:{color:_gc2} };
+    const lgd    = { labels:{color:_lc2,font:{size:13}} };
     const mrrTip = ctx => ' £' + ctx.parsed.y.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0});
     const pctTip = ctx => ' ' + ctx.parsed.y.toFixed(1) + '%';
 
