@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lincko — CEO Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --bg: #030806;
+            --bg-card: rgba(255,255,255,0.03);
+            --bg-card-h: rgba(255,255,255,0.055);
+            --border: rgba(255,255,255,0.08);
+            --border-g: rgba(60,160,90,0.3);
+            --g1: #4cd97b;
+            --g2: #5dd98a;
+            --g3: #12412d;
+            --g4: #2a7846;
+            --gm: rgba(42,120,70,0.18);
+            --text: #e8f0ea;
+            --text2: rgba(220,240,228,0.6);
+            --text3: rgba(220,240,228,0.32);
+            --red: #f87171;
+            --red-bg: rgba(248,113,113,0.12);
+            --teal: #2dd4bf;
+            --purple: #a78bfa;
+            --amber: #fbbf24;
+            --orange: #fb923c;
+            --sidebar: 224px;
+        }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        body{
+            background:var(--bg);
+            background-image:
+                radial-gradient(ellipse 70% 40% at 50% -5%,rgba(18,60,32,.4) 0%,transparent 55%),
+                radial-gradient(ellipse 50% 30% at 85% 90%,rgba(12,45,22,.2) 0%,transparent 55%);
+            color:var(--text);
+            font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
+            min-height:100vh;
+            display:flex;
+            -webkit-font-smoothing:antialiased;
+            font-size:18px;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar{
+            width:var(--sidebar);
+            min-height:100vh;
+            background:rgba(0,0,0,.28);
+            border-right:1px solid var(--border);
+            display:flex;
+            flex-direction:column;
+            position:fixed;
+            top:0;left:0;bottom:0;
+            z-index:100;
+        }
+        .sb-logo{
+            padding:22px 18px;
+            border-bottom:1px solid var(--border);
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .logo-box{
+            width:30px;height:30px;
+            background:var(--g3);
+            border:1px solid var(--border-g);
+            border-radius:7px;
+            display:flex;align-items:center;justify-content:center;
+            font-size:15px;font-weight:800;color:var(--g1);
+            flex-shrink:0;
+        }
+        .logo-name{font-size:18px;font-weight:700;color:var(--text)}
+        .logo-tag{font-size:14px;color:var(--text3);font-weight:500}
+        .sb-nav{padding:14px 10px;flex:1;display:flex;flex-direction:column;gap:3px}
+        .nav-sec{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:10px 10px 4px;margin-top:4px}
+        .nav-item{
+            display:flex;align-items:center;gap:9px;
+            padding:8px 12px;border-radius:8px;
+            cursor:pointer;font-size:17px;font-weight:500;
+            color:var(--text2);transition:all .14s;
+            border:1px solid transparent;
+        }
+        .nav-item:hover{background:var(--bg-card-h);color:var(--text)}
+        .nav-item.active{background:var(--gm);border-color:var(--border-g);color:var(--g2)}
+        .ni{width:15px;text-align:center;font-size:16px;opacity:.8}
+        .sb-footer{padding:16px 18px;border-top:1px solid var(--border)}
+        .sb-footer-txt{font-size:15px;color:var(--text3);line-height:1.5}
+
+        /* ── Main ── */
+        .main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-width:0}
+
+        /* ── Topbar ── */
+        .topbar{
+            padding:14px 26px;
+            border-bottom:1px solid var(--border);
+            display:flex;align-items:center;justify-content:space-between;
+            background:rgba(3,8,6,.85);
+            backdrop-filter:blur(12px);
+            position:sticky;top:0;z-index:50;
+        }
+        .tb-left{display:flex;align-items:center;gap:14px}
+        .tb-title{font-size:21px;font-weight:600;color:var(--text)}
+        .tb-right{display:flex;align-items:center;gap:10px}
+        .badge-live{
+            display:inline-flex;align-items:center;gap:5px;
+            background:var(--gm);border:1px solid var(--border-g);
+            border-radius:100px;padding:4px 11px;
+            font-size:15px;font-weight:600;color:var(--g2);
+        }
+        .dot{width:5px;height:5px;background:var(--g2);border-radius:50%;box-shadow:0 0 5px var(--g2);animation:pulse 2s ease-in-out infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+        .period-sel{
+            background:var(--bg-card);border:1px solid var(--border);
+            color:var(--text);padding:7px 13px;border-radius:8px;
+            font-size:16px;font-family:inherit;cursor:pointer;outline:none;
+        }
+        .period-sel:focus{border-color:var(--border-g)}
+        .period-sel option{background:#081208}
+
+        /* ── Page ── */
+        .page{padding:24px 26px;display:none}
+        .page.active{display:block}
+
+        /* ── Section header ── */
+        .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+        .sec-title{
+            font-size:15px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+            color:var(--text3);display:flex;align-items:center;gap:8px;
+        }
+        .sec-title::before{content:'';display:inline-block;width:3px;height:12px;background:var(--g1);border-radius:2px}
+
+        /* ── KPI Cards ── */
+        .kpi-grid{display:grid;gap:14px;margin-bottom:22px}
+        .g2{grid-template-columns:repeat(2,1fr)}
+        .g4{grid-template-columns:repeat(4,1fr)}
+        .g5{grid-template-columns:repeat(5,1fr)}
+        .g3{grid-template-columns:repeat(3,1fr)}
+
+        .kpi{
+            background:var(--bg-card);border:1px solid var(--border);
+            border-radius:12px;padding:18px 20px;
+            position:relative;overflow:hidden;transition:border-color .18s;
+        }
+        .kpi:hover{border-color:rgba(255,255,255,.14)}
+        .kpi::after{
+            content:'';position:absolute;top:0;left:0;right:0;height:2px;
+            background:linear-gradient(90deg,var(--g1),transparent);opacity:.55;
+        }
+        .kpi-lbl{
+            font-size:14px;font-weight:600;letter-spacing:.07em;
+            text-transform:uppercase;color:var(--text3);margin-bottom:9px;
+        }
+        .kpi-val{font-size:30px;font-weight:700;color:var(--text);letter-spacing:-.02em;line-height:1.1}
+        .kpi-val.g{color:var(--g1)}
+        .kpi-val.r{color:var(--red)}
+        .kpi-sub{font-size:15px;color:var(--text3);margin-top:3px}
+        .kpi-delta{
+            display:inline-flex;align-items:center;gap:3px;
+            font-size:15px;font-weight:600;padding:2px 7px;border-radius:100px;margin-top:7px;
+        }
+        .kpi-delta.up{background:rgba(76,217,123,.1);color:var(--g1)}
+        .kpi-delta.dn{background:var(--red-bg);color:var(--red)}
+        .kpi-delta.nul{background:rgba(255,255,255,.05);color:var(--text3)}
+
+        .ratio-val{
+            font-size:34px;font-weight:800;
+            background:linear-gradient(135deg,var(--g1),var(--teal));
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+            background-clip:text;line-height:1.1;letter-spacing:-.02em;
+        }
+
+        /* ── Chart Cards ── */
+        .charts-row{display:grid;gap:14px;margin-bottom:22px}
+        .cr2{grid-template-columns:1fr 1fr}
+        .cr31{grid-template-columns:2fr 1fr}
+        .chart-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}
+        .chart-title{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:15px;display:flex;align-items:center;gap:7px}
+        .cdot{width:6px;height:6px;border-radius:50%;box-shadow:0 0 5px currentColor;flex-shrink:0}
+
+        /* ── Tables ── */
+        .tbl-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:auto}
+        table{width:100%;border-collapse:collapse;font-size:16px}
+        thead th{
+            padding:11px 14px;text-align:left;
+            font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);
+            border-bottom:1px solid var(--border);white-space:nowrap;
+            background:rgba(0,0,0,.18);position:sticky;top:0;
+        }
+        tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+        tbody tr:last-child{border-bottom:none}
+        tbody tr:hover{background:rgba(255,255,255,.02)}
+        tbody td{padding:9px 14px;color:var(--text2);white-space:nowrap}
+        tbody td:first-child{color:var(--text);font-weight:500}
+
+        .inp{
+            background:transparent;border:1px solid transparent;
+            color:var(--text);font-family:inherit;font-size:16px;
+            padding:4px 8px;border-radius:6px;width:110px;text-align:right;outline:none;
+            transition:border-color .14s,background .14s;
+        }
+        .inp:focus{border-color:var(--border-g);background:rgba(42,120,70,.1)}
+        .inp:hover:not(:focus){border-color:var(--border);background:rgba(255,255,255,.03)}
+
+        /* ── Buttons ── */
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid transparent;transition:all .14s}
+        .btn-p{background:var(--g3);border-color:var(--border-g);color:var(--g2)}
+        .btn-p:hover{background:var(--g4);color:#fff}
+        .btn-g{background:transparent;border-color:var(--border);color:var(--text2)}
+        .btn-g:hover{background:var(--bg-card-h);color:var(--text)}
+        .btn-d{background:transparent;border-color:rgba(248,113,113,.25);color:var(--red);padding:4px 9px;font-size:13px}
+        .btn-d:hover{background:var(--red-bg)}
+
+        /* ── Modal ── */
+        .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;display:none;align-items:center;justify-content:center}
+        .modal-ov.open{display:flex}
+        .modal{background:#081208;border:1px solid var(--border-g);border-radius:16px;padding:26px;width:480px;max-width:95vw;box-shadow:0 32px 80px rgba(0,0,0,.6)}
+        .modal-title{font-size:21px;font-weight:700;margin-bottom:18px;color:var(--text)}
+        .fg{margin-bottom:13px}
+        .fl{display:block;font-size:14px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+        .fi,.fs{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:9px 13px;border-radius:8px;font-size:17px;font-family:inherit;outline:none;transition:border-color .14s}
+        .fi:focus,.fs:focus{border-color:var(--border-g)}
+        .fs option{background:#081208}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .span2{grid-column:1/-1}
+        .modal-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+        /* ── Empty state ── */
+        .empty{text-align:center;padding:52px 24px;color:var(--text3)}
+        .empty .ico{font-size:32px;margin-bottom:10px}
+        .empty p{font-size:15px;margin-bottom:14px}
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar{width:5px;height:5px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+        ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.18)}
+
+        /* ── Derivation lines under KPI values ── */
+        .kpi-work{
+            font-size:15px;color:rgba(220,240,228,.5);
+            margin-top:6px;line-height:1.5;
+            font-variant-numeric:tabular-nums;word-break:break-word;
+        }
+        .kpi-fml{
+            font-size:13px;color:rgba(220,240,228,.22);
+            margin-top:2px;font-style:italic;line-height:1.35;word-break:break-word;
+        }
+        .kpi.wk-closed .kpi-work,
+        .kpi.wk-closed .kpi-fml { display:none; }
+        .kw-tog{
+            display:inline-flex;align-items:center;gap:3px;
+            background:none;border:none;cursor:pointer;
+            font-size:11px;color:rgba(220,240,228,.28);
+            padding:3px 0;margin-top:5px;letter-spacing:.05em;
+            text-transform:uppercase;font-weight:600;font-family:inherit;
+        }
+        .kw-tog:hover{color:rgba(220,240,228,.7);}
+        .kw-tog-all{
+            display:inline-flex;align-items:center;gap:5px;
+            background:rgba(255,255,255,.06);border:1px solid var(--border);
+            border-radius:100px;padding:4px 13px;cursor:pointer;
+            font-size:12px;color:var(--text3);font-weight:600;
+            letter-spacing:.05em;text-transform:uppercase;font-family:inherit;
+            transition:background .15s,color .15s;
+        }
+        .kw-tog-all:hover{background:rgba(255,255,255,.12);color:var(--text);}
+
+        /* ── Business Overview ── */
+        .bo-section{margin-bottom:40px}
+        .bo-heading{font-size:27px;font-weight:700;color:var(--text);margin-bottom:14px;letter-spacing:-.02em;line-height:1.2}
+
+        /* ── Tooltips ── */
+        [title]{cursor:help}
+
+        /* ── Responsive ── */
+        @media(max-width:1280px){.g5{grid-template-columns:repeat(3,1fr)}}
+        @media(max-width:1000px){.g4,.g3{grid-template-columns:repeat(2,1fr)}.cr2,.cr31{grid-template-columns:1fr}}
+        @media(max-width:700px){.sidebar{display:none}.main{margin-left:0}}
+
+        /* ── Forecast Tab ── */
+        .ftabs{display:flex;gap:4px;margin-bottom:22px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:4px}
+        .ftab{flex:1;padding:9px 12px;border-radius:7px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid transparent;background:transparent;color:var(--text2);transition:all .14s;text-align:center}
+        .ftab:hover{color:var(--text);background:rgba(255,255,255,.04)}
+        .ftab.active{background:var(--gm);color:var(--g2);border-color:var(--border-g)}
+        .fc-period-bar{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+        .fc-period-lbl{font-size:14px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.07em}
+        .direction-card{border-radius:14px;padding:26px 30px;margin-bottom:24px;display:flex;align-items:flex-start;gap:22px;border:1px solid var(--border);position:relative;overflow:hidden;transition:border-color .2s}
+        .direction-card.accelerating{background:rgba(76,217,123,.05);border-color:rgba(76,217,123,.35)}
+        .direction-card.transitioning{background:rgba(251,191,36,.05);border-color:rgba(251,191,36,.35)}
+        .direction-card.decelerating{background:rgba(248,113,113,.05);border-color:rgba(248,113,113,.35)}
+        .dir-icon{font-size:56px;line-height:1;flex-shrink:0;margin-top:4px}
+        .dir-body{flex:1;min-width:0}
+        .dir-label{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+        .dir-verdict{font-size:34px;font-weight:800;letter-spacing:-.025em;line-height:1.1;margin-bottom:6px}
+        .dir-verdict.accelerating{color:var(--g1)}
+        .dir-verdict.transitioning{color:var(--amber)}
+        .dir-verdict.decelerating{color:var(--red)}
+        .dir-sub{font-size:16px;color:var(--text2);line-height:1.55}
+        .dir-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
+        .dir-meta-item{font-size:14px;color:var(--text3)}
+        .dir-meta-item strong{color:var(--text2)}
+        .sat-lbl{font-size:13px;color:var(--text3);margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+        .sat-bar{height:8px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;margin-bottom:8px}
+        .sat-fill{height:100%;border-radius:100px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+        .sat-fill.growing{background:linear-gradient(90deg,#4cd97b,#2dd4bf)}
+        .sat-fill.stable{background:linear-gradient(90deg,#fbbf24,#fb923c)}
+        .sat-fill.shrinking{background:linear-gradient(90deg,#f87171,#ef4444)}
+        .sat-fill.unknown{background:rgba(255,255,255,.15)}
+        .status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:13px;font-weight:700;letter-spacing:.04em;vertical-align:middle;margin-left:8px}
+        .status-badge.growing{background:rgba(76,217,123,.12);color:var(--g1);border:1px solid rgba(76,217,123,.3)}
+        .status-badge.stable{background:rgba(251,191,36,.12);color:var(--amber);border:1px solid rgba(251,191,36,.25)}
+        .status-badge.shrinking{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+        .status-badge.unknown{background:rgba(255,255,255,.06);color:var(--text3);border:1px solid var(--border)}
+        .proj-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:auto;max-height:380px;margin-bottom:22px}
+        .proj-wrap thead th{background:#0b1510;position:sticky;top:0;z-index:2}
+        .golden-card{background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.2);border-radius:12px;padding:22px 26px;margin-bottom:22px}
+        .golden-hdr{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+        .golden-title{font-size:17px;font-weight:700;color:var(--purple);margin-bottom:3px}
+        .golden-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+        .golden-kpi{background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.15);border-radius:9px;padding:14px 16px}
+        .golden-lbl{font-size:13px;color:rgba(167,139,250,.6);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+        .golden-val{font-size:24px;font-weight:700;color:var(--purple)}
+        .neg-churn-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.4);border-radius:100px;padding:5px 14px;font-size:13px;font-weight:700;color:var(--purple);letter-spacing:.05em;text-transform:uppercase}
+        .referral-inp{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-size:17px;font-family:inherit;outline:none;width:76px;text-align:center;transition:border-color .14s}
+        .referral-inp:focus{border-color:rgba(167,139,250,.5)}
+        .lever-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}
+        .lever-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:border-color .14s}
+        .lever-card:hover{border-color:rgba(255,255,255,.14)}
+        .lever-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+        .lever-desc{font-size:13px;color:var(--text3);line-height:1.45}
+        .lever-card.priority{border-color:rgba(76,217,123,.3);background:rgba(76,217,123,.04)}
+        .lever-card.priority .lever-title{color:var(--g1)}
+        @media(max-width:900px){.golden-grid{grid-template-columns:1fr 1fr}.lever-grid{grid-template-columns:1fr}}
+        /* ── Password gate ── */
+        #pw-gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:10000}
+        #pw-box{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:48px 44px;display:flex;flex-direction:column;align-items:center;gap:20px;min-width:320px}
+        #pw-logo{font-size:28px;font-weight:800;color:var(--g1);letter-spacing:-.03em;margin-bottom:4px}
+        #pw-sub{font-size:14px;color:var(--text3);margin-bottom:8px}
+        #pw-inp{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--text);font-size:17px;font-family:inherit;outline:none;text-align:center;letter-spacing:.08em;transition:border-color .15s;box-sizing:border-box}
+        #pw-inp:focus{border-color:rgba(76,217,123,.5)}
+        #pw-btn{width:100%;background:var(--g4);border:none;border-radius:10px;padding:13px;color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:.05em;transition:background .15s}
+        #pw-btn:hover{background:var(--g1);color:#030806}
+        #pw-err{font-size:13px;color:var(--red);font-weight:600;min-height:18px}
+        @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+        .pw-shake{animation:shake .35s ease}
+        /* ── Loading overlay ── */
+        #loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;z-index:9999}
+        #loading-overlay .lo-spin{width:38px;height:38px;border-radius:50%;border:3px solid rgba(76,217,123,.15);border-top-color:var(--g1);animation:spin .75s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        #loading-overlay .lo-txt{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+    </style>
+</head>
+<body>
+
+<div id="pw-gate" style="display:none">
+    <div id="pw-box">
+        <div id="pw-logo">Lincko</div>
+        <div id="pw-sub">CEO Dashboard — Enter password to continue</div>
+        <input id="pw-inp" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')checkPw()">
+        <button id="pw-btn" onclick="checkPw()">Enter</button>
+        <div id="pw-err"></div>
+    </div>
+</div>
+
+<div id="loading-overlay" style="display:none">
+    <div class="lo-spin"></div>
+    <div class="lo-txt">Connecting…</div>
+</div>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+    <div class="sb-logo">
+        <div class="logo-box">L</div>
+        <div>
+            <div class="logo-name">Lincko</div>
+            <div class="logo-tag">CEO Dashboard</div>
+        </div>
+    </div>
+    <nav class="sb-nav">
+        <div class="nav-sec">Analytics</div>
+        <div class="nav-item active" onclick="showPage('dashboard',this)">
+            <span class="ni">◫</span> Monthly Overview
+        </div>
+        <div class="nav-item" onclick="showPage('forecast',this)">
+            <span class="ni">◎</span> Pie Projection Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('analytics',this)">
+            <span class="ni">▣</span> Full Business Overview
+        </div>
+        <div class="nav-sec">Management</div>
+        <div class="nav-item" onclick="showPage('input',this)">
+            <span class="ni">⊞</span> Data Input
+        </div>
+    </nav>
+    <div class="sb-footer">
+        <div class="sb-footer-txt">Data stored locally in browser.<br>No external server required.</div>
+    </div>
+</aside>
+
+<!-- ── Main ── -->
+<div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="tb-left">
+            <span class="tb-title" id="tb-title">Monthly Overview</span>
+        </div>
+        <div class="tb-right">
+            <div class="badge-live"><span class="dot"></span> Live</div>
+            <button class="kw-tog-all" id="btn-tog-all" onclick="toggleAllWorkings(this)">▸ Workings</button>
+            <select class="period-sel" id="period-sel" onchange="renderDashboard()">
+                <option value="">All Periods</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ══════════════════ DASHBOARD PAGE ══════════════════ -->
+    <div class="page active" id="page-dashboard">
+
+        <div id="no-data" class="empty">
+            <div class="ico">📊</div>
+            <p>No data yet. Add your first month in <strong>Data Input</strong> to populate this dashboard.</p>
+            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[3])">+ Add Month</button>
+        </div>
+
+        <div id="dash-content" style="display:none">
+
+            <!-- Period heading -->
+            <div id="period-heading" style="display:none;text-align:center;padding:28px 0 20px">
+                <h1 id="period-heading-text" style="font-size:42px;font-weight:800;color:var(--text);letter-spacing:-.03em;line-height:1.1"></h1>
+            </div>
+
+            <!-- Revenue & Growth -->
+            <div class="sec-hdr"><span class="sec-title">Revenue & Growth</span></div>
+            <div class="kpi-grid g2">
+                <div class="kpi">
+                    <div class="kpi-lbl" id="lbl-rev">Total Monthly Revenue</div>
+                    <div class="kpi-val g" id="k-rev">—</div>
+                    <div class="kpi-work" id="kw-rev">Direct input</div>
+                    <div class="kpi-fml">R</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl" id="lbl-ratio">LTGP : CAC</div>
+                    <div class="ratio-val" id="k-ratio">—</div>
+                    <div class="kpi-work" id="kw-ratio">—</div>
+                    <div class="kpi-fml">LTGP ÷ CAC</div>
+                </div>
+            </div>
+
+            <!-- Profitability -->
+            <div class="sec-hdr"><span class="sec-title">Profitability</span></div>
+            <div class="kpi-grid g4">
+                <div class="kpi">
+                    <div class="kpi-lbl">Gross Margin</div>
+                    <div class="kpi-val" id="k-gm">—</div>
+                    <div class="kpi-work" id="kw-gm">—</div>
+                    <div class="kpi-fml">(Revenue − COGS) ÷ Revenue × 100</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">Net Margin</div>
+                    <div class="kpi-val" id="k-nm">—</div>
+                    <div class="kpi-work" id="kw-nm">—</div>
+                    <div class="kpi-fml">Net Profit ÷ Revenue × 100</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">Total Cost</div>
+                    <div class="kpi-val" id="k-tc">—</div>
+                    <div class="kpi-work" id="kw-tc">—</div>
+                    <div class="kpi-fml">COGS + Total CAC + Fixed Costs</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">COGS</div>
+                    <div class="kpi-val" id="k-cogs">—</div>
+                    <div class="kpi-work" id="kw-cogs">—</div>
+                    <div class="kpi-fml">C (direct input)</div>
+                </div>
+            </div>
+
+            <!-- Unit Economics -->
+            <div class="sec-hdr"><span class="sec-title">Unit Economics</span></div>
+            <div class="kpi-grid g5">
+                <div class="kpi">
+                    <div class="kpi-lbl">LTGP</div>
+                    <div class="kpi-val g" id="k-ltgp">—</div>
+                    <div class="kpi-work" id="kw-ltgp">—</div>
+                    <div class="kpi-fml">(Rev/Client) × Gross Margin × Lifespan</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">CAC</div>
+                    <div class="kpi-val" id="k-cac">—</div>
+                    <div class="kpi-work" id="kw-cac">Direct input</div>
+                    <div class="kpi-fml">Cost per client acquired</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">Total CAC</div>
+                    <div class="kpi-val" id="k-total-cac">—</div>
+                    <div class="kpi-work" id="kw-total-cac">—</div>
+                    <div class="kpi-fml">CAC × New Clients</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">Customer Lifespan</div>
+                    <div class="kpi-val" id="k-life">—</div>
+                    <div class="kpi-work" id="kw-life">—</div>
+                    <div class="kpi-fml">1 ÷ (Logo Churn ÷ 100)</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">Avg Revenue / Client</div>
+                    <div class="kpi-val" id="k-rpc">—</div>
+                    <div class="kpi-work" id="kw-rpc">—</div>
+                    <div class="kpi-fml">Revenue ÷ Avg Clients</div>
+                </div>
+            </div>
+
+            <!-- Retention & Churn -->
+            <div class="sec-hdr"><span class="sec-title">Retention & Churn</span></div>
+            <div class="kpi-grid g4" style="margin-bottom:28px">
+                <div class="kpi">
+                    <div class="kpi-lbl">Retention Rate</div>
+                    <div class="kpi-val g" id="k-ret">—</div>
+                    <div class="kpi-work" id="kw-ret">—</div>
+                    <div class="kpi-fml">100 − Logo Churn</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">Logo Churn</div>
+                    <div class="kpi-val" id="k-lchurn">—</div>
+                    <div class="kpi-work" id="kw-lchurn">—</div>
+                    <div class="kpi-fml">Clients Churned ÷ Clients Start × 100</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">Revenue Churn</div>
+                    <div class="kpi-val" id="k-rchurn">—</div>
+                    <div class="kpi-work" id="kw-rchurn">—</div>
+                    <div class="kpi-fml">Revenue Churned ÷ Revenue × 100</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-lbl">Net Client Change</div>
+                    <div class="kpi-val" id="k-netc">—</div>
+                    <div class="kpi-work" id="kw-netc">—</div>
+                    <div class="kpi-fml">New Clients − Clients Churned</div>
+                </div>
+            </div>
+
+        </div><!-- /dash-content -->
+    </div><!-- /page-dashboard -->
+
+    <!-- ══════════════════ BUSINESS OVERVIEW PAGE ══════════════════ -->
+    <div class="page" id="page-analytics">
+
+        <div id="analytics-no-data" class="empty">
+            <div class="ico">▣</div>
+            <p>No data yet. Add your first month in <strong>Data Input</strong> to populate charts.</p>
+            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[3])">+ Add Month</button>
+        </div>
+
+        <div id="analytics-content" style="display:none">
+
+            <div class="bo-section">
+                <h1 class="bo-heading">Revenue, Gross Profit &amp; Net Profit Trend</h1>
+                <div class="chart-card"><div style="position:relative;height:300px"><canvas id="c-rev-trend"></canvas></div></div>
+            </div>
+
+            <div class="bo-section">
+                <h1 class="bo-heading">Margin Analysis</h1>
+                <div class="chart-card"><div style="position:relative;height:300px"><canvas id="c-margins"></canvas></div></div>
+            </div>
+
+            <div class="bo-section">
+                <h1 class="bo-heading">LTGP : CAC</h1>
+                <div class="chart-card">
+                    <div style="position:relative;height:300px"><canvas id="c-ltgp-cac"></canvas></div>
+                    <div id="ltgp-cac-ratios" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"></div>
+                </div>
+            </div>
+
+            <div class="bo-section">
+                <h1 class="bo-heading">LTGP : CAC Ratio Trend</h1>
+                <div class="chart-card"><div style="position:relative;height:240px"><canvas id="c-ratio-trend"></canvas></div></div>
+            </div>
+
+            <div class="bo-section">
+                <h1 class="bo-heading">Monthly Revenue Growth</h1>
+                <div class="chart-card"><div style="position:relative;height:300px"><canvas id="c-mrr"></canvas></div></div>
+            </div>
+
+            <div class="bo-section">
+                <h1 class="bo-heading">Churn Trend</h1>
+                <div class="chart-card"><div style="position:relative;height:300px"><canvas id="c-churn"></canvas></div></div>
+            </div>
+
+            <div class="bo-section">
+                <h1 class="bo-heading">Cost Structure</h1>
+                <div class="chart-card"><div style="position:relative;height:300px"><canvas id="c-costs"></canvas></div></div>
+            </div>
+
+        </div>
+
+    </div><!-- /page-analytics -->
+
+    <!-- ══════════════════ INPUT PAGE ══════════════════ -->
+    <div class="page" id="page-input">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
+            <div>
+                <h2 style="font-size:17px;font-weight:700;color:var(--text)">Data Input</h2>
+                <p style="font-size:12px;color:var(--text3);margin-top:3px">Enter raw monthly data. Metrics calculate automatically.</p>
+            </div>
+            <button class="btn btn-p" onclick="openModal()">+ Add Month</button>
+        </div>
+
+        <!-- Raw input table -->
+        <div class="tbl-wrap" style="margin-bottom:22px">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width:130px">Period</th>
+                        <th>Revenue ($)</th>
+                        <th>COGS ($)</th>
+                        <th>CAC ($)</th>
+                        <th>Fixed Costs ($)</th>
+                        <th>Clients (Start)</th>
+                        <th>New Clients</th>
+                        <th>Clients Churned</th>
+                        <th>Rev Churned ($)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="inp-body"></tbody>
+            </table>
+            <div id="inp-empty" class="empty">
+                <div class="ico">📋</div>
+                <p>No months yet. Click <strong>+ Add Month</strong> to begin.</p>
+            </div>
+        </div>
+
+        <!-- Calculated preview -->
+        <div class="sec-hdr" style="margin-top:8px">
+            <span class="sec-title">Calculated Metrics</span>
+            <span style="font-size:11px;color:var(--text3)">Auto-derived from inputs above</span>
+        </div>
+        <div class="tbl-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width:130px">Period</th>
+                        <th>Gross Profit</th>
+                        <th>Gross Margin</th>
+                        <th>Total CAC</th>
+                        <th>Net Profit</th>
+                        <th>Net Margin</th>
+                        <th>Total Cost</th>
+                        <th>Logo Churn</th>
+                        <th>Rev Churn</th>
+                        <th>Retention</th>
+                        <th>Lifespan</th>
+                        <th>LTGP</th>
+                        <th>LTGP:CAC</th>
+                        <th>Rev/Client</th>
+                    </tr>
+                </thead>
+                <tbody id="calc-body"></tbody>
+            </table>
+            <div id="calc-empty" class="empty" style="display:none;padding:28px">
+                <p>Add data above to see calculations.</p>
+            </div>
+        </div>
+    </div><!-- /page-input -->
+
+    <!-- ══════════════════ FORECAST PAGE ══════════════════ -->
+    <div class="page" id="page-forecast">
+
+        <div id="forecast-no-data" class="empty">
+            <div class="ico">◎</div>
+            <p>No data yet. Add your first month in <strong>Data Input</strong> to generate forecasts.</p>
+            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[3])">+ Add Month</button>
+        </div>
+
+        <div id="forecast-content" style="display:none">
+
+            <!-- Sub-tabs -->
+            <div class="ftabs">
+                <button class="ftab active" onclick="setForecastView('monthly',this)">Monthly View</button>
+                <button class="ftab" onclick="setForecastView('trend',this)">Trend View</button>
+            </div>
+
+            <!-- Period bar (Monthly View only) -->
+            <div class="fc-period-bar" id="fc-period-bar" style="display:none">
+                <span class="fc-period-lbl">Period</span>
+                <select class="period-sel" id="fc-period-sel" onchange="renderForecast()"></select>
+            </div>
+            <div class="fc-period-bar" id="fc-avg-bar" style="display:none">
+                <span class="fc-period-lbl">Averages</span>
+                <select class="period-sel" id="fc-avg-sel" onchange="renderForecast()">
+                    <option value="">— None —</option>
+                    <option value="3">Last 3 Months</option>
+                    <option value="6">Last 6 Months</option>
+                    <option value="9">Last 9 Months</option>
+                    <option value="12">Last 12 Months</option>
+                    <option value="24">Last 24 Months</option>
+                </select>
+            </div>
+
+            <!-- ── Single-month panels (Snapshot + Monthly) ── -->
+            <div id="fc-panel-single">
+
+                <!-- Not enough data for average -->
+                <div id="fc-avg-no-data" style="display:none;text-align:center;padding:60px 20px 40px">
+                    <div style="font-size:40px;color:var(--text3);margin-bottom:14px">—</div>
+                    <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Not Enough Data</div>
+                    <div style="font-size:14px;color:var(--text3)" id="fc-avg-no-data-msg">Add more months to use this average period.</div>
+                </div>
+
+                <!-- Core Data -->
+                <div class="sec-hdr"><span class="sec-title">Core Data</span></div>
+                <div class="kpi-grid g2" style="margin-bottom:24px">
+                    <div class="kpi">
+                        <div class="kpi-lbl">New Clients / Month</div>
+                        <div class="kpi-val" id="fc-cd-nc">—</div>
+                        <div class="kpi-fml">Direct input</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpi-lbl">Lost Clients / Month</div>
+                        <div class="kpi-val" id="fc-cd-lost">—</div>
+                        <div class="kpi-work" id="kw-fc-cd-lost">—</div>
+                        <div class="kpi-fml">End Clients × Logo Churn Rate</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpi-lbl">Logo Churn</div>
+                        <div class="kpi-val" id="fc-cd-lchurn">—</div>
+                        <div class="kpi-work" id="kw-fc-cd-lchurn">—</div>
+                        <div class="kpi-fml">Clients Churned ÷ Clients Start</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpi-lbl">Revenue Churn</div>
+                        <div class="kpi-val" id="fc-cd-rchurn">—</div>
+                        <div class="kpi-work" id="kw-fc-cd-rchurn">—</div>
+                        <div class="kpi-fml">Rev Churned ÷ Revenue</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpi-lbl">New Revenue / Month</div>
+                        <div class="kpi-val" id="fc-cd-newrev">—</div>
+                        <div class="kpi-work" id="kw-fc-cd-newrev">—</div>
+                        <div class="kpi-fml">New Clients × Rev/Client</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpi-lbl">Lost Revenue / Month</div>
+                        <div class="kpi-val" id="fc-cd-lostrev">—</div>
+                        <div class="kpi-work" id="kw-fc-cd-lostrev">—</div>
+                        <div class="kpi-fml">Revenue Churned (direct input)</div>
+                    </div>
+                </div>
+
+                <!-- Business Direction -->
+                <div id="fc-direction" class="direction-card accelerating">
+                    <div class="dir-icon" id="fc-dir-icon">↑</div>
+                    <div class="dir-body">
+                        <div class="dir-label">Business Direction</div>
+                        <div class="dir-verdict accelerating" id="fc-dir-verdict">—</div>
+                        <div class="dir-sub" id="fc-dir-sub">—</div>
+                        <div class="dir-meta" id="fc-dir-meta"></div>
+                    </div>
+                </div>
+
+                <!-- Customer Forecast -->
+                <div class="sec-hdr">
+                    <span class="sec-title">Customer Forecast</span>
+                    <span class="status-badge unknown" id="fc-cust-badge">—</span>
+                </div>
+                <div class="kpi-grid g2" style="margin-bottom:22px">
+                    <div class="kpi">
+                        <div class="kpi-lbl">Current Clients</div>
+                        <div class="kpi-val" id="fc-cur-clients">—</div>
+                        <div class="kpi-work" id="kw-fc-cur-clients">—</div>
+                        <div class="kpi-fml">Start + New − Churned</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpi-lbl">Customer Ceiling <span style="font-weight:400;opacity:.6">(Hypothetical Max)</span></div>
+                        <div class="kpi-val g" id="fc-cust-ceiling">—</div>
+                        <div class="kpi-work" id="kw-fc-cust-ceiling">—</div>
+                        <div class="kpi-fml">New Clients ÷ Logo Churn Rate</div>
+                    </div>
+                </div>
+
+                <!-- Revenue Forecast -->
+                <div class="sec-hdr">
+                    <span class="sec-title">Revenue Forecast</span>
+                    <span class="status-badge unknown" id="fc-rev-badge">—</span>
+                </div>
+                <div class="kpi-grid g2" style="margin-bottom:22px">
+                    <div class="kpi">
+                        <div class="kpi-lbl">Current Revenue</div>
+                        <div class="kpi-val" id="fc-cur-rev">—</div>
+                        <div class="kpi-work" id="kw-fc-cur-rev">Direct input</div>
+                        <div class="kpi-fml">R</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpi-lbl">Revenue Ceiling <span style="font-weight:400;opacity:.6">(Hypothetical Max)</span></div>
+                        <div class="kpi-val g" id="fc-rev-ceiling">—</div>
+                        <div class="kpi-work" id="kw-fc-rev-ceiling">—</div>
+                        <div class="kpi-fml">New Rev/mo ÷ Rev Churn Rate</div>
+                    </div>
+                </div>
+
+                <!-- Projection Charts -->
+                <div class="sec-hdr"><span class="sec-title">Projection Charts</span></div>
+                <div class="charts-row cr2" style="margin-bottom:22px">
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--g1)"></span>Customer Saturation (Hypothetical Max)</div>
+                        <div style="position:relative;height:210px">
+                            <canvas id="c-fc-cust-sat"></canvas>
+                            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;gap:4px">
+                                <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)">Current</div>
+                                <div style="font-size:36px;font-weight:800;color:var(--text);line-height:1" id="fc-cust-sat-center">—</div>
+                                <div style="font-size:13px;color:var(--text3)" id="fc-cust-sat-center-sub">—</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:14px;color:var(--text3);padding:0 4px">
+                            <span id="fc-cust-sat-lbl-l">—</span><span id="fc-cust-sat-lbl-r">—</span>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--amber)"></span>Revenue Saturation (Hypothetical Max)</div>
+                        <div style="position:relative;height:210px">
+                            <canvas id="c-fc-rev-sat"></canvas>
+                            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;gap:4px">
+                                <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)">Current</div>
+                                <div style="font-size:36px;font-weight:800;color:var(--text);line-height:1" id="fc-rev-sat-center">—</div>
+                                <div style="font-size:13px;color:var(--text3)" id="fc-rev-sat-center-sub">—</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:14px;color:var(--text3);padding:0 4px">
+                            <span id="fc-rev-sat-lbl-l">—</span><span id="fc-rev-sat-lbl-r">—</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="charts-row cr2" style="margin-bottom:22px">
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--g1)"></span>Customer Growth Curve</div>
+                        <div style="position:relative;height:260px"><canvas id="c-fc-growth"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--amber)"></span>Revenue Projection</div>
+                        <div style="position:relative;height:260px"><canvas id="c-fc-rev-growth"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Time to Ceiling Table -->
+                <div class="sec-hdr">
+                    <span class="sec-title">Time to Ceiling Projection</span>
+                    <span style="font-size:12px;color:var(--text3)">Ceteris paribus — current rates held constant</span>
+                </div>
+                <div class="proj-wrap">
+                    <table style="font-size:19px">
+                        <thead>
+                            <tr>
+                                <th style="font-size:14px">Month</th>
+                                <th style="font-size:14px">End Customers</th>
+                                <th style="font-size:14px">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fc-proj-body"></tbody>
+                    </table>
+                </div>
+
+            </div><!-- /fc-panel-single -->
+
+            <!-- ── Trend View panel ── -->
+            <div id="fc-panel-trend" style="display:none">
+                <div class="bo-section">
+                    <h1 class="bo-heading">Customer Ceiling vs Actual</h1>
+                    <div class="chart-card"><div style="position:relative;height:300px"><canvas id="c-fc-cust-trend"></canvas></div></div>
+                </div>
+                <div class="bo-section">
+                    <h1 class="bo-heading">Revenue Ceiling vs Actual</h1>
+                    <div class="chart-card"><div style="position:relative;height:300px"><canvas id="c-fc-rev-trend"></canvas></div></div>
+                </div>
+                <div class="bo-section">
+                    <h1 class="bo-heading">Business Saturation Over Time</h1>
+                    <div class="chart-card"><div style="position:relative;height:280px"><canvas id="c-fc-sat-trend"></canvas></div></div>
+                </div>
+            </div><!-- /fc-panel-trend -->
+
+        </div><!-- /forecast-content -->
+    </div><!-- /page-forecast -->
+
+</div><!-- /main -->
+
+<!-- ── Add Month Modal ── -->
+<div class="modal-ov" id="modal">
+    <div class="modal">
+        <div class="modal-title">Add Month</div>
+        <div class="fg span2">
+            <label class="fl">Period</label>
+            <select class="fs" id="m-period"><option value="">Select month…</option></select>
+        </div>
+        <div class="form-grid">
+            <div class="fg">
+                <label class="fl">Revenue ($)</label>
+                <input type="text" inputmode="decimal" class="fi" id="m-rev" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
+            </div>
+            <div class="fg">
+                <label class="fl">COGS ($)</label>
+                <input type="text" inputmode="decimal" class="fi" id="m-cogs" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
+            </div>
+            <div class="fg">
+                <label class="fl">CAC ($) <span style="font-weight:400;font-size:10px">per customer acquired</span></label>
+                <input type="text" inputmode="decimal" class="fi" id="m-cac" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
+            </div>
+            <div class="fg">
+                <label class="fl">Fixed Costs ($) <span style="font-weight:400;font-size:10px">total fixed costs</span></label>
+                <input type="text" inputmode="decimal" class="fi" id="m-opex" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
+            </div>
+            <div class="fg">
+                <label class="fl">Clients at Start</label>
+                <input type="text" inputmode="numeric" class="fi" id="m-cs" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
+            </div>
+            <div class="fg">
+                <label class="fl">New Clients</label>
+                <input type="text" inputmode="numeric" class="fi" id="m-nc" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
+            </div>
+            <div class="fg">
+                <label class="fl">Clients Churned</label>
+                <input type="text" inputmode="numeric" class="fi" id="m-ch" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
+            </div>
+            <div class="fg">
+                <label class="fl">Revenue Churned ($)</label>
+                <input type="text" inputmode="decimal" class="fi" id="m-rc" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
+            </div>
+        </div>
+        <div class="modal-acts">
+            <button class="btn btn-g" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-p" onclick="saveMonth()">Save Month</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ══ Firebase ══
+// Paste your Firebase project config here (Firebase console → Project settings → Your apps)
+const firebaseConfig = {
+    apiKey:            "AIzaSyAHXKhRH6XJ-l-q5uAqEm0XPUqPFS3yYZ8",
+    authDomain:        "ceo-dashboard-c5089.firebaseapp.com",
+    databaseURL:       "https://ceo-dashboard-c5089-default-rtdb.firebaseio.com",
+    projectId:         "ceo-dashboard-c5089",
+    storageBucket:     "ceo-dashboard-c5089.firebasestorage.app",
+    messagingSenderId: "189541799561",
+    appId:             "1:189541799561:web:380b7ac15e4d349e41d858"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.database();
+
+// ══ Data Store ══
+let months = [];
+
+// ══ Helpers ══
+
+// Strip commas and parse to number
+function parseNum(s) {
+    return parseFloat(String(s || '').replace(/,/g, '')) || 0;
+}
+
+// Format an input field with commas on blur
+function fmtInput(el) {
+    const n = parseNum(el.value);
+    el.value = n ? n.toLocaleString('en-US') : '';
+}
+
+// Strip commas on focus so the user can edit cleanly
+function stripInput(el) {
+    el.value = el.value.replace(/,/g, '');
+}
+
+const f$ = (n, d=1) => {
+    if (n == null || isNaN(n) || !isFinite(n)) return '—';
+    const neg = n < 0, a = Math.abs(n);
+    let s;
+    if (a >= 1e6) s = '$' + (a/1e6).toFixed(1).replace(/\.?0+$/, '') + 'M';
+    else if (a >= 1e3) s = '$' + (a/1e3).toFixed(1).replace(/\.?0+$/, '') + 'K';
+    else s = '$' + a.toFixed(d);
+    return neg ? '−' + s : s;
+};
+const fPct = (n, d=1) => (n == null || isNaN(n) || !isFinite(n)) ? '—' : n.toFixed(d) + '%';
+
+// Compact currency for derivation lines: 50000 → $50K, 1500000 → $1.5M
+const fC = n => {
+    if (n == null || !isFinite(n) || isNaN(n)) return '—';
+    const neg = n < 0, a = Math.abs(n);
+    const s = a >= 1e6 ? '$' + (a/1e6).toFixed(1).replace(/\.?0+$/,'') + 'M'
+            : a >= 1e3 ? '$' + (a/1e3).toFixed(1).replace(/\.?0+$/,'') + 'K'
+            : '$' + a.toLocaleString('en-US', {maximumFractionDigits:0});
+    return neg ? '−' + s : s;
+};
+const fX = (n, d=1) => (n == null || isNaN(n) || !isFinite(n)) ? '—' : n.toFixed(d) + 'x';
+const fMo = (n) => (n == null || !isFinite(n) || n > 999) ? '∞ mo' : n.toFixed(1) + ' mo';
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function calc(m) {
+    // ── Raw inputs ──────────────────────────────────────────────────────────
+    const rev   = +m.rev  ||0;   // Revenue
+    const cogs  = +m.cogs ||0;   // COGS
+    const cac   = +m.cac  ||0;   // CAC per customer acquired
+    const opex  = +m.opex ||0;   // Fixed Costs
+    const cs    = +m.cs   ||0;   // Clients at Start
+    const nc    = +m.nc   ||0;   // New Clients
+    const ch    = +m.ch   ||0;   // Clients Churned
+    const rc    = +m.rc   ||0;   // Revenue Churned
+
+    // ── Acquisition Cost ─────────────────────────────────────────────────────
+    const totalCac = cac * nc;                          // Total CAC = CAC × New Clients
+
+    // ── Gross Profit & Margin ────────────────────────────────────────────────
+    const gp = rev - cogs;                              // Gross Profit = R − C
+    const gm = rev > 0 ? gp / rev * 100 : 0;           // Gross Margin = (R−C)/R × 100
+
+    // ── Net Profit & Margin ──────────────────────────────────────────────────
+    // Net Profit = Revenue − COGS − Total CAC − Fixed Costs
+    const oi = rev - cogs - totalCac - opex;
+    const np = oi;
+    const nm = rev > 0 ? np / rev * 100 : 0;           // Net Margin = np/R × 100
+
+    // ── Total Cost ───────────────────────────────────────────────────────────
+    // Total Cost = COGS + (CAC × New Clients) + Fixed Costs
+    const tc = cogs + totalCac + opex;
+
+    // ── Client Metrics ───────────────────────────────────────────────────────
+    const ce         = cs + nc - ch;                    // Ending Clients = CS + NC − CH
+    const avgClients = (cs + ce) / 2;                   // Avg Active Clients = (Start + End) / 2
+    const rpc = avgClients > 0 ? rev / avgClients : 0;  // Revenue per Client = R ÷ Avg Clients
+
+    // ── Churn & Retention ────────────────────────────────────────────────────
+    const lchurn = cs > 0 ? ch / cs * 100 : 0;         // Logo Churn = CH/CS × 100
+    const ret    = 100 - lchurn;                        // Retention = 100 − Logo Churn
+    const rchurn = rev > 0 ? rc / rev * 100 : 0;       // Revenue Churn = RC/R × 100
+
+    // ── Unit Economics ───────────────────────────────────────────────────────
+    // Lifespan = 1 ÷ (Logo Churn / 100)  →  e.g. 50% churn = 1÷0.5 = 2 months
+    const lifespan = lchurn > 0 ? 1 / (lchurn / 100) : null;
+    const cacVal   = cac > 0 ? cac : null;
+    // LTGP = (Revenue ÷ Avg Clients) × (Gross Margin ÷ 100) × Lifespan
+    const ltgp  = (rpc > 0 && lifespan !== null && gm > 0)
+                  ? rpc * (gm / 100) * lifespan : null;
+    // LTGP:CAC = LTGP ÷ CAC
+    const ratio = (ltgp !== null && cacVal !== null) ? ltgp / cacVal : null;
+
+    return {rev,cogs,cac,opex,cs,nc,ch,rc,
+            totalCac,gp,gm,oi,np,nm,tc,ce,avgClients,rpc,
+            lchurn,ret,rchurn,lifespan,cacVal,ltgp,ratio};
+}
+
+function save() {
+    localStorage.setItem('lincko_v1', JSON.stringify(months)); // offline cache
+    const obj = {};
+    months.forEach(m => { obj[m.id] = m; });
+    db.ref('lincko/months').set(obj).catch(console.error);
+}
+function sorted() { return [...months].sort((a,b)=>a.id.localeCompare(b.id)) }
+
+// ══ Blended Calc (All Periods) ══
+function calcBlended(ms) {
+    if (!ms.length) return null;
+    const calcs = ms.map(calc);
+    const n = calcs.length;
+
+    // Sum absolute values across all months
+    const rev      = calcs.reduce((s,c) => s + c.rev,      0);
+    const cogs     = calcs.reduce((s,c) => s + c.cogs,     0);
+    const totalCac = calcs.reduce((s,c) => s + c.totalCac, 0);
+    const opex     = calcs.reduce((s,c) => s + c.opex,     0);
+    const nc       = calcs.reduce((s,c) => s + c.nc,       0);
+    const ch       = calcs.reduce((s,c) => s + c.ch,       0);
+    const rc       = calcs.reduce((s,c) => s + c.rc,       0);
+
+    // Derived from totals — blended margins
+    const gp = rev - cogs;
+    const gm = rev > 0 ? gp / rev * 100 : 0;
+    const np = rev - cogs - totalCac - opex;
+    const nm = rev > 0 ? np / rev * 100 : 0;
+    const tc = cogs + totalCac + opex;
+
+    // Average rates
+    const lchurn = calcs.reduce((s,c) => s + c.lchurn, 0) / n;
+    const ret    = 100 - lchurn;
+    const rchurn = calcs.reduce((s,c) => s + c.rchurn, 0) / n;
+
+    // Average per-client metrics
+    const rpc        = calcs.reduce((s,c) => s + c.rpc, 0) / n;
+    const avgClients = calcs.reduce((s,c) => s + c.avgClients, 0) / n;
+
+    // Lifespan from average logo churn
+    const lifespan = lchurn > 0 ? 1 / (lchurn / 100) : null;
+
+    // Blended CAC = total acquisition spend ÷ total new clients
+    const cac    = nc > 0 ? totalCac / nc : null;
+    const cacVal = cac;
+
+    // LTGP from average rpc, blended GM, avg lifespan
+    const ltgp = (rpc > 0 && lifespan !== null && gm > 0)
+                 ? rpc * (gm / 100) * lifespan : null;
+
+    const ratio = (ltgp !== null && cacVal !== null && cacVal > 0) ? ltgp / cacVal : null;
+
+    const cs = calcs[0].cs;
+    const ce = calcs[calcs.length - 1].ce;
+
+    return {rev, cogs, cac, opex, cs, nc, ch, rc,
+            totalCac, gp, gm, np, nm, tc,
+            avgClients, rpc, lchurn, ret, rchurn,
+            lifespan, cacVal, ltgp, ratio, ce, n};
+}
+
+// ══ Nav ══
+function showPage(id, el) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.getElementById('page-'+id).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('tb-title').textContent = id === 'dashboard' ? 'Monthly Overview' : id === 'analytics' ? 'Full Business Overview' : id === 'forecast' ? 'Pie Projection Dashboard' : 'Data Input';
+    document.getElementById('period-sel').style.display = (id === 'analytics' || id === 'forecast') ? 'none' : '';
+    if (id === 'dashboard') renderDashboard();
+    if (id === 'input') renderInputTables();
+    if (id === 'analytics') renderAnalytics();
+    if (id === 'forecast') renderForecast();
+}
+
+// ══ Period Select ══
+function populateSel() {
+    const sel = document.getElementById('period-sel');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All Periods</option>';
+    sorted().forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.id; o.textContent = m.label;
+        sel.appendChild(o);
+    });
+    if (cur) sel.value = cur;
+}
+
+// ══ Dashboard ══
+const charts = {};
+
+function renderDashboard() {
+    populateSel();
+    const ms = sorted();
+    const noData = document.getElementById('no-data');
+    const content = document.getElementById('dash-content');
+
+    if (!ms.length) {
+        noData.style.display = 'block';
+        content.style.display = 'none';
+        return;
+    }
+    noData.style.display = 'none';
+    content.style.display = 'block';
+
+    const selId = document.getElementById('period-sel').value;
+    const isBlended = !selId;
+
+    let c;
+    if (isBlended) {
+        c = calcBlended(ms);
+        if (!c) return;
+    } else {
+        const cur = ms.find(m=>m.id===selId);
+        if (!cur) return;
+        c = calc(cur);
+    }
+
+    const nLabel = c.n ? c.n + (c.n === 1 ? ' month' : ' months') : '';
+
+    // Period heading
+    const phEl = document.getElementById('period-heading');
+    const phTxt = document.getElementById('period-heading-text');
+    if (phEl && phTxt) {
+        phTxt.textContent = isBlended ? 'All Periods' : (ms.find(m => m.id === selId)?.label || '');
+        phEl.style.display = 'block';
+    }
+
+    // KPI setters
+    const set = (id, txt, cls='') => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = txt;
+        if (cls) el.className = 'kpi-val ' + cls;
+    };
+
+    const w = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    const lbl = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+    // Dynamic heading labels
+    lbl('lbl-rev',   isBlended ? 'Total Revenue'         : 'Total Monthly Revenue');
+    lbl('lbl-ratio', isBlended ? '(BLENDED) LTGP : CAC'  : 'LTGP : CAC');
+
+    // ── Revenue & Growth ────────────────────────────────────────────────────
+    set('k-rev', f$(c.rev), 'kpi-val g');
+    w('kw-rev', isBlended
+        ? 'Sum across ' + nLabel + ' · Avg ' + fC(c.rev / c.n) + '/mo'
+        : f$(c.rev) + '  (direct input)');
+
+    set('k-rpc', f$(c.rpc));
+    w('kw-rpc', isBlended
+        ? 'Average across ' + nLabel
+        : fC(c.rev) + ' ÷ ((' + c.cs + ' + ' + c.ce + ') ÷ 2 = ' + c.avgClients + ')');
+
+    const ratioEl = document.getElementById('k-ratio');
+    ratioEl.textContent = c.ratio !== null ? c.ratio.toFixed(1) + ':1' : '—';
+    w('kw-ratio', isBlended
+        ? (c.ltgp != null && c.cacVal != null ? 'Avg LTGP ' + fC(c.ltgp) + ' ÷ Blended CAC ' + fC(c.cacVal) : '—')
+        : (c.ltgp != null && c.cacVal != null ? fC(c.ltgp) + ' ÷ ' + fC(c.cacVal) : '—'));
+
+    // ── Profitability ───────────────────────────────────────────────────────
+    const marginCls = v => 'kpi-val ' + (v >= 0 ? 'g' : 'r');
+
+    set('k-gm', fPct(c.gm), marginCls(c.gm));
+    w('kw-gm', isBlended
+        ? 'Total GP ÷ Total Revenue (blended across ' + nLabel + ')'
+        : '(' + fC(c.rev) + ' − ' + fC(c.cogs) + ') ÷ ' + fC(c.rev));
+
+    set('k-nm', fPct(c.nm), marginCls(c.nm));
+    w('kw-nm', isBlended
+        ? 'Total Net Profit ÷ Total Revenue (blended)'
+        : fC(c.np) + ' ÷ ' + fC(c.rev));
+
+    set('k-tc', f$(c.tc));
+    w('kw-tc', isBlended
+        ? 'Total across ' + nLabel + ' (COGS + CAC spend + Fixed Costs)'
+        : fC(c.cogs) + ' + ' + fC(c.totalCac) + ' + ' + fC(c.opex));
+
+    set('k-cogs', f$(c.cogs));
+    w('kw-cogs', isBlended
+        ? 'Total across ' + nLabel + ' · ' + fPct(c.rev > 0 ? c.cogs/c.rev*100 : 0) + ' of total revenue'
+        : fC(c.cogs) + '  ·  ' + fPct(c.rev > 0 ? c.cogs/c.rev*100 : 0) + ' of revenue');
+
+    // ── Unit Economics ──────────────────────────────────────────────────────
+    set('k-ltgp', c.ltgp !== null ? f$(c.ltgp) : '—', 'kpi-val g');
+    w('kw-ltgp', isBlended
+        ? (c.ltgp != null ? 'Avg ' + fC(c.rpc) + '/client × ' + fPct(c.gm) + ' blended GM × ' + fMo(c.lifespan) + ' avg lifespan' : 'Needs churn & client data')
+        : (c.ltgp != null ? fC(c.rpc) + ' × ' + fPct(c.gm) + ' × ' + fMo(c.lifespan) : 'Needs churn & client data'));
+
+    set('k-cac', c.cacVal !== null ? f$(c.cacVal) : '—');
+    w('kw-cac', isBlended
+        ? (c.nc > 0 ? 'Total spend ' + fC(c.totalCac) + ' ÷ ' + c.nc + ' clients acquired' : 'No clients acquired')
+        : 'Direct input');
+
+    set('k-total-cac', f$(c.totalCac));
+    w('kw-total-cac', isBlended
+        ? 'Total across ' + nLabel + ' · ' + c.nc + ' clients acquired'
+        : (c.nc > 0 ? fC(c.cac) + ' × ' + c.nc + ' new clients' : 'No new clients this period'));
+
+    set('k-life', fMo(c.lifespan));
+    w('kw-life', isBlended
+        ? (c.lchurn > 0 ? 'Avg churn ' + fPct(c.lchurn) + ' → 1 ÷ (' + fPct(c.lchurn) + ' ÷ 100) = ' + fMo(c.lifespan) : 'No churn recorded')
+        : (c.lchurn > 0 ? '1 ÷ (' + fPct(c.lchurn) + ' ÷ 100) = ' + fMo(c.lifespan) : 'No churn recorded'));
+
+    // ── Retention & Churn ───────────────────────────────────────────────────
+    set('k-ret', fPct(c.ret), 'kpi-val ' + (c.ret >= 95 ? 'g' : ''));
+    w('kw-ret', isBlended
+        ? 'Average across ' + nLabel
+        : '100 − ' + fPct(c.lchurn));
+
+    set('k-lchurn', fPct(c.lchurn), 'kpi-val ' + (c.lchurn <= 5 ? 'g' : 'r'));
+    w('kw-lchurn', isBlended
+        ? 'Average across ' + nLabel
+        : c.ch + ' churned ÷ ' + c.cs + ' start × 100');
+
+    set('k-rchurn', fPct(c.rchurn), 'kpi-val ' + (c.rchurn <= 5 ? 'g' : 'r'));
+    w('kw-rchurn', isBlended
+        ? 'Average across ' + nLabel
+        : fC(c.rc) + ' ÷ ' + fC(c.rev) + ' × 100');
+
+    const net = c.nc - c.ch;
+    set('k-netc', (net >= 0 ? '+' : '') + net, 'kpi-val ' + (net >= 0 ? 'g' : 'r'));
+    w('kw-netc', isBlended
+        ? '+' + c.nc + ' new − ' + c.ch + ' churned (total across ' + nLabel + ')'
+        : '+' + c.nc + ' new − ' + c.ch + ' churned');
+}
+
+// ══ Charts ══
+const CD = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+        legend:{labels:{color:'rgba(220,240,228,.55)',font:{size:16},boxWidth:14,padding:16}},
+        tooltip:{backgroundColor:'#081208',borderColor:'rgba(60,160,90,.3)',borderWidth:1,titleColor:'#e8f0ea',bodyColor:'rgba(220,240,228,.7)',padding:12,cornerRadius:8,titleFont:{size:16},bodyFont:{size:15}}
+    },
+    scales:{
+        x:{ticks:{color:'rgba(220,240,228,.6)',font:{size:15}},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.08)'}},
+        y:{ticks:{color:'rgba(220,240,228,.6)',font:{size:15}},grid:{color:'rgba(255,255,255,.04)'},border:{color:'rgba(255,255,255,.08)'}}
+    }
+};
+
+function mkChart(id, type, data, opts) {
+    if (charts[id]) charts[id].destroy();
+    const ctx = document.getElementById(id)?.getContext('2d');
+    if (!ctx) return;
+    charts[id] = new Chart(ctx, {type, data, options: deepMerge(CD, opts||{})});
+}
+
+function deepMerge(base, over) {
+    const r = {...base};
+    for (const k in over) {
+        if (over[k] && typeof over[k] === 'object' && !Array.isArray(over[k]))
+            r[k] = deepMerge(base[k]||{}, over[k]);
+        else r[k] = over[k];
+    }
+    return r;
+}
+
+function shortLbl(m) {
+    const p = m.label.split(' ');
+    return p[0].slice(0,3) + (p[1] ? ' \'' + p[1].slice(2) : '');
+}
+
+function renderAnalytics() {
+    const ms = sorted();
+    const noData = document.getElementById('analytics-no-data');
+    const content = document.getElementById('analytics-content');
+    if (!ms.length) { noData.style.display='block'; content.style.display='none'; return; }
+    noData.style.display='none'; content.style.display='block';
+
+    const labels = ms.map(shortLbl);
+    const calcs = ms.map(calc);
+    const pTick = v => v + '%';
+    const gbpTick = v => {
+        if (v === 0) return '$0';
+        if (Math.abs(v) >= 1000) return (v < 0 ? '-' : '') + '$' + (Math.abs(v)/1000).toFixed(0) + 'K';
+        return (v < 0 ? '-' : '') + '$' + Math.abs(v);
+    };
+    // Month-over-month delta helper for tooltip labels
+    const momd = (ctx, fmt) => {
+        const i = ctx.dataIndex;
+        const data = ctx.dataset.data;
+        if (i === 0 || data[i-1] == null) return '';
+        const d = ctx.parsed.y - data[i-1];
+        if (d === 0) return '';
+        return '   ' + (d > 0 ? '↑' : '↓') + ' ' + fmt(Math.abs(d));
+    };
+
+    // 1. Revenue, Gross Profit & Net Profit Trend
+    mkChart('c-rev-trend','line',{
+        labels,
+        datasets:[
+            {label:'Revenue',data:calcs.map(c=>c.rev),borderColor:'#4cd97b',backgroundColor:'rgba(76,217,123,.08)',fill:true,tension:.4,pointBackgroundColor:'#4cd97b',pointRadius:4,borderWidth:2},
+            {label:'Gross Profit',data:calcs.map(c=>c.gp),borderColor:'#2dd4bf',backgroundColor:'rgba(45,212,191,.05)',fill:true,tension:.4,pointBackgroundColor:'#2dd4bf',pointRadius:4,borderWidth:2},
+            {label:'Net Profit',data:calcs.map(c=>c.np),borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,.05)',fill:true,tension:.4,pointBackgroundColor:'#a78bfa',pointRadius:4,borderWidth:2}
+        ]
+    },{plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fC(ctx.parsed.y)+momd(ctx,fC)}}},scales:{y:{ticks:{callback:gbpTick}}}});
+
+    // 2. Margin Analysis
+    mkChart('c-margins','bar',{
+        labels,
+        datasets:[
+            {label:'Gross Margin %',data:calcs.map(c=>+c.gm.toFixed(1)),backgroundColor:'rgba(76,217,123,.7)',borderRadius:4},
+            {label:'Net Margin %',data:calcs.map(c=>+c.nm.toFixed(1)),backgroundColor:'rgba(167,139,250,.7)',borderRadius:4}
+        ]
+    },{plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+'%'+momd(ctx,d=>d.toFixed(1)+'pp')}}},scales:{y:{ticks:{callback:pTick}}}});
+
+    // 3. LTGP : CAC
+    mkChart('c-ltgp-cac','bar',{
+        labels,
+        datasets:[
+            {label:'LTGP',data:calcs.map(c=>c.ltgp!=null?+c.ltgp.toFixed(0):null),backgroundColor:'rgba(76,217,123,.7)',borderRadius:4},
+            {label:'CAC',data:calcs.map(c=>c.cacVal!=null?+c.cacVal.toFixed(0):null),backgroundColor:'rgba(248,113,113,.7)',borderRadius:4}
+        ]
+    },{plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': $'+((ctx.parsed.y||0).toLocaleString('en-US'))}}},scales:{y:{ticks:{callback:gbpTick}}}});
+
+    // Ratio chips
+    const ratiosEl = document.getElementById('ltgp-cac-ratios');
+    if (ratiosEl) {
+        ratiosEl.innerHTML = ms.map((m,i) => {
+            const r = calcs[i].ratio;
+            const color = r === null ? 'var(--text3)' : r >= 3 ? 'var(--g1)' : r >= 2 ? 'var(--amber)' : 'var(--red)';
+            const bg    = r === null ? 'rgba(255,255,255,.04)' : r >= 3 ? 'rgba(76,217,123,.1)' : r >= 2 ? 'rgba(251,191,36,.1)' : 'rgba(248,113,113,.1)';
+            const border= r === null ? 'rgba(255,255,255,.08)' : r >= 3 ? 'rgba(76,217,123,.3)' : r >= 2 ? 'rgba(251,191,36,.3)' : 'rgba(248,113,113,.3)';
+            return `<div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:10px 16px;text-align:center">
+                <div style="font-size:13px;color:var(--text3);margin-bottom:5px;white-space:nowrap">${shortLbl(m)}</div>
+                <div style="font-size:20px;font-weight:700;color:${color};letter-spacing:-.01em">${r !== null ? r.toFixed(1)+':1' : '—'}</div>
+            </div>`;
+        }).join('');
+    }
+
+    // 3b. LTGP : CAC Ratio Trend
+    mkChart('c-ratio-trend','line',{
+        labels,
+        datasets:[{
+            label:'LTGP:CAC',
+            data:calcs.map(c=>c.ratio!=null?+c.ratio.toFixed(1):null),
+            borderColor:'#4cd97b',backgroundColor:'rgba(76,217,123,.08)',
+            fill:true,tension:.4,pointBackgroundColor:'#4cd97b',pointRadius:5,borderWidth:2,spanGaps:true
+        }]
+    },{
+        plugins:{
+            legend:{display:false},
+            tooltip:{callbacks:{label:ctx=>' LTGP:CAC: '+(ctx.parsed.y||0).toFixed(1)+':1'}}
+        },
+        scales:{y:{ticks:{callback:v=>v.toFixed(1)+':1'}}}
+    });
+
+    // 4. Monthly Revenue Growth
+    mkChart('c-mrr','line',{
+        labels,
+        datasets:[{label:'Revenue',data:calcs.map(c=>c.rev),borderColor:'#fbbf24',backgroundColor:'rgba(251,191,36,.1)',fill:true,tension:.4,pointBackgroundColor:'#fbbf24',pointRadius:4,borderWidth:2}]
+    },{plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' Revenue: '+fC(ctx.parsed.y)+momd(ctx,fC)}}},scales:{y:{ticks:{callback:gbpTick}}}});
+
+    // 5. Churn Trend
+    mkChart('c-churn','line',{
+        labels,
+        datasets:[
+            {label:'Logo Churn %',data:calcs.map(c=>+c.lchurn.toFixed(1)),borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.08)',fill:true,tension:.4,pointRadius:4,borderWidth:2,borderDash:[4,3]},
+            {label:'Revenue Churn %',data:calcs.map(c=>+c.rchurn.toFixed(1)),borderColor:'#fb923c',backgroundColor:'rgba(251,146,60,.06)',fill:true,tension:.4,pointRadius:4,borderWidth:2}
+        ]
+    },{
+        plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+'%'+momd(ctx,d=>d.toFixed(1)+'pp')}}},
+        scales:{y:{ticks:{callback:pTick}}}
+    });
+
+    // 6. Cost Structure — stacked bar over all periods
+    mkChart('c-costs','bar',{
+        labels,
+        datasets:[
+            {label:'COGS',data:calcs.map(c=>c.cogs),backgroundColor:'rgba(76,217,123,.75)',borderRadius:4},
+            {label:'CAC',data:calcs.map(c=>c.totalCac),backgroundColor:'rgba(139,92,246,.75)',borderRadius:4},
+            {label:'Fixed Costs',data:calcs.map(c=>c.opex),backgroundColor:'rgba(251,191,36,.75)',borderRadius:4}
+        ]
+    },{
+        plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fC(ctx.parsed.y)+momd(ctx,fC)}}},
+        scales:{
+            x:{...CD.scales.x,stacked:true},
+            y:{...CD.scales.y,stacked:true,ticks:{...CD.scales.y.ticks,callback:gbpTick}}
+        }
+    });
+}
+
+// ══ Input Tables ══
+function renderInputTables() {
+    const ms = sorted();
+    const ib = document.getElementById('inp-body');
+    const cb = document.getElementById('calc-body');
+    const ie = document.getElementById('inp-empty');
+    const ce = document.getElementById('calc-empty');
+    ib.innerHTML = ''; cb.innerHTML = '';
+
+    if (!ms.length) { ie.style.display='block'; ce.style.display='block'; return; }
+    ie.style.display='none'; ce.style.display='none';
+
+    ms.forEach(m => {
+        const fields = ['rev','cogs','cac','opex','cs','nc','ch','rc'];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${m.label}</td>` +
+            fields.map(f => {
+                const raw = m[f] || '';
+                const display = raw ? (+raw).toLocaleString('en-US') : '';
+                return `<td><input class="inp" type="text" inputmode="decimal" value="${display}"
+                    onfocus="this.value=this.value.replace(/,/g,'')"
+                    onblur="fmtInput(this)"
+                    onchange="updField('${m.id}','${f}',this.value)"></td>`;
+            }).join('') +
+            `<td><button class="btn btn-d" onclick="delMonth('${m.id}')">✕</button></td>`;
+        ib.appendChild(tr);
+
+        const c = calc(m);
+        const gCol = v => v >= 0 ? 'color:var(--g1)' : 'color:var(--red)';
+        const churnCol = v => v <= 5 ? 'color:var(--g1)' : 'color:var(--red)';
+        const retCol = v => v >= 95 ? 'color:var(--g1)' : '';
+        const ratioCol = v => v === null ? '' : v >= 3 ? 'color:var(--g1)' : 'color:var(--red)';
+
+        const ctr = document.createElement('tr');
+        ctr.innerHTML = `
+            <td>${m.label}</td>
+            <td style="${gCol(c.gp)}">${f$(c.gp)}</td>
+            <td style="${gCol(c.gm)}">${fPct(c.gm)}</td>
+            <td>${f$(c.totalCac)}</td>
+            <td style="${gCol(c.np)}">${f$(c.np)}</td>
+            <td style="${gCol(c.nm)}">${fPct(c.nm)}</td>
+            <td>${f$(c.tc)}</td>
+            <td style="${churnCol(c.lchurn)}">${fPct(c.lchurn)}</td>
+            <td style="${churnCol(c.rchurn)}">${fPct(c.rchurn)}</td>
+            <td style="${retCol(c.ret)}">${fPct(c.ret)}</td>
+            <td>${fMo(c.lifespan)}</td>
+            <td>${c.ltgp!=null?f$(c.ltgp):'—'}</td>
+            <td style="${ratioCol(c.ratio)}">${c.ratio!=null?fX(c.ratio):'—'}</td>
+            <td>${f$(c.rpc)}</td>
+        `;
+        cb.appendChild(ctr);
+    });
+}
+
+function updField(id, field, value) {
+    const m = months.find(m=>m.id===id);
+    if (m) { m[field] = parseNum(value); save(); renderInputTables(); }
+}
+
+function delMonth(id) {
+    if (!confirm('Delete this month? This cannot be undone.')) return;
+    months = months.filter(m=>m.id!==id);
+    save(); renderInputTables(); populateSel();
+}
+
+// ══ Modal ══
+function openModal() {
+    const sel = document.getElementById('m-period');
+    sel.innerHTML = '<option value="">Select month…</option>';
+    const ex = new Set(months.map(m=>m.id));
+    // Range: May 2026 → today + 24 months (extends automatically each month)
+    const now = new Date();
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 24, 1);
+    let iy = 2026, im = 5; // May 2026
+    while (iy < endDate.getFullYear() || (iy === endDate.getFullYear() && im <= endDate.getMonth() + 1)) {
+        const id = iy + '-' + String(im).padStart(2, '0');
+        if (!ex.has(id)) {
+            const o = document.createElement('option');
+            o.value = id; o.textContent = MONTHS[im-1] + ' ' + iy;
+            sel.appendChild(o);
+        }
+        im++; if (im > 12) { im = 1; iy++; }
+    }
+    ['m-rev','m-cogs','m-cac','m-opex','m-cs','m-nc','m-ch','m-rc'].forEach(id=>{
+        document.getElementById(id).value='';
+    });
+    document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open') }
+
+function saveMonth() {
+    const pid = document.getElementById('m-period').value;
+    if (!pid) { alert('Please select a period.'); return; }
+    const [yr, mo] = pid.split('-');
+    const label = MONTHS[+mo-1] + ' ' + yr;
+    months.push({
+        id:pid, label,
+        rev:   parseNum(document.getElementById('m-rev').value),
+        cogs:  parseNum(document.getElementById('m-cogs').value),
+        cac:   parseNum(document.getElementById('m-cac').value),
+        opex:  parseNum(document.getElementById('m-opex').value),
+        cs:    parseNum(document.getElementById('m-cs').value),
+        nc:    parseNum(document.getElementById('m-nc').value),
+        ch:    parseNum(document.getElementById('m-ch').value),
+        rc:    parseNum(document.getElementById('m-rc').value)
+    });
+    save(); closeModal(); renderInputTables(); populateSel();
+}
+
+// ══ Forecast Engine ══
+let forecastView = 'monthly';
+
+function setForecastView(view, el) {
+    forecastView = view;
+    document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+    document.getElementById('fc-period-bar').style.display = view !== 'trend' ? 'flex' : 'none';
+    document.getElementById('fc-avg-bar').style.display    = view !== 'trend' ? 'flex' : 'none';
+    document.getElementById('fc-panel-single').style.display = view !== 'trend' ? 'block' : 'none';
+    document.getElementById('fc-panel-trend').style.display = view === 'trend' ? 'block' : 'none';
+    renderForecast();
+}
+
+function calcAvg(ms) {
+    if (!ms.length) return null;
+    const calcs = ms.map(calc);
+    const n = calcs.length;
+    const avg = arr => arr.reduce((s,v)=>s+v,0)/n;
+    const last = calcs[calcs.length-1];
+
+    const nc        = avg(calcs.map(c=>c.nc));
+    const ch        = avg(calcs.map(c=>c.ch));
+    const rc        = avg(calcs.map(c=>c.rc));
+    const cs        = avg(calcs.map(c=>c.cs));
+    const ce        = last.ce;    // latest actual end clients (projection starting point)
+    const rev       = last.rev;   // latest actual revenue (projection starting point)
+    const lchurn    = avg(calcs.map(c=>c.lchurn));
+    const rchurn    = avg(calcs.map(c=>c.rchurn));
+    const rpc       = avg(calcs.map(c=>c.rpc));
+    const avgClients= avg(calcs.map(c=>c.avgClients));
+    const gm        = avg(calcs.map(c=>c.gm));
+    const cogs      = avg(calcs.map(c=>c.cogs));
+    const opex      = avg(calcs.map(c=>c.opex));
+    const totalCac  = avg(calcs.map(c=>c.totalCac));
+    const cac       = avg(calcs.map(c=>c.cac||0));
+    const gp        = avg(calcs.map(c=>c.gp));
+    const np        = avg(calcs.map(c=>c.np));
+    const nm        = avg(calcs.map(c=>c.nm));
+    const tc        = cogs + totalCac + opex;
+    const ret       = 100 - lchurn;
+    const lifespan  = lchurn > 0 ? 1/(lchurn/100) : null;
+    const cacVal    = cac > 0 ? cac : null;
+    const ltgp      = (rpc>0&&lifespan!==null&&gm>0) ? rpc*(gm/100)*lifespan : null;
+    const ratio     = (ltgp!==null&&cacVal&&cacVal>0) ? ltgp/cacVal : null;
+
+    return {rev,cogs,cac,opex,cs,nc,ch,rc,
+            totalCac,gp,gm,np,nm,tc,ce,avgClients,rpc,
+            lchurn,ret,rchurn,lifespan,cacVal,ltgp,ratio};
+}
+
+function calcForecast(c) {
+    const lchurnRate = c.lchurn / 100;
+    const rchurnRate = c.rchurn / 100;
+
+    // Customer Ceiling = New Clients per month / Churn Rate
+    const customerCeiling = (lchurnRate > 0 && c.nc > 0) ? c.nc / lchurnRate : null;
+    const currentClients = c.ce;
+    const customerGap = customerCeiling !== null ? customerCeiling - currentClients : null;
+    const customerSat = (customerCeiling !== null && customerCeiling > 0)
+        ? Math.min(currentClients / customerCeiling * 100, 130) : null;
+    const customerStatus = customerSat === null ? 'unknown'
+        : customerSat < 95 ? 'growing' : customerSat <= 105 ? 'stable' : 'shrinking';
+
+    // Revenue Ceiling = (New Clients × Rev/Client) / Revenue Churn Rate
+    const newRevAdded = c.nc * c.rpc;
+    const revCeiling = (rchurnRate > 0 && newRevAdded > 0) ? newRevAdded / rchurnRate : null;
+    const revGap = revCeiling !== null ? revCeiling - c.rev : null;
+    const revSat = (revCeiling !== null && revCeiling > 0)
+        ? Math.min(c.rev / revCeiling * 100, 130) : null;
+    const revStatus = revSat === null ? 'unknown'
+        : revSat < 95 ? 'growing' : revSat <= 105 ? 'stable' : 'shrinking';
+
+    // Business Direction
+    const direction = (customerStatus === 'growing' && revStatus === 'growing') ? 'accelerating'
+        : (customerStatus === 'shrinking' && revStatus === 'shrinking') ? 'decelerating'
+        : 'transitioning';
+
+    // CAC Payback = CAC / (Rev/Client × Gross Margin)
+    const payback = (c.cacVal != null && c.rpc > 0 && c.gm > 0)
+        ? c.cacVal / (c.rpc * c.gm / 100) : null;
+
+    // Months to 95% of ceiling
+    let monthsToCust = null;
+    if (customerCeiling !== null && lchurnRate > 0) {
+        if (customerSat >= 95) { monthsToCust = 0; }
+        else {
+            let n = currentClients, mo = 0, tgt = customerCeiling * 0.95;
+            while (n < tgt && mo < 600) { n = n + c.nc - n * lchurnRate; mo++; }
+            monthsToCust = mo < 600 ? mo : null;
+        }
+    }
+    let monthsToRev = null;
+    if (revCeiling !== null && rchurnRate > 0) {
+        if (revSat >= 95) { monthsToRev = 0; }
+        else {
+            let r = c.rev, mo = 0, tgt = revCeiling * 0.95;
+            while (r < tgt && mo < 600) { r = r + newRevAdded - r * rchurnRate; mo++; }
+            monthsToRev = mo < 600 ? mo : null;
+        }
+    }
+
+    // 36-month forward projection
+    const projN = [Math.round(currentClients)], projR = [Math.round(c.rev)];
+    let pn = currentClients, pr = c.rev;
+    for (let i = 0; i < 36; i++) {
+        pn = Math.max(0, pn + c.nc - pn * lchurnRate);
+        pr = Math.max(0, pr + newRevAdded - pr * rchurnRate);
+        projN.push(Math.round(pn * 10) / 10);
+        projR.push(Math.round(pr));
+    }
+
+    return { customerCeiling, currentClients, customerGap, customerSat, customerStatus,
+             revCeiling, revGap, revSat, revStatus, newRevAdded,
+             direction, monthsToCust, monthsToRev, payback,
+             projN, projR, lchurnRate, rchurnRate };
+}
+
+function renderForecast() {
+    const ms = sorted();
+    const noData = document.getElementById('forecast-no-data');
+    const content = document.getElementById('forecast-content');
+    if (!ms.length) { noData.style.display='block'; content.style.display='none'; return; }
+    noData.style.display='none'; content.style.display='block';
+
+    const isSingle = forecastView !== 'trend';
+    if (isSingle) {
+        document.getElementById('fc-period-bar').style.display='flex';
+        document.getElementById('fc-avg-bar').style.display='flex';
+    }
+
+    if (forecastView === 'trend') { renderForecastTrend(ms); return; }
+
+    // Populate period selector
+    const fcSel = document.getElementById('fc-period-sel');
+    const savedVal = fcSel.value;
+    fcSel.innerHTML = '';
+    ms.forEach(m => { const o = document.createElement('option'); o.value=m.id; o.textContent=m.label; fcSel.appendChild(o); });
+    if (savedVal && ms.find(x => x.id === savedVal)) fcSel.value = savedVal;
+
+    // Averages mode
+    const avgSel = document.getElementById('fc-avg-sel');
+    const avgN = avgSel ? parseInt(avgSel.value) || 0 : 0;
+    const noEnough = document.getElementById('fc-avg-no-data');
+
+    fcSel.disabled = avgN > 0;
+
+    if (avgN > 0) {
+        if (ms.length < avgN) {
+            noEnough.style.display = 'block';
+            const msg = document.getElementById('fc-avg-no-data-msg');
+            if (msg) msg.textContent = 'Need at least ' + avgN + ' months of data — currently have ' + ms.length + '.';
+            // hide panel body
+            document.querySelectorAll('#fc-panel-single > *:not(#fc-avg-no-data)').forEach(el => el.style.display='none');
+            return;
+        }
+        noEnough.style.display = 'none';
+        document.querySelectorAll('#fc-panel-single > *:not(#fc-avg-no-data)').forEach(el => el.style.display='');
+        const lastN = ms.slice(-avgN);
+        const c = calcAvg(lastN);
+        const f = calcForecast(c);
+        renderForecastSingle(c, f);
+        return;
+    }
+
+    noEnough.style.display = 'none';
+    document.querySelectorAll('#fc-panel-single > *:not(#fc-avg-no-data)').forEach(el => el.style.display='');
+
+    const m = ms.find(x => x.id === fcSel.value) || ms[ms.length - 1];
+    fcSel.value = m.id;
+
+    const c = calc(m);
+    const f = calcForecast(c);
+    renderForecastSingle(c, f);
+}
+
+function statusLabel(s) {
+    return s === 'growing' ? '▲ Growing' : s === 'stable' ? '● Stable' : s === 'shrinking' ? '▼ Shrinking' : '— Unknown';
+}
+
+function renderForecastSingle(c, f) {
+    const set = (id, txt) => { const el=document.getElementById(id); if(el) el.textContent=txt; };
+    const setHTML = (id, html) => { const el=document.getElementById(id); if(el) el.innerHTML=html; };
+
+    // ── Core Data ──
+    const lostPerMo = Math.round(f.currentClients * f.lchurnRate * 10) / 10;
+    set('fc-cd-nc',     c.nc);
+    set('fc-cd-lchurn', fPct(c.lchurn));
+    set('kw-fc-cd-lchurn', c.ch + ' churned ÷ ' + c.cs + ' start');
+    set('fc-cd-lost',   lostPerMo.toFixed(1));
+    set('kw-fc-cd-lost', f.currentClients + ' × ' + fPct(c.lchurn));
+    set('fc-cd-newrev', fC(f.newRevAdded));
+    set('kw-fc-cd-newrev', c.nc + ' × ' + f$(c.rpc));
+    set('fc-cd-rchurn', fPct(c.rchurn));
+    set('kw-fc-cd-rchurn', fC(c.rc) + ' churned ÷ ' + fC(c.rev));
+    set('fc-cd-lostrev', fC(c.rc));
+    set('kw-fc-cd-lostrev', 'Direct input from data');
+
+    // ── Direction Card ──
+    const dirCard = document.getElementById('fc-direction');
+    dirCard.className = 'direction-card ' + f.direction;
+    const dirIcons = { accelerating:'↑', transitioning:'→', decelerating:'↓' };
+    const dirWords = { accelerating:'Accelerating', transitioning:'Transitioning', decelerating:'Decelerating' };
+    set('fc-dir-icon', dirIcons[f.direction]);
+    const vEl = document.getElementById('fc-dir-verdict');
+    vEl.textContent = dirWords[f.direction]; vEl.className = 'dir-verdict ' + f.direction;
+    set('fc-dir-sub', 'At current acquisition and churn rates, this business projects toward ' + (f.revCeiling !== null ? fC(f.revCeiling) : '—') + ' revenue and ' + (f.customerCeiling !== null ? Math.round(f.customerCeiling).toLocaleString('en-US') : '—') + ' clients.');
+    setHTML('fc-dir-meta',
+        '<div class="dir-meta-item">Customer ceiling: <strong>' + (f.customerCeiling !== null ? Math.round(f.customerCeiling).toLocaleString('en-US') : '—') + '</strong></div>' +
+        '<div class="dir-meta-item">Revenue ceiling: <strong>' + (f.revCeiling !== null ? fC(f.revCeiling) : '—') + '</strong></div>' +
+        '<div class="dir-meta-item">Customer saturation: <strong>' + (f.customerSat !== null ? f.customerSat.toFixed(1)+'%' : '—') + '</strong></div>' +
+        '<div class="dir-meta-item">Revenue saturation: <strong>' + (f.revSat !== null ? f.revSat.toFixed(1)+'%' : '—') + '</strong></div>'
+    );
+
+    // ── Customer Section ──
+    const custBadge = document.getElementById('fc-cust-badge');
+    custBadge.textContent = statusLabel(f.customerStatus); custBadge.className = 'status-badge ' + f.customerStatus;
+
+    set('fc-cur-clients', f.currentClients.toLocaleString('en-US'));
+    set('kw-fc-cur-clients', c.cs + ' + ' + c.nc + ' − ' + c.ch + ' = ' + f.currentClients);
+
+    const ceiling = f.customerCeiling !== null ? Math.round(f.customerCeiling) : null;
+    set('fc-cust-ceiling', ceiling !== null ? ceiling.toLocaleString('en-US') : '—');
+    set('kw-fc-cust-ceiling', ceiling !== null ? c.nc + ' ÷ ' + fPct(c.lchurn) + ' = ' + ceiling : 'Need acquisition & churn data');
+
+    const custGapVal = ceiling !== null ? ceiling - f.currentClients : null;
+    set('fc-cust-gap', custGapVal !== null ? (custGapVal >= 0 ? '+' : '') + Math.round(custGapVal).toLocaleString('en-US') : '—');
+    set('kw-fc-cust-gap', custGapVal !== null ? ceiling + ' − ' + f.currentClients + ' = ' + Math.round(custGapVal) : '—');
+
+    // Closed-form months: t = ln(0.05 × Ceiling / Gap) / ln(1 − churnRate)
+    let custMoTxt = '—', custMoWork = '—';
+    if (ceiling !== null && custGapVal !== null && f.lchurnRate > 0) {
+        if (custGapVal <= 0) { custMoTxt = 'At ceiling'; custMoWork = 'Already at or above ceiling'; }
+        else {
+            const targetGap = 0.05 * ceiling;
+            if (targetGap >= custGapVal) { custMoTxt = '< 1 mo'; custMoWork = 'Within 5% of ceiling already'; }
+            else {
+                const t = Math.round(Math.log(targetGap / custGapVal) / Math.log(1 - f.lchurnRate));
+                custMoTxt = t + ' mo';
+                custMoWork = 'ln(' + (targetGap/custGapVal).toFixed(3) + ') ÷ ln(' + (1-f.lchurnRate).toFixed(4) + ') = ' + t;
+            }
+        }
+    }
+    set('fc-cust-months', custMoTxt);
+    set('kw-fc-cust-months', custMoWork);
+
+    // Customer saturation doughnut
+    const custSatPct = f.customerSat !== null ? Math.min(f.customerSat, 100) : 0;
+    const custColor = f.customerStatus==='growing' ? '#4cd97b' : f.customerStatus==='stable' ? '#fbbf24' : '#f87171';
+    mkChart('c-fc-cust-sat','doughnut',{
+        datasets:[{ data:[custSatPct, 100-custSatPct], backgroundColor:[custColor,'rgba(255,255,255,.06)'], borderWidth:0 }]
+    },{ cutout:'72%', scales:{ x:{display:false}, y:{display:false} }, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:()=>' '+f.currentClients+' of '+(ceiling||'—')+' max ('+custSatPct.toFixed(1)+'%)' } } } });
+    set('fc-cust-sat-center', f.currentClients.toLocaleString('en-US'));
+    set('fc-cust-sat-center-sub', 'of ' + (ceiling !== null ? ceiling.toLocaleString('en-US') : '—') + ' max');
+    set('fc-cust-sat-lbl-l', f.customerSat !== null ? f.customerSat.toFixed(1)+'% saturated' : '—');
+    set('fc-cust-sat-lbl-r', 'Hyp. Max: ' + (ceiling !== null ? ceiling.toLocaleString('en-US') + ' clients' : '—'));
+
+    // ── Revenue Section ──
+    const revBadge = document.getElementById('fc-rev-badge');
+    revBadge.textContent = statusLabel(f.revStatus); revBadge.className = 'status-badge ' + f.revStatus;
+
+    set('fc-cur-rev', f$(c.rev));
+
+    const revCeil = f.revCeiling !== null ? Math.round(f.revCeiling) : null;
+    set('fc-rev-ceiling', revCeil !== null ? f$(revCeil) : '—');
+    set('kw-fc-rev-ceiling', revCeil !== null ? fC(f.newRevAdded) + ' ÷ ' + fPct(c.rchurn) + ' = ' + fC(revCeil) : 'Need revenue churn data');
+
+    const revGapVal = revCeil !== null ? revCeil - c.rev : null;
+    set('fc-rev-gap', revGapVal !== null ? (revGapVal >= 0 ? '' : '−') + f$(Math.abs(Math.round(revGapVal))) : '—');
+    set('kw-fc-rev-gap', revGapVal !== null ? fC(revCeil) + ' − ' + fC(c.rev) + ' = ' + fC(Math.round(revGapVal)) : '—');
+
+    let revMoTxt = '—', revMoWork = '—';
+    if (revCeil !== null && revGapVal !== null && f.rchurnRate > 0) {
+        if (revGapVal <= 0) { revMoTxt = 'At ceiling'; revMoWork = 'Already at or above ceiling'; }
+        else {
+            const targetGap = 0.05 * revCeil;
+            if (targetGap >= revGapVal) { revMoTxt = '< 1 mo'; revMoWork = 'Within 5% of ceiling already'; }
+            else {
+                const t = Math.round(Math.log(targetGap / revGapVal) / Math.log(1 - f.rchurnRate));
+                revMoTxt = t + ' mo';
+                revMoWork = 'ln(' + (targetGap/revGapVal).toFixed(3) + ') ÷ ln(' + (1-f.rchurnRate).toFixed(4) + ') = ' + t;
+            }
+        }
+    }
+    set('fc-rev-months', revMoTxt);
+    set('kw-fc-rev-months', revMoWork);
+
+    // Revenue saturation doughnut
+    const revSatPct = f.revSat !== null ? Math.min(f.revSat, 100) : 0;
+    const revColor = f.revStatus==='growing' ? '#4cd97b' : f.revStatus==='stable' ? '#fbbf24' : '#f87171';
+    mkChart('c-fc-rev-sat','doughnut',{
+        datasets:[{ data:[revSatPct, 100-revSatPct], backgroundColor:[revColor,'rgba(255,255,255,.06)'], borderWidth:0 }]
+    },{ cutout:'72%', scales:{ x:{display:false}, y:{display:false} }, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:()=>' '+f$(c.rev)+' of '+(revCeil!==null?f$(revCeil):'—')+' max ('+revSatPct.toFixed(1)+'%)' } } } });
+    set('fc-rev-sat-center', fC(c.rev));
+    set('fc-rev-sat-center-sub', 'of ' + (revCeil !== null ? fC(revCeil) : '—') + ' max');
+    set('fc-rev-sat-lbl-l', f.revSat !== null ? f.revSat.toFixed(1)+'% saturated' : '—');
+    set('fc-rev-sat-lbl-r', 'Hyp. Max: ' + (revCeil !== null ? fC(revCeil) : '—'));
+
+    // ── Projection Charts ──
+    const projLabels = Array.from({length:37}, (_,i) => i===0 ? 'Now' : 'M+'+i);
+    const gbpTick = v => v >= 1e6 ? '$'+(v/1e6).toFixed(1)+'M' : v >= 1000 ? '$'+(v/1000).toFixed(0)+'k' : '$'+v;
+
+    mkChart('c-fc-growth','line',{
+        labels: projLabels,
+        datasets: [
+            { label:'Projected Clients', data:f.projN, borderColor:'#4cd97b', backgroundColor:'rgba(76,217,123,.08)', fill:true, tension:.4, pointRadius:0, borderWidth:2 },
+            ...(ceiling !== null ? [{ label:'Ceiling', data:Array(37).fill(ceiling), borderColor:'rgba(248,113,113,.5)', borderDash:[5,4], borderWidth:1.5, pointRadius:0, fill:false, tension:0 }] : [])
+        ]
+    },{ plugins:{ tooltip:{ callbacks:{ label:ctx=>' '+ctx.dataset.label+': '+Math.round(ctx.parsed.y)+' clients' } } }, scales:{ y:{ ticks:{ callback:v=>Math.round(v) } } } });
+
+    mkChart('c-fc-rev-growth','line',{
+        labels: projLabels,
+        datasets: [
+            { label:'Projected Revenue', data:f.projR, borderColor:'#fbbf24', backgroundColor:'rgba(251,191,36,.08)', fill:true, tension:.4, pointRadius:0, borderWidth:2 },
+            ...(revCeil !== null ? [{ label:'Ceiling', data:Array(37).fill(revCeil), borderColor:'rgba(248,113,113,.5)', borderDash:[5,4], borderWidth:1.5, pointRadius:0, fill:false, tension:0 }] : [])
+        ]
+    },{ plugins:{ tooltip:{ callbacks:{ label:ctx=>' '+ctx.dataset.label+': $'+Math.round(ctx.parsed.y).toLocaleString('en-US') } } }, scales:{ y:{ ticks:{ callback:gbpTick } } } });
+
+    // ── Projection Table ──
+    const projBody = document.getElementById('fc-proj-body');
+    if (projBody) {
+        projBody.innerHTML = '';
+        const maxIdx = Math.min(f.projN.length - 1, 36);
+
+        // Always show the full 36-month projection; quarterly if > 15 months
+        const step = maxIdx > 15 ? 3 : 1;
+        const indices = [0];
+        for (let i = step; i < maxIdx; i += step) indices.push(i);
+        if (indices[indices.length - 1] !== maxIdx) indices.push(maxIdx);
+
+        const today = new Date();
+        const projDateLabel = mo => {
+            if (mo === 0) return 'Today';
+            const d = new Date(today.getFullYear(), today.getMonth() + mo, 1);
+            return MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+        };
+
+        let quarter = 0;
+        indices.forEach(i => {
+            const n = f.projN[i], r = f.projR[i];
+            let label;
+            if (i === 0) { label = 'Now'; }
+            else if (step === 3) { quarter++; label = 'Q' + quarter + ' (M+' + i + ')'; }
+            else { label = 'M +' + i; }
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td title="'+projDateLabel(i)+'">'+label+'</td>'+
+                '<td>'+Math.round(n).toLocaleString('en-US')+'</td>'+
+                '<td>'+f$(Math.round(r))+'</td>';
+            projBody.appendChild(tr);
+        });
+    }
+
+}
+
+function renderForecastTrend(ms) {
+    const labels  = ms.map(shortLbl);
+    const calcs   = ms.map(calc);
+    const forecasts = calcs.map(calcForecast);
+    const gbpTick = v => v >= 1e6 ? '$'+(v/1e6).toFixed(1)+'M' : v >= 1000 ? '$'+(v/1000).toFixed(0)+'k' : '$'+v;
+
+    mkChart('c-fc-cust-trend','line',{
+        labels,
+        datasets:[
+            { label:'Actual Clients', data:calcs.map(c=>c.ce), borderColor:'#4cd97b', backgroundColor:'rgba(76,217,123,.08)', fill:true, tension:.4, pointRadius:4, borderWidth:2 },
+            { label:'Customer Ceiling', data:forecasts.map(f=>f.customerCeiling!==null?Math.round(f.customerCeiling):null), borderColor:'rgba(248,113,113,.6)', borderDash:[5,4], borderWidth:2, pointRadius:3, fill:false, tension:.4, spanGaps:true }
+        ]
+    },{ plugins:{ tooltip:{ callbacks:{ label:ctx=>' '+ctx.dataset.label+': '+Math.round(ctx.parsed.y)+' clients' } } }, scales:{ y:{ ticks:{ callback:v=>Math.round(v) } } } });
+
+    mkChart('c-fc-rev-trend','line',{
+        labels,
+        datasets:[
+            { label:'Actual Revenue', data:calcs.map(c=>c.rev), borderColor:'#fbbf24', backgroundColor:'rgba(251,191,36,.08)', fill:true, tension:.4, pointRadius:4, borderWidth:2 },
+            { label:'Revenue Ceiling', data:forecasts.map(f=>f.revCeiling!==null?Math.round(f.revCeiling):null), borderColor:'rgba(248,113,113,.6)', borderDash:[5,4], borderWidth:2, pointRadius:3, fill:false, tension:.4, spanGaps:true }
+        ]
+    },{ plugins:{ tooltip:{ callbacks:{ label:ctx=>' '+ctx.dataset.label+': $'+Math.round(ctx.parsed.y).toLocaleString('en-US') } } }, scales:{ y:{ ticks:{ callback:gbpTick } } } });
+
+    mkChart('c-fc-sat-trend','line',{
+        labels,
+        datasets:[
+            { label:'Customer Saturation %', data:forecasts.map(f=>f.customerSat!==null?+f.customerSat.toFixed(1):null), borderColor:'#4cd97b', tension:.4, pointRadius:4, borderWidth:2, spanGaps:true },
+            { label:'Revenue Saturation %', data:forecasts.map(f=>f.revSat!==null?+f.revSat.toFixed(1):null), borderColor:'#fbbf24', tension:.4, pointRadius:4, borderWidth:2, spanGaps:true }
+        ]
+    },{ plugins:{ tooltip:{ callbacks:{ label:ctx=>' '+ctx.dataset.label+': '+ctx.parsed.y+'%' } } }, scales:{ y:{ ticks:{ callback:v=>v+'%' }, min:0 } } });
+}
+
+document.getElementById('modal').addEventListener('click', e => { if (e.target===e.currentTarget) closeModal() });
+
+// ══ Working Toggles ══
+let workingsOpen = false;
+
+function initWorkingToggles() {
+    document.querySelectorAll('.kpi').forEach(kpi => {
+        if (!kpi.querySelector('.kpi-work')) return;
+        if (kpi.querySelector('.kw-tog')) return; // already injected
+        kpi.classList.add('wk-closed');
+        const btn = document.createElement('button');
+        btn.className = 'kw-tog';
+        btn.textContent = '▸ Show working';
+        btn.onclick = e => {
+            e.stopPropagation();
+            const nowClosed = kpi.classList.toggle('wk-closed');
+            btn.textContent = nowClosed ? '▸ Show working' : '▾ Hide working';
+            // sync global button label
+            const allKpis = [...document.querySelectorAll('.kpi')].filter(k => k.querySelector('.kpi-work'));
+            const anyClosed = allKpis.some(k => k.classList.contains('wk-closed'));
+            const allOpen   = allKpis.every(k => !k.classList.contains('wk-closed'));
+            workingsOpen = allOpen;
+            const gb = document.getElementById('btn-tog-all');
+            if (gb) gb.textContent = allOpen ? '▾ Workings' : '▸ Workings';
+        };
+        const val = kpi.querySelector('.kpi-val');
+        if (val) val.insertAdjacentElement('afterend', btn);
+        else kpi.appendChild(btn);
+    });
+}
+
+function toggleAllWorkings(btn) {
+    workingsOpen = !workingsOpen;
+    document.querySelectorAll('.kpi').forEach(kpi => {
+        if (!kpi.querySelector('.kpi-work')) return;
+        kpi.classList.toggle('wk-closed', !workingsOpen);
+        const tog = kpi.querySelector('.kw-tog');
+        if (tog) tog.textContent = workingsOpen ? '▾ Hide working' : '▸ Show working';
+    });
+    btn.textContent = workingsOpen ? '▾ Workings' : '▸ Workings';
+}
+
+// ══ Password Gate ══
+const PW_KEY = 'lincko_auth';
+const PW_HASH = '23Bluewater!';
+
+function checkPw() {
+    const val = document.getElementById('pw-inp').value;
+    const errEl = document.getElementById('pw-err');
+    if (val === PW_HASH) {
+        localStorage.setItem(PW_KEY, '1');
+        document.getElementById('pw-gate').style.display = 'none';
+        launchApp();
+    } else {
+        errEl.textContent = 'Incorrect password.';
+        const box = document.getElementById('pw-box');
+        box.classList.remove('pw-shake');
+        void box.offsetWidth; // reflow to restart animation
+        box.classList.add('pw-shake');
+        document.getElementById('pw-inp').value = '';
+    }
+}
+
+// ══ Init ══
+function startApp() {
+    populateSel();
+    renderDashboard();
+    initWorkingToggles();
+    document.getElementById('loading-overlay').style.display = 'none';
+}
+
+function launchApp() {
+    document.getElementById('loading-overlay').style.display = 'flex';
+    auth.signInAnonymously()
+        .then(() => db.ref('lincko/months').once('value'))
+        .then(snap => {
+            const val = snap.val();
+            months = val ? Object.values(val) : [];
+            localStorage.setItem('lincko_v1', JSON.stringify(months));
+            startApp();
+        })
+        .catch(err => {
+            console.warn('Firebase unavailable, loading from local cache:', err);
+            months = JSON.parse(localStorage.getItem('lincko_v1') || '[]');
+            startApp();
+        });
+}
+
+// Check if already authenticated this browser
+if (localStorage.getItem(PW_KEY) === '1') {
+    launchApp();
+} else {
+    document.getElementById('pw-gate').style.display = 'flex';
+}
+</script>
+
+</body>
+</html>
