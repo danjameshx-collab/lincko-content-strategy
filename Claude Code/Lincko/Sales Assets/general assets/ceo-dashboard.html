@@ -659,9 +659,8 @@
         <!-- Sub-navigation tabs -->
         <div class="cd-tab-bar">
             <button class="cd-tab active" onclick="cashShowTab('overview',this)">Dashboard</button>
-            <button class="cd-tab" onclick="cashShowTab('inputs',this)">Data Inputs</button>
-            <button class="cd-tab" onclick="cashShowTab('calcs',this)">Calculations</button>
             <button class="cd-tab" onclick="cashShowTab('charts',this)">Charts</button>
+            <button class="cd-tab" onclick="cashShowTab('inputs',this)">Data Inputs</button>
         </div>
 
         <!-- ── OVERVIEW ── -->
@@ -677,12 +676,17 @@
                         <span class="fc-period-lbl">Period</span>
                         <select class="period-sel" id="cd-period-sel" onchange="cashRenderOverview()"></select>
                     </div>
-                    <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Month</button>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <button class="kw-tog-all" id="cd-btn-tog-all" onclick="cdToggleAllWorkings(this)">▸ Workings</button>
+                        <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Month</button>
+                    </div>
                 </div>
                 <div class="sec-hdr"><span class="sec-title">Cash Position</span></div>
                 <div class="kpi-grid g4" id="cd-row1"></div>
                 <div class="sec-hdr" style="margin-top:4px"><span class="sec-title">Performance</span></div>
                 <div class="kpi-grid g4" id="cd-row2"></div>
+                <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Rolling Averages</span></div>
+                <div class="kpi-grid g3" id="cd-rolling-grid"></div>
             </div>
         </div>
 
@@ -761,40 +765,6 @@
                         <div class="inp-total-val" style="color:var(--amber)" id="cd-coll-rate">—</div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- ── CALCULATIONS ── -->
-        <div class="cd-section" id="cd-sec-calcs">
-            <div id="cd-calcs-empty" class="empty" style="display:none">
-                <div class="ico">≡</div>
-                <p>No data yet. Add months in Data Inputs.</p>
-            </div>
-            <div id="cd-calcs-content" style="display:none">
-                <div class="sec-hdr"><span class="sec-title">Monthly Calculations</span></div>
-                <div class="cd-fml-ref">
-                    <strong>Formula Reference</strong>
-                    Net Cash Flow = Total In − Total Out &nbsp;·&nbsp;
-                    Closing = Opening + Net &nbsp;·&nbsp;
-                    Burn Rate = |Net| when Net &lt; 0 &nbsp;·&nbsp;
-                    Runway = Closing ÷ 3-Month Avg Burn (∞ if no burn) &nbsp;·&nbsp;
-                    Collection % = Cash Received ÷ Invoices Sent &nbsp;·&nbsp;
-                    MoM Δ = (Net<sub>n</sub> − Net<sub>n-1</sub>) ÷ |Net<sub>n-1</sub>|
-                </div>
-                <div class="tbl-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Month</th><th>Opening</th><th>Total In</th><th>Total Out</th>
-                                <th>Net Cash</th><th>Closing</th><th>Burn Rate</th><th>Runway</th>
-                                <th>Collection</th><th>MoM Δ%</th><th>Δ vs Prior</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cd-calcs-tbody"></tbody>
-                    </table>
-                </div>
-                <div class="sec-hdr"><span class="sec-title">Rolling Averages</span></div>
-                <div class="kpi-grid g3" id="cd-rolling-grid"></div>
             </div>
         </div>
 
@@ -2529,7 +2499,6 @@ function cashRenderPage() {
 function cashRenderTab() {
     if      (cashActiveTab === 'overview') cashRenderOverview();
     else if (cashActiveTab === 'inputs')   cashRenderInputs();
-    else if (cashActiveTab === 'calcs')    cashRenderCalcs();
     else if (cashActiveTab === 'charts')   cashRenderCharts();
 }
 
@@ -2562,6 +2531,7 @@ function cashRenderOverview() {
     const calcs = cdCalcAll();
     const c     = calcs[idx];
     const prev  = idx > 0 ? calcs[idx - 1] : null;
+    const m     = cashMonths[idx]; // raw month data for workings
 
     function dBadge(cur, prv, field) {
         if (!prv) return '';
@@ -2571,28 +2541,46 @@ function cashRenderOverview() {
         return `<div class="kpi-delta ${cls}">${sgn} ${cdFmt(Math.abs(d))}</div>`;
     }
 
+    /* Build inflow / outflow breakdown strings for workings */
+    const inflowLines = [
+        ['Customer Payments', m.customerPayments], ['Retainers', m.retainers],
+        ['Subscription Rev', m.subscriptionRevenue], ['Loan Proceeds', m.loanProceeds],
+        ['Refunds', m.refunds], ['Other Income', m.otherIncome]
+    ].filter(([, v]) => v > 0).map(([l, v]) => l + ': ' + cdFmtFull(v)).join(' · ') || 'No inflows entered';
+
+    const outflowLines = [
+        ['Payroll', m.payroll], ['Contractors', m.contractors], ['Marketing', m.marketing],
+        ['Software', m.software], ['Rent', m.rent], ['Inventory', m.inventory],
+        ['Taxes', m.taxes], ['Debt Repayment', m.debtRepayment],
+        ['Owner Draws', m.ownerDraws], ['Misc', m.miscExpenses]
+    ].filter(([, v]) => v > 0).map(([l, v]) => l + ': ' + cdFmtFull(v)).join(' · ') || 'No outflows entered';
+
     document.getElementById('cd-row1').innerHTML = `
         <div class="kpi" title="Opening Cash = prior month's closing (auto-chained)">
             <div class="kpi-lbl">Opening Cash</div>
             <div class="kpi-val">${cdFmt(c.opening)}</div>
-            <div class="kpi-sub">${prev ? '= ' + cdLabel(cashMonths[idx-1].id) + ' closing' : 'First month — set manually'}</div>
+            <div class="kpi-work">${prev ? '= ' + cdLabel(cashMonths[idx-1].id) + ' closing: ' + cdFmtFull(c.opening) : 'Manual entry — first month'}</div>
+            <div class="kpi-fml">Prior month Closing Cash</div>
         </div>
         <div class="kpi" title="Total Cash In = sum of all inflow categories">
             <div class="kpi-lbl">Total Cash In</div>
             <div class="kpi-val g">${cdFmt(c.totalIn)}</div>
-            <div class="kpi-sub">All inflows this month</div>
+            <div class="kpi-work">${inflowLines}</div>
+            <div class="kpi-fml">Sum of all inflow categories</div>
             ${dBadge(c, prev, 'totalIn')}
         </div>
         <div class="kpi" title="Total Cash Out = sum of all outflow categories">
             <div class="kpi-lbl">Total Cash Out</div>
             <div class="kpi-val r">${cdFmt(c.totalOut)}</div>
-            <div class="kpi-sub">All outflows this month</div>
+            <div class="kpi-work">${outflowLines}</div>
+            <div class="kpi-fml">Sum of all outflow categories</div>
             ${dBadge(c, prev, 'totalOut')}
         </div>
         <div class="kpi" title="Net Cash Flow = Total In − Total Out">
             <div class="kpi-lbl">Net Cash Flow</div>
             <div class="kpi-val ${c.net >= 0 ? 'g' : 'r'}">${cdFmt(c.net)}</div>
-            <div class="kpi-sub">Cash In − Cash Out</div>
+            <div class="kpi-work">${cdFmtFull(c.totalIn)} − ${cdFmtFull(c.totalOut)}</div>
+            <div class="kpi-fml">Total Cash In − Total Cash Out</div>
             ${dBadge(c, prev, 'net')}
         </div>`;
 
@@ -2602,34 +2590,72 @@ function cashRenderOverview() {
         else if (c.collRate >= 0.75) { crCls = 'a'; crBarColor = 'var(--amber)'; }
         else                         { crCls = 'r'; crBarColor = 'var(--red)'; }
     }
-    const crW  = c.collRate !== null ? Math.min(100, c.collRate * 100).toFixed(1) : 0;
+    const crW   = c.collRate !== null ? Math.min(100, c.collRate * 100).toFixed(1) : 0;
     const rwCls = c.runway === null || c.runway >= 12 ? 'g' : c.runway >= 3 ? 'a' : 'r';
+    const rwWork = c.runway === null
+        ? 'No burn — runway is infinite'
+        : cdFmtFull(c.closing) + ' ÷ ' + cdFmt(c.avgBurn) + ' avg burn = ' + cdFmtRw(c.runway);
 
     document.getElementById('cd-row2').innerHTML = `
         <div class="kpi" title="Closing Cash = Opening + Net Cash Flow">
             <div class="kpi-lbl">Closing Cash</div>
             <div class="kpi-val ${c.closing >= 0 ? 'g' : 'r'}">${cdFmt(c.closing)}</div>
-            <div class="kpi-sub">Balance at month end</div>
+            <div class="kpi-work">${cdFmtFull(c.opening)} + ${cdFmt(c.net)}</div>
+            <div class="kpi-fml">Opening Cash + Net Cash Flow</div>
             ${dBadge(c, prev, 'closing')}
         </div>
         <div class="kpi" title="Burn Rate = |Net| only when net is negative">
             <div class="kpi-lbl">Burn Rate</div>
             <div class="kpi-val ${c.burn > 0 ? 'r' : 'g'}">${c.burn > 0 ? cdFmt(c.burn) : '£0'}</div>
-            <div class="kpi-sub">${c.burn > 0 ? 'Cash consumed / month' : 'No burn this month'}</div>
+            <div class="kpi-work">${c.burn > 0 ? '|' + cdFmt(c.net) + '| = ' + cdFmt(c.burn) : 'Net positive — no burn'}</div>
+            <div class="kpi-fml">|Net Cash Flow| when Net &lt; 0, else £0</div>
         </div>
         <div class="kpi" title="Runway = Closing ÷ 3-Month Avg Burn. Infinite when burn = 0.">
             <div class="kpi-lbl">Runway</div>
             <div class="kpi-val ${rwCls}">${cdFmtRw(c.runway)}</div>
-            <div class="kpi-sub">${c.runway === null ? 'No burn — not applicable' : 'Months of cash at avg burn'}</div>
+            <div class="kpi-work">${rwWork}</div>
+            <div class="kpi-fml">Closing ÷ 3-Month Avg Burn Rate</div>
         </div>
         <div class="kpi" title="Collection Rate = Cash Received ÷ Invoices Sent. Green ≥90%, Amber ≥75%, Red <75%.">
             <div class="kpi-lbl">Collection Rate</div>
             <div class="kpi-val ${crCls}">${c.collRate !== null ? (c.collRate*100).toFixed(1)+'%' : '—'}</div>
             ${c.collRate !== null ? `
+                <div class="kpi-work">${cdFmtFull(c.rec)} ÷ ${cdFmtFull(c.inv)}</div>
+                <div class="kpi-fml">Cash Received ÷ Invoices Sent</div>
                 <div class="coll-bar-wrap"><div class="coll-bar-fill" style="width:${crW}%;background:${crBarColor}"></div></div>
                 <div class="kpi-sub">${cdFmtFull(c.rec)} of ${cdFmtFull(c.inv)} invoiced</div>
-            ` : '<div class="kpi-sub">No invoice data entered</div>'}
+            ` : '<div class="kpi-work">No invoice data entered</div><div class="kpi-fml">Cash Received ÷ Invoices Sent</div>'}
         </div>`;
+
+    /* Rolling Averages */
+    function rollAvg(n, field) {
+        if (calcs.length < n) return null;
+        return calcs.slice(-n).reduce((s, r) => s + r[field], 0) / n;
+    }
+    const rg = document.getElementById('cd-rolling-grid');
+    if (rg) {
+        rg.innerHTML = ['3','6','12'].map(ns => {
+            const n     = parseInt(ns);
+            const aIn   = rollAvg(n, 'totalIn');
+            const aOut  = rollAvg(n, 'totalOut');
+            const aBurn = rollAvg(n, 'burn');
+            const ok    = calcs.length >= n;
+            return `<div class="kpi">
+                <div class="kpi-lbl">${ns}-Month Rolling Avg</div>
+                ${ok ? `<div class="roll-inner">
+                    <span style="color:var(--text3)">Avg Cash In</span> <span class="roll-val-pos">${cdFmt(aIn)}</span><br>
+                    <span style="color:var(--text3)">Avg Cash Out</span> <span class="roll-val-neg">${cdFmt(aOut)}</span><br>
+                    <span style="color:var(--text3)">Avg Burn</span> <span class="${aBurn > 0 ? 'roll-val-neg' : 'roll-val-pos'}">${aBurn > 0 ? cdFmt(aBurn) : '£0'}</span>
+                </div>` : `<div style="color:var(--text3);font-size:14px;margin-top:10px">Need ${n} months — have ${calcs.length}</div>`}
+            </div>`;
+        }).join('');
+    }
+
+    /* Inject workings toggles (guard inside prevents duplicates) */
+    initWorkingToggles();
+    /* Sync the "Workings" all-toggle button state */
+    const togBtn = document.getElementById('cd-btn-tog-all');
+    if (togBtn) togBtn.textContent = '▸ Workings';
 }
 
 // ── Inputs Tab ──
@@ -2711,61 +2737,18 @@ function cdCommitInputs() {
     cashSave();
 }
 
-// ── Calculations Tab ──
-function cashRenderCalcs() {
-    const empty   = document.getElementById('cd-calcs-empty');
-    const content = document.getElementById('cd-calcs-content');
-    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
-    empty.style.display = 'none'; content.style.display = 'block';
-
-    const calcs = cdCalcAll();
-    let html = '';
-    calcs.forEach((c, i) => {
-        const prev     = i > 0 ? calcs[i - 1] : null;
-        const momPct   = prev && Math.abs(prev.net) > 0 ? ((c.net - prev.net) / Math.abs(prev.net)) * 100 : null;
-        const varPrior = prev ? c.net - prev.net : null;
-        const cr       = c.collRate !== null ? (c.collRate * 100).toFixed(1) + '%' : '—';
-        const momStr   = momPct   === null ? '—' : (momPct   >= 0 ? '+' : '') + momPct.toFixed(1) + '%';
-        const varStr   = varPrior === null ? '—' : (varPrior >= 0 ? '+' : '') + cdFmt(varPrior);
-        const momCls   = momPct   === null ? 'cv-muted' : momPct   >= 0 ? 'cv-pos' : 'cv-neg';
-        const varCls   = varPrior === null ? 'cv-muted' : varPrior >= 0 ? 'cv-pos' : 'cv-neg';
-        const rwCls    = c.runway === null || c.runway >= 12 ? 'cv-pos' : c.runway >= 3 ? 'cv-amber' : 'cv-neg';
-        html += `<tr>
-            <td>${cdLabel(cashMonths[i].id)}</td>
-            <td>${cdFmt(c.opening)}</td>
-            <td class="cv-pos">${cdFmt(c.totalIn)}</td>
-            <td class="cv-neg">${cdFmt(c.totalOut)}</td>
-            <td class="${c.net >= 0 ? 'cv-pos' : 'cv-neg'}">${cdFmt(c.net)}</td>
-            <td class="${c.closing >= 0 ? 'cv-pos' : 'cv-neg'}">${cdFmt(c.closing)}</td>
-            <td class="${c.burn > 0 ? 'cv-neg' : 'cv-muted'}">${c.burn > 0 ? cdFmt(c.burn) : '—'}</td>
-            <td class="${rwCls}">${cdFmtRw(c.runway)}</td>
-            <td>${cr}</td>
-            <td class="${momCls}">${momStr}</td>
-            <td class="${varCls}">${varStr}</td>
-        </tr>`;
+// ── Workings toggle for Income Dashboard ──
+let cdWorkingsOpen = false;
+function cdToggleAllWorkings(btn) {
+    /* Only toggle KPI cards inside page-cash to avoid interfering with other pages */
+    cdWorkingsOpen = !cdWorkingsOpen;
+    document.querySelectorAll('#page-cash .kpi').forEach(kpi => {
+        if (!kpi.querySelector('.kpi-work')) return;
+        kpi.classList.toggle('wk-closed', !cdWorkingsOpen);
+        const tog = kpi.querySelector('.kw-tog');
+        if (tog) tog.textContent = cdWorkingsOpen ? '▾ Hide working' : '▸ Show working';
     });
-    document.getElementById('cd-calcs-tbody').innerHTML = html;
-
-    function rollAvg(n, field) {
-        if (calcs.length < n) return null;
-        return calcs.slice(-n).reduce((s, c) => s + c[field], 0) / n;
-    }
-    const rg = document.getElementById('cd-rolling-grid');
-    rg.innerHTML = ['3','6','12'].map(ns => {
-        const n     = parseInt(ns);
-        const aIn   = rollAvg(n, 'totalIn');
-        const aOut  = rollAvg(n, 'totalOut');
-        const aBurn = rollAvg(n, 'burn');
-        const ok    = calcs.length >= n;
-        return `<div class="kpi">
-            <div class="kpi-lbl">${ns}-Month Rolling Avg</div>
-            ${ok ? `<div class="roll-inner">
-                <span style="color:var(--text3)">Avg Cash In</span> <span class="roll-val-pos">${cdFmt(aIn)}</span><br>
-                <span style="color:var(--text3)">Avg Cash Out</span> <span class="roll-val-neg">${cdFmt(aOut)}</span><br>
-                <span style="color:var(--text3)">Avg Burn</span> <span class="${aBurn > 0 ? 'roll-val-neg' : 'roll-val-pos'}">${aBurn > 0 ? cdFmt(aBurn) : '£0'}</span>
-            </div>` : `<div style="color:var(--text3);font-size:14px;margin-top:10px">Need ${n} months — have ${calcs.length}</div>`}
-        </div>`;
-    }).join('');
+    btn.textContent = cdWorkingsOpen ? '▾ Workings' : '▸ Workings';
 }
 
 // ── Charts Tab ──
@@ -2905,7 +2888,7 @@ function cashConfirmAddMonth() {
     cashCloseAddMonth();
 
     // Jump to inputs tab for new month
-    cashShowTab('inputs', document.querySelectorAll('#page-cash .cd-tab')[1]);
+    cashShowTab('inputs', document.querySelectorAll('#page-cash .cd-tab')[2]);
     cdPopulateInpSel();
     document.getElementById('cd-inp-sel').value = id;
     cashRenderInputs();
