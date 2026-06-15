@@ -466,7 +466,7 @@
             <span class="ni">◈</span> Income Dashboard
         </div>
         <div class="nav-item" onclick="showPage('retention',this)">
-            <span class="ni">◉</span> Customer Retention
+            <span class="ni">◉</span> Customer Retention Dashboard
         </div>
         <div class="nav-item" onclick="showPage('forecast',this)">
             <span class="ni">◎</span> Pie Projection Dashboard
@@ -743,7 +743,6 @@
         <!-- Sub-navigation tabs -->
         <div class="cd-tab-bar">
             <button class="cd-tab active" onclick="retShowTab('overview',this)">Dashboard</button>
-            <button class="cd-tab" onclick="retShowTab('calcs',this)">Calculations</button>
             <button class="cd-tab" onclick="retShowTab('charts',this)">Charts</button>
         </div>
 
@@ -762,6 +761,7 @@
                     </div>
                     <div style="display:flex;align-items:center;gap:10px">
                         <button class="kw-tog-all" id="ret-btn-tog-all" onclick="retToggleAllWorkings(this)">▸ Workings</button>
+                        <button class="kw-tog-all" id="ret-btn-calcs-tog" onclick="retToggleCalcs(this)">▸ Calculations</button>
                         <button class="btn btn-p" onclick="goToDataInput()">+ Month</button>
                     </div>
                 </div>
@@ -769,21 +769,11 @@
                 <div class="kpi-grid g3" id="ret-row1"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Retention Metrics</span></div>
                 <div class="kpi-grid g3" id="ret-row2"></div>
-            </div>
-        </div>
 
-        <!-- ── CALCULATIONS ── -->
-        <div class="cd-section" id="ret-sec-calcs">
-            <div id="ret-calcs-empty" class="empty" style="display:none">
-                <div class="ico">≡</div>
-                <p>No data yet. Add MRR figures in Data Inputs.</p>
-            </div>
-            <div id="ret-calcs-content" style="display:none">
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-                    <span class="fc-period-lbl">Period</span>
-                    <select class="period-sel" id="ret-calcs-sel" onchange="retRenderCalcs()"></select>
+                <!-- Inline calculations panel (toggled by ▸ Calculations button) -->
+                <div id="ret-calcs-panel" style="display:none;margin-top:20px;border-top:1px solid var(--border);padding-top:18px">
+                    <div id="ret-calcs-panel-table" style="overflow-x:auto"></div>
                 </div>
-                <div id="ret-calcs-table" style="overflow-x:auto"></div>
             </div>
         </div>
 
@@ -1449,7 +1439,7 @@ function showPage(id, el) {
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     document.getElementById('page-'+id).classList.add('active');
     if (el) el.classList.add('active');
-    const titles = { dashboard:'Monthly Overview', analytics:'Full Business Overview', forecast:'Pie Projection Dashboard', input:'Data Input', cash:'Income Dashboard', retention:'Customer Retention' };
+    const titles = { dashboard:'Monthly Overview', analytics:'Full Business Overview', forecast:'Pie Projection Dashboard', input:'Data Input', cash:'Income Dashboard', retention:'Customer Retention Dashboard' };
     document.getElementById('tb-title').textContent = titles[id] || id;
     document.getElementById('period-sel').style.display = 'none';
     if (id === 'dashboard') renderDashboard();
@@ -2966,7 +2956,6 @@ function retRenderPage() { retRenderTab(); }
 
 function retRenderTab() {
     if      (retActiveTab === 'overview') retRenderOverview();
-    else if (retActiveTab === 'calcs')    retRenderCalcs();
     else if (retActiveTab === 'charts')   retRenderCharts();
 }
 
@@ -3077,35 +3066,31 @@ function retRenderOverview() {
     initWorkingToggles();
     const togBtn = document.getElementById('ret-btn-tog-all');
     if (togBtn) togBtn.textContent = '▸ Workings';
+
+    /* Re-render calcs panel if it's open */
+    const panel = document.getElementById('ret-calcs-panel');
+    if (panel && panel.style.display !== 'none') retRenderCalcsPanel(id, calcs[idx]);
 }
 
 let retWorkingsOpen = false;
-function retToggleAllWorkings(btn) {
-    retWorkingsOpen = !retWorkingsOpen;
-    document.querySelectorAll('#page-retention .kpi').forEach(kpi => {
-        if (!kpi.querySelector('.kpi-work')) return;
-        kpi.classList.toggle('wk-closed', !retWorkingsOpen);
-        const tog = kpi.querySelector('.kw-tog');
-        if (tog) tog.textContent = retWorkingsOpen ? '▾ Hide working' : '▸ Show working';
-    });
-    btn.textContent = retWorkingsOpen ? '▾ Workings' : '▸ Workings';
+let retCalcsOpen = false;
+
+function retToggleCalcs(btn) {
+    retCalcsOpen = !retCalcsOpen;
+    const panel = document.getElementById('ret-calcs-panel');
+    if (panel) panel.style.display = retCalcsOpen ? 'block' : 'none';
+    btn.textContent = retCalcsOpen ? '▾ Calculations' : '▸ Calculations';
+    if (retCalcsOpen) {
+        const id  = document.getElementById('ret-period-sel')?.value;
+        const idx = cashMonths.findIndex(m => m.id === id);
+        if (idx >= 0) retRenderCalcsPanel(id, cdCalcAll()[idx]);
+    }
 }
 
-// ── Calculations ──
-function retRenderCalcs() {
-    const empty   = document.getElementById('ret-calcs-empty');
-    const content = document.getElementById('ret-calcs-content');
-    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
-    empty.style.display = 'none'; content.style.display = 'block';
-    retPopulateSel('ret-calcs-sel', retRenderCalcs);
-
-    const id  = document.getElementById('ret-calcs-sel').value;
-    const idx = cashMonths.findIndex(mo => mo.id === id);
-    if (idx < 0) return;
-    const calcs = cdCalcAll();
-    const c = calcs[idx];
-    const m = cashMonths[idx];
-
+function retRenderCalcsPanel(id, c) {
+    const el = document.getElementById('ret-calcs-panel-table');
+    if (!el) return;
+    const m = cashMonths.find(mo => mo.id === id);
     function row(label, value, formula, cls='') {
         return `<tr>
             <td style="padding:8px 14px;color:var(--text3)">${label}</td>
@@ -3115,9 +3100,8 @@ function retRenderCalcs() {
     }
     const tS  = 'width:100%;border-collapse:collapse;font-size:14px';
     const thS = 'padding:8px 14px;text-align:left;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)';
-
     const hasMRR = c.startMRR > 0 || c.endMRR > 0;
-    document.getElementById('ret-calcs-table').innerHTML = hasMRR ? `
+    el.innerHTML = hasMRR ? `
     <table style="${tS}">
         <thead><tr>
             <th style="${thS}">Metric</th>
@@ -3130,7 +3114,7 @@ function retRenderCalcs() {
             ${row('Expansion MRR', cdFmtFull(c.expMRR), 'Manual entry', 'var(--teal)')}
             ${row('Contraction MRR', cdFmtFull(c.conMRR), 'Manual entry', 'var(--amber)')}
             ${row('Churned MRR', cdFmtFull(c.churnMRR), 'Manual entry', 'var(--red)')}
-            ${row('Ending MRR', cdFmtFull(c.endMRR), m.endingMRROverride != null && m.endingMRROverride !== '' ? 'Manual override' : 'Starting + New + Exp − Con − Churn', '#a78bfa')}
+            ${row('Ending MRR', cdFmtFull(c.endMRR), m && m.endingMRROverride != null && m.endingMRROverride !== '' ? 'Manual override' : 'Starting + New + Exp − Con − Churn', '#a78bfa')}
             ${row('Net MRR Growth', cdFmtFull(c.netMRRGrowth), 'Ending − Starting', c.netMRRGrowth >= 0 ? 'var(--g1)' : 'var(--red)')}
             ${row('MRR Growth %', c.mrrGrowthPct !== null ? (c.mrrGrowthPct*100).toFixed(1)+'%' : '—', 'Net Growth ÷ Starting', c.mrrGrowthPct !== null ? (c.mrrGrowthPct >= 0 ? 'var(--g1)' : 'var(--red)') : '')}
             ${row('NRR', c.nrr !== null ? (c.nrr*100).toFixed(1)+'%' : '—', 'Ending ÷ Starting', c.nrr !== null ? (c.nrr >= 1 ? 'var(--g1)' : 'var(--red)') : '')}
@@ -3138,7 +3122,18 @@ function retRenderCalcs() {
             ${row('Churn Rate', c.churnRate !== null ? (c.churnRate*100).toFixed(1)+'%' : '—', 'Churned ÷ Starting', c.churnRate !== null ? (c.churnRate <= 0.02 ? 'var(--g1)' : c.churnRate <= 0.05 ? 'var(--amber)' : 'var(--red)') : '')}
             ${row('Expansion Rate', c.expRate !== null ? (c.expRate*100).toFixed(1)+'%' : '—', 'Expansion ÷ Starting', c.expRate !== null && c.expRate > 0 ? 'var(--g1)' : '')}
         </tbody>
-    </table>` : `<div style="color:var(--text3);font-size:14px;padding:16px 0">No MRR data entered for this month. Go to Data Inputs to add figures.</div>`;
+    </table>` : `<div style="color:var(--text3);font-size:14px;padding:8px 0">No MRR data for this month.</div>`;
+}
+
+function retToggleAllWorkings(btn) {
+    retWorkingsOpen = !retWorkingsOpen;
+    document.querySelectorAll('#page-retention .kpi').forEach(kpi => {
+        if (!kpi.querySelector('.kpi-work')) return;
+        kpi.classList.toggle('wk-closed', !retWorkingsOpen);
+        const tog = kpi.querySelector('.kw-tog');
+        if (tog) tog.textContent = retWorkingsOpen ? '▾ Hide working' : '▸ Show working';
+    });
+    btn.textContent = retWorkingsOpen ? '▾ Workings' : '▸ Workings';
 }
 
 // ── Charts ──
