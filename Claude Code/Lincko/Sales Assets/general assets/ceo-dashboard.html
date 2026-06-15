@@ -395,6 +395,36 @@
             letter-spacing:.1em;text-transform:uppercase;text-align:center
         }
         body.test-mode .test-banner{display:block}
+
+        /* ── Income Dashboard ── */
+        .cd-tab-bar{display:flex;gap:4px;margin-bottom:22px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:4px}
+        .cd-tab{flex:1;padding:9px 12px;border-radius:7px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid transparent;background:transparent;color:var(--text2);transition:all .14s;text-align:center}
+        .cd-tab:hover{color:var(--text);background:rgba(255,255,255,.04)}
+        .cd-tab.active{background:var(--gm);color:var(--g2);border-color:var(--border-g)}
+        .cd-section{display:none}.cd-section.active{display:block}
+        .inp-month-bar{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+        .inp-section{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+        .inp-section-hdr{padding:13px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+        .inp-section-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+        .inp-section-title{font-size:14px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3)}
+        .inp-row{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--border)}
+        .inp-row:last-child{border-bottom:none}
+        .inp-row-lbl{font-size:16px;color:var(--text2)}
+        .inp-row-total{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:rgba(42,120,70,.04);border-top:1px solid rgba(42,120,70,.15)}
+        .inp-total-lbl{font-size:14px;font-weight:700;color:var(--g2)}
+        .inp-total-val{font-size:18px;font-weight:700;color:var(--g1)}
+        .coll-bar-wrap{width:100%;height:5px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;margin-top:7px}
+        .coll-bar-fill{height:100%;border-radius:100px;transition:width .5s}
+        .cd-fml-ref{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:var(--text3);line-height:1.9}
+        .cd-fml-ref strong{color:var(--text2);display:block;margin-bottom:2px}
+        .roll-inner{font-size:15px;color:var(--text2);line-height:2.1;margin-top:8px}
+        .roll-val-pos{color:var(--g1);font-weight:700}
+        .roll-val-neg{color:var(--red);font-weight:700}
+        .cv-pos{color:var(--g1)!important}
+        .cv-neg{color:var(--red)!important}
+        .cv-muted{color:var(--text3)!important}
+        .cv-amber{color:var(--amber)!important}
+        #page-cash .inp{width:140px}
     </style>
 </head>
 <body>
@@ -424,6 +454,9 @@
         <div class="nav-sec">Analytics</div>
         <div class="nav-item active" onclick="showPage('dashboard',this)">
             <span class="ni">◫</span> Monthly Overview
+        </div>
+        <div class="nav-item" onclick="showPage('cash',this)">
+            <span class="ni">◈</span> Income Dashboard
         </div>
         <div class="nav-item" onclick="showPage('forecast',this)">
             <span class="ni">◎</span> Pie Projection Dashboard
@@ -470,7 +503,7 @@
         <div id="no-data" class="empty">
             <div class="ico">📊</div>
             <p>No data yet. Add your first month in <strong>Data Input</strong> to populate this dashboard.</p>
-            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[3])">+ Add Month</button>
+            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[4])">+ Add Month</button>
         </div>
 
         <div id="dash-content" style="display:none">
@@ -620,13 +653,196 @@
         </div><!-- /dash-content -->
     </div><!-- /page-dashboard -->
 
+    <!-- ══════════════════ INCOME DASHBOARD PAGE ══════════════════ -->
+    <div class="page" id="page-cash">
+
+        <!-- Sub-navigation tabs -->
+        <div class="cd-tab-bar">
+            <button class="cd-tab active" onclick="cashShowTab('overview',this)">Dashboard</button>
+            <button class="cd-tab" onclick="cashShowTab('inputs',this)">Data Inputs</button>
+            <button class="cd-tab" onclick="cashShowTab('calcs',this)">Calculations</button>
+            <button class="cd-tab" onclick="cashShowTab('charts',this)">Charts</button>
+        </div>
+
+        <!-- ── OVERVIEW ── -->
+        <div class="cd-section active" id="cd-sec-overview">
+            <div id="cd-dash-empty" class="empty" style="display:none">
+                <div class="ico">◈</div>
+                <p>No months yet. Add your first month to start tracking cash.</p>
+                <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Add First Month</button>
+            </div>
+            <div id="cd-dash-content" style="display:none">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                        <span class="fc-period-lbl">Period</span>
+                        <select class="period-sel" id="cd-period-sel" onchange="cashRenderOverview()"></select>
+                    </div>
+                    <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Month</button>
+                </div>
+                <div class="sec-hdr"><span class="sec-title">Cash Position</span></div>
+                <div class="kpi-grid g4" id="cd-row1"></div>
+                <div class="sec-hdr" style="margin-top:4px"><span class="sec-title">Performance</span></div>
+                <div class="kpi-grid g4" id="cd-row2"></div>
+            </div>
+        </div>
+
+        <!-- ── DATA INPUTS ── -->
+        <div class="cd-section" id="cd-sec-inputs">
+            <div id="cd-inp-empty" class="empty" style="display:none">
+                <div class="ico">✎</div>
+                <p>No months yet.</p>
+                <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Add First Month</button>
+            </div>
+            <div id="cd-inp-content" style="display:none">
+                <div class="inp-month-bar">
+                    <select class="period-sel" id="cd-inp-sel" onchange="cashRenderInputs()"></select>
+                    <button class="btn btn-d" onclick="cashDeleteMonth()">Delete Month</button>
+                </div>
+                <!-- Opening Cash -->
+                <div class="inp-section">
+                    <div class="inp-section-hdr">
+                        <div class="inp-section-dot" style="background:#64748b"></div>
+                        <div class="inp-section-title">Opening Cash</div>
+                    </div>
+                    <div class="inp-row">
+                        <div class="inp-row-lbl">Opening Cash Balance</div>
+                        <input class="inp" type="number" id="cd-inp-openingCash" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00">
+                    </div>
+                    <div style="padding:8px 20px 14px;font-size:13px;color:var(--text3)" id="cd-opening-note"></div>
+                </div>
+                <!-- Inflows -->
+                <div class="inp-section">
+                    <div class="inp-section-hdr">
+                        <div class="inp-section-dot" style="background:var(--g1)"></div>
+                        <div class="inp-section-title">Cash Inflows</div>
+                    </div>
+                    <div class="inp-row"><div class="inp-row-lbl">Customer Payments</div><input class="inp" type="number" id="cd-inp-customerPayments" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Retainers</div><input class="inp" type="number" id="cd-inp-retainers" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Subscription Revenue</div><input class="inp" type="number" id="cd-inp-subscriptionRevenue" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Loan Proceeds</div><input class="inp" type="number" id="cd-inp-loanProceeds" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Refunds Received</div><input class="inp" type="number" id="cd-inp-refunds" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Other Income</div><input class="inp" type="number" id="cd-inp-otherIncome" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row-total">
+                        <div class="inp-total-lbl">Total Cash In</div>
+                        <div class="inp-total-val" id="cd-total-in">£0</div>
+                    </div>
+                </div>
+                <!-- Outflows -->
+                <div class="inp-section">
+                    <div class="inp-section-hdr">
+                        <div class="inp-section-dot" style="background:var(--red)"></div>
+                        <div class="inp-section-title">Cash Outflows</div>
+                    </div>
+                    <div class="inp-row"><div class="inp-row-lbl">Payroll</div><input class="inp" type="number" id="cd-inp-payroll" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Contractors</div><input class="inp" type="number" id="cd-inp-contractors" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Marketing</div><input class="inp" type="number" id="cd-inp-marketing" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Software &amp; Tools</div><input class="inp" type="number" id="cd-inp-software" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Rent &amp; Facilities</div><input class="inp" type="number" id="cd-inp-rent" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Inventory</div><input class="inp" type="number" id="cd-inp-inventory" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Taxes</div><input class="inp" type="number" id="cd-inp-taxes" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Debt Repayment</div><input class="inp" type="number" id="cd-inp-debtRepayment" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Owner Draws</div><input class="inp" type="number" id="cd-inp-ownerDraws" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Misc Expenses</div><input class="inp" type="number" id="cd-inp-miscExpenses" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row-total" style="border-top-color:rgba(248,113,113,.2);background:rgba(248,113,113,.03)">
+                        <div class="inp-total-lbl" style="color:var(--red)">Total Cash Out</div>
+                        <div class="inp-total-val" style="color:var(--red)" id="cd-total-out">£0</div>
+                    </div>
+                </div>
+                <!-- Collection -->
+                <div class="inp-section">
+                    <div class="inp-section-hdr">
+                        <div class="inp-section-dot" style="background:var(--amber)"></div>
+                        <div class="inp-section-title">Collection</div>
+                    </div>
+                    <div class="inp-row"><div class="inp-row-lbl">Invoices Sent</div><input class="inp" type="number" id="cd-inp-invoicesSent" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Cash Received</div><input class="inp" type="number" id="cd-inp-cashReceived" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row-total" style="border-top-color:rgba(251,191,36,.2);background:rgba(251,191,36,.03)">
+                        <div class="inp-total-lbl" style="color:var(--amber)">Collection Rate</div>
+                        <div class="inp-total-val" style="color:var(--amber)" id="cd-coll-rate">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── CALCULATIONS ── -->
+        <div class="cd-section" id="cd-sec-calcs">
+            <div id="cd-calcs-empty" class="empty" style="display:none">
+                <div class="ico">≡</div>
+                <p>No data yet. Add months in Data Inputs.</p>
+            </div>
+            <div id="cd-calcs-content" style="display:none">
+                <div class="sec-hdr"><span class="sec-title">Monthly Calculations</span></div>
+                <div class="cd-fml-ref">
+                    <strong>Formula Reference</strong>
+                    Net Cash Flow = Total In − Total Out &nbsp;·&nbsp;
+                    Closing = Opening + Net &nbsp;·&nbsp;
+                    Burn Rate = |Net| when Net &lt; 0 &nbsp;·&nbsp;
+                    Runway = Closing ÷ 3-Month Avg Burn (∞ if no burn) &nbsp;·&nbsp;
+                    Collection % = Cash Received ÷ Invoices Sent &nbsp;·&nbsp;
+                    MoM Δ = (Net<sub>n</sub> − Net<sub>n-1</sub>) ÷ |Net<sub>n-1</sub>|
+                </div>
+                <div class="tbl-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Month</th><th>Opening</th><th>Total In</th><th>Total Out</th>
+                                <th>Net Cash</th><th>Closing</th><th>Burn Rate</th><th>Runway</th>
+                                <th>Collection</th><th>MoM Δ%</th><th>Δ vs Prior</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cd-calcs-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="sec-hdr"><span class="sec-title">Rolling Averages</span></div>
+                <div class="kpi-grid g3" id="cd-rolling-grid"></div>
+            </div>
+        </div>
+
+        <!-- ── CHARTS ── -->
+        <div class="cd-section" id="cd-sec-charts">
+            <div id="cd-charts-empty" class="empty" style="display:none">
+                <div class="ico">◑</div>
+                <p>No data yet. Add months in Data Inputs.</p>
+            </div>
+            <div id="cd-charts-content" style="display:none">
+                <div class="charts-row cr2">
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--g1)"></span> Cash Balance Trend</div>
+                        <canvas id="cd-chart-balance" height="200"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--teal)"></span> Cash In vs Cash Out</div>
+                        <canvas id="cd-chart-inout" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="charts-row cr2">
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--red)"></span> Burn Rate Trend</div>
+                        <canvas id="cd-chart-burn" height="200"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--amber)"></span> Runway Trend <span style="font-size:13px;color:var(--text3);font-weight:400">(capped 36 mo)</span></div>
+                        <canvas id="cd-chart-runway" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="charts-row" style="grid-template-columns:1fr">
+                    <div class="chart-card">
+                        <div class="chart-title"><span class="cdot" style="color:var(--g1)"></span> Waterfall — <span id="cd-waterfall-lbl" style="font-size:14px;color:var(--text3);font-weight:400"></span></div>
+                        <canvas id="cd-chart-waterfall" height="140"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /page-cash -->
+
     <!-- ══════════════════ BUSINESS OVERVIEW PAGE ══════════════════ -->
     <div class="page" id="page-analytics">
 
         <div id="analytics-no-data" class="empty">
             <div class="ico">▣</div>
             <p>No data yet. Add your first month in <strong>Data Input</strong> to populate charts.</p>
-            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[3])">+ Add Month</button>
+            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[4])">+ Add Month</button>
         </div>
 
         <div id="analytics-content" style="display:none">
@@ -747,7 +963,7 @@
         <div id="forecast-no-data" class="empty">
             <div class="ico">◎</div>
             <p>No data yet. Add your first month in <strong>Data Input</strong> to generate forecasts.</p>
-            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[3])">+ Add Month</button>
+            <button class="btn btn-p" onclick="showPage('input', document.querySelectorAll('.nav-item')[4])">+ Add Month</button>
         </div>
 
         <div id="forecast-content" style="display:none">
@@ -1009,6 +1225,39 @@
     </div>
 </div>
 
+<!-- ── Income Dashboard: Add Month Modal ── -->
+<div class="modal-ov" id="cd-add-modal">
+    <div class="modal">
+        <div class="modal-title">Add Month — Income Dashboard</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="fg">
+                <label class="fl">Year</label>
+                <select class="fs" id="cd-add-year"></select>
+            </div>
+            <div class="fg">
+                <label class="fl">Month</label>
+                <select class="fs" id="cd-add-month">
+                    <option value="01">January</option><option value="02">February</option>
+                    <option value="03">March</option><option value="04">April</option>
+                    <option value="05">May</option><option value="06">June</option>
+                    <option value="07">July</option><option value="08">August</option>
+                    <option value="09">September</option><option value="10">October</option>
+                    <option value="11">November</option><option value="12">December</option>
+                </select>
+            </div>
+        </div>
+        <div class="fg">
+            <label class="fl">Opening Cash Balance</label>
+            <input class="fi" type="number" id="cd-add-opening" placeholder="0.00" min="0" step="0.01">
+            <div style="font-size:13px;color:var(--text3);margin-top:6px" id="cd-add-opening-note"></div>
+        </div>
+        <div class="modal-acts">
+            <button class="btn btn-g" onclick="cashCloseAddMonth()">Cancel</button>
+            <button class="btn btn-p" onclick="cashConfirmAddMonth()">Add Month</button>
+        </div>
+    </div>
+</div>
+
 <script>
 // ══ Firebase ══
 const firebaseConfig = {
@@ -1190,12 +1439,14 @@ function showPage(id, el) {
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     document.getElementById('page-'+id).classList.add('active');
     if (el) el.classList.add('active');
-    document.getElementById('tb-title').textContent = id === 'dashboard' ? 'Monthly Overview' : id === 'analytics' ? 'Full Business Overview' : id === 'forecast' ? 'Pie Projection Dashboard' : 'Data Input';
+    const titles = { dashboard:'Monthly Overview', analytics:'Full Business Overview', forecast:'Pie Projection Dashboard', input:'Data Input', cash:'Income Dashboard' };
+    document.getElementById('tb-title').textContent = titles[id] || id;
     document.getElementById('period-sel').style.display = 'none';
     if (id === 'dashboard') renderDashboard();
     if (id === 'input') renderInputTables();
     if (id === 'analytics') renderAnalytics();
     if (id === 'forecast') renderForecast();
+    if (id === 'cash') cashRenderPage();
 }
 
 // ══ Period Select ══
@@ -2177,6 +2428,497 @@ if (localStorage.getItem(PW_KEY) === '1') {
 } else {
     document.getElementById('pw-gate').style.display = 'flex';
 }
+
+// ══════════════════════════════════════════════════════════════
+//  INCOME DASHBOARD  (localStorage: lincko_cash_v1)
+//  All vars/functions prefixed cash_ / cd_ to avoid conflicts.
+// ══════════════════════════════════════════════════════════════
+
+const CD_LS_KEY = 'lincko_cash_v1';
+let cashMonths = [];
+
+// ── Load / Save ──
+function cashLoad() {
+    try { cashMonths = JSON.parse(localStorage.getItem(CD_LS_KEY)) || []; } catch(e) { cashMonths = []; }
+    cashMonths.sort((a, b) => a.id < b.id ? -1 : 1);
+}
+function cashSave() {
+    localStorage.setItem(CD_LS_KEY, JSON.stringify(cashMonths));
+}
+cashLoad();
+
+// ── Calculations ──
+const CD_INFLOW_FIELDS  = ['customerPayments','retainers','subscriptionRevenue','loanProceeds','refunds','otherIncome'];
+const CD_OUTFLOW_FIELDS = ['payroll','contractors','marketing','software','rent','inventory','taxes','debtRepayment','ownerDraws','miscExpenses'];
+const CD_MONTHS_NAMES   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function cdN(m, k) { return parseFloat(m[k]) || 0; }
+
+function cdCalcMonth(m, prevClosing) {
+    /* Opening: auto-chain from previous closing, or manual for first month */
+    const opening  = prevClosing !== null ? prevClosing : cdN(m, 'openingCash');
+    const totalIn  = CD_INFLOW_FIELDS.reduce((s, k) => s + cdN(m, k), 0);
+    const totalOut = CD_OUTFLOW_FIELDS.reduce((s, k) => s + cdN(m, k), 0);
+    const net      = totalIn - totalOut;
+    const closing  = opening + net;
+    const burn     = net < 0 ? Math.abs(net) : 0; /* Burn = |Net| only when losing money */
+    const inv      = cdN(m, 'invoicesSent');
+    const rec      = cdN(m, 'cashReceived');
+    const collRate = inv > 0 ? rec / inv : null;   /* Collection Rate = Received ÷ Invoiced */
+    return { opening, totalIn, totalOut, net, closing, burn, collRate, inv, rec, runway: null };
+}
+
+function cdCalcAll() {
+    const results = [];
+    let prevClosing = null;
+    cashMonths.forEach(m => {
+        const c = cdCalcMonth(m, prevClosing);
+        prevClosing = c.closing;
+        results.push(c);
+    });
+    /* Runway = Closing ÷ 3-Month Avg Burn (uses actual history window) */
+    results.forEach((c, i) => {
+        const w = Math.min(3, i + 1);
+        const avgBurn = results.slice(i - w + 1, i + 1).reduce((s, r) => s + r.burn, 0) / w;
+        c.avgBurn = avgBurn;
+        c.runway  = avgBurn > 0 ? c.closing / avgBurn : null;
+    });
+    return results;
+}
+
+// ── Formatting ──
+function cdLabel(id) {
+    const [y, m] = id.split('-');
+    return CD_MONTHS_NAMES[parseInt(m) - 1] + ' ' + y;
+}
+function cdFmt(v, dp=1) {
+    if (v === null || v === undefined || isNaN(v)) return '—';
+    const abs = Math.abs(v);
+    let s;
+    if (abs >= 1e6)      s = (v / 1e6).toFixed(dp) + 'M';
+    else if (abs >= 1e3) s = (v / 1e3).toFixed(dp) + 'k';
+    else                 s = v.toFixed(dp);
+    return '£' + s;
+}
+function cdFmtFull(v) {
+    if (v === null || v === undefined) return '—';
+    return '£' + v.toLocaleString('en-GB', { minimumFractionDigits:0, maximumFractionDigits:0 });
+}
+function cdFmtRw(v) {
+    if (v === null) return '∞';
+    if (v <= 0) return '0 mo';
+    return v.toFixed(1) + ' mo';
+}
+
+// ── Tab navigation (within page-cash) ──
+let cashActiveTab = 'overview';
+
+function cashShowTab(id, el) {
+    document.querySelectorAll('#page-cash .cd-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('#page-cash .cd-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('cd-sec-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+    cashActiveTab = id;
+    cashRenderTab();
+}
+
+function cashRenderPage() {
+    cashRenderTab();
+}
+
+function cashRenderTab() {
+    if      (cashActiveTab === 'overview') cashRenderOverview();
+    else if (cashActiveTab === 'inputs')   cashRenderInputs();
+    else if (cashActiveTab === 'calcs')    cashRenderCalcs();
+    else if (cashActiveTab === 'charts')   cashRenderCharts();
+}
+
+// ── Period Selector ──
+function cdPopulatePeriodSel() {
+    const sel = document.getElementById('cd-period-sel');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '';
+    cashMonths.slice().reverse().forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.id; o.textContent = cdLabel(m.id);
+        sel.appendChild(o);
+    });
+    if (cur && cashMonths.find(m => m.id === cur)) sel.value = cur;
+    else if (cashMonths.length) sel.value = cashMonths[cashMonths.length - 1].id;
+}
+
+// ── Overview Tab ──
+function cashRenderOverview() {
+    const empty   = document.getElementById('cd-dash-empty');
+    const content = document.getElementById('cd-dash-content');
+    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
+    empty.style.display = 'none'; content.style.display = 'block';
+    cdPopulatePeriodSel();
+
+    const id  = document.getElementById('cd-period-sel').value || cashMonths[cashMonths.length-1].id;
+    const idx = cashMonths.findIndex(m => m.id === id);
+    if (idx < 0) return;
+    const calcs = cdCalcAll();
+    const c     = calcs[idx];
+    const prev  = idx > 0 ? calcs[idx - 1] : null;
+
+    function dBadge(cur, prv, field) {
+        if (!prv) return '';
+        const d = cur[field] - prv[field];
+        const cls = d > 0 ? 'up' : d < 0 ? 'dn' : 'nul';
+        const sgn = d > 0 ? '▲' : d < 0 ? '▼' : '—';
+        return `<div class="kpi-delta ${cls}">${sgn} ${cdFmt(Math.abs(d))}</div>`;
+    }
+
+    document.getElementById('cd-row1').innerHTML = `
+        <div class="kpi" title="Opening Cash = prior month's closing (auto-chained)">
+            <div class="kpi-lbl">Opening Cash</div>
+            <div class="kpi-val">${cdFmt(c.opening)}</div>
+            <div class="kpi-sub">${prev ? '= ' + cdLabel(cashMonths[idx-1].id) + ' closing' : 'First month — set manually'}</div>
+        </div>
+        <div class="kpi" title="Total Cash In = sum of all inflow categories">
+            <div class="kpi-lbl">Total Cash In</div>
+            <div class="kpi-val g">${cdFmt(c.totalIn)}</div>
+            <div class="kpi-sub">All inflows this month</div>
+            ${dBadge(c, prev, 'totalIn')}
+        </div>
+        <div class="kpi" title="Total Cash Out = sum of all outflow categories">
+            <div class="kpi-lbl">Total Cash Out</div>
+            <div class="kpi-val r">${cdFmt(c.totalOut)}</div>
+            <div class="kpi-sub">All outflows this month</div>
+            ${dBadge(c, prev, 'totalOut')}
+        </div>
+        <div class="kpi" title="Net Cash Flow = Total In − Total Out">
+            <div class="kpi-lbl">Net Cash Flow</div>
+            <div class="kpi-val ${c.net >= 0 ? 'g' : 'r'}">${cdFmt(c.net)}</div>
+            <div class="kpi-sub">Cash In − Cash Out</div>
+            ${dBadge(c, prev, 'net')}
+        </div>`;
+
+    let crCls = '', crBarColor = 'var(--text3)';
+    if (c.collRate !== null) {
+        if      (c.collRate >= 0.9)  { crCls = 'g'; crBarColor = 'var(--g1)'; }
+        else if (c.collRate >= 0.75) { crCls = 'a'; crBarColor = 'var(--amber)'; }
+        else                         { crCls = 'r'; crBarColor = 'var(--red)'; }
+    }
+    const crW  = c.collRate !== null ? Math.min(100, c.collRate * 100).toFixed(1) : 0;
+    const rwCls = c.runway === null || c.runway >= 12 ? 'g' : c.runway >= 3 ? 'a' : 'r';
+
+    document.getElementById('cd-row2').innerHTML = `
+        <div class="kpi" title="Closing Cash = Opening + Net Cash Flow">
+            <div class="kpi-lbl">Closing Cash</div>
+            <div class="kpi-val ${c.closing >= 0 ? 'g' : 'r'}">${cdFmt(c.closing)}</div>
+            <div class="kpi-sub">Balance at month end</div>
+            ${dBadge(c, prev, 'closing')}
+        </div>
+        <div class="kpi" title="Burn Rate = |Net| only when net is negative">
+            <div class="kpi-lbl">Burn Rate</div>
+            <div class="kpi-val ${c.burn > 0 ? 'r' : 'g'}">${c.burn > 0 ? cdFmt(c.burn) : '£0'}</div>
+            <div class="kpi-sub">${c.burn > 0 ? 'Cash consumed / month' : 'No burn this month'}</div>
+        </div>
+        <div class="kpi" title="Runway = Closing ÷ 3-Month Avg Burn. Infinite when burn = 0.">
+            <div class="kpi-lbl">Runway</div>
+            <div class="kpi-val ${rwCls}">${cdFmtRw(c.runway)}</div>
+            <div class="kpi-sub">${c.runway === null ? 'No burn — not applicable' : 'Months of cash at avg burn'}</div>
+        </div>
+        <div class="kpi" title="Collection Rate = Cash Received ÷ Invoices Sent. Green ≥90%, Amber ≥75%, Red <75%.">
+            <div class="kpi-lbl">Collection Rate</div>
+            <div class="kpi-val ${crCls}">${c.collRate !== null ? (c.collRate*100).toFixed(1)+'%' : '—'}</div>
+            ${c.collRate !== null ? `
+                <div class="coll-bar-wrap"><div class="coll-bar-fill" style="width:${crW}%;background:${crBarColor}"></div></div>
+                <div class="kpi-sub">${cdFmtFull(c.rec)} of ${cdFmtFull(c.inv)} invoiced</div>
+            ` : '<div class="kpi-sub">No invoice data entered</div>'}
+        </div>`;
+}
+
+// ── Inputs Tab ──
+let cdSaveTimer = null;
+
+function cdPopulateInpSel() {
+    const sel = document.getElementById('cd-inp-sel');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '';
+    cashMonths.slice().reverse().forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.id; o.textContent = cdLabel(m.id);
+        sel.appendChild(o);
+    });
+    if (cur && cashMonths.find(m => m.id === cur)) sel.value = cur;
+    else if (cashMonths.length) sel.value = cashMonths[cashMonths.length - 1].id;
+}
+
+function cashRenderInputs() {
+    const empty   = document.getElementById('cd-inp-empty');
+    const content = document.getElementById('cd-inp-content');
+    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
+    empty.style.display = 'none'; content.style.display = 'block';
+    cdPopulateInpSel();
+
+    const id  = document.getElementById('cd-inp-sel').value;
+    const idx = cashMonths.findIndex(m => m.id === id);
+    if (idx < 0) return;
+    const m     = cashMonths[idx];
+    const calcs = cdCalcAll();
+    const openEl = document.getElementById('cd-inp-openingCash');
+    const noteEl = document.getElementById('cd-opening-note');
+
+    if (idx === 0) {
+        openEl.disabled    = false;
+        openEl.value       = m.openingCash || '';
+        noteEl.textContent = 'First month — enter your starting cash balance.';
+    } else {
+        openEl.disabled    = true;
+        openEl.value       = calcs[idx - 1].closing.toFixed(2);
+        noteEl.textContent = 'Auto-set from ' + cdLabel(cashMonths[idx - 1].id) + ' closing (' + cdFmtFull(calcs[idx - 1].closing) + ').';
+    }
+
+    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived'].forEach(k => {
+        const el = document.getElementById('cd-inp-' + k);
+        if (el) el.value = m[k] || '';
+    });
+    cdUpdateTotals();
+}
+
+function cdUpdateTotals() {
+    const g = k => parseFloat(document.getElementById('cd-inp-' + k)?.value) || 0;
+    const totalIn  = CD_INFLOW_FIELDS.reduce((s, k) => s + g(k), 0);
+    const totalOut = CD_OUTFLOW_FIELDS.reduce((s, k) => s + g(k), 0);
+    const inv = g('invoicesSent'), rec = g('cashReceived');
+    const cr  = inv > 0 ? rec / inv : null;
+    document.getElementById('cd-total-in').textContent  = cdFmtFull(totalIn);
+    document.getElementById('cd-total-out').textContent = cdFmtFull(totalOut);
+    document.getElementById('cd-coll-rate').textContent = cr !== null ? (cr * 100).toFixed(1) + '%' : '—';
+}
+
+function cashAutoSave() {
+    cdUpdateTotals();
+    clearTimeout(cdSaveTimer);
+    cdSaveTimer = setTimeout(cdCommitInputs, 350);
+}
+
+function cdCommitInputs() {
+    const id  = document.getElementById('cd-inp-sel').value;
+    const idx = cashMonths.findIndex(m => m.id === id);
+    if (idx < 0) return;
+    const m = cashMonths[idx];
+    if (idx === 0) m.openingCash = parseFloat(document.getElementById('cd-inp-openingCash').value) || 0;
+    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived'].forEach(k => {
+        const el = document.getElementById('cd-inp-' + k);
+        if (el) m[k] = parseFloat(el.value) || 0;
+    });
+    cashSave();
+}
+
+// ── Calculations Tab ──
+function cashRenderCalcs() {
+    const empty   = document.getElementById('cd-calcs-empty');
+    const content = document.getElementById('cd-calcs-content');
+    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
+    empty.style.display = 'none'; content.style.display = 'block';
+
+    const calcs = cdCalcAll();
+    let html = '';
+    calcs.forEach((c, i) => {
+        const prev     = i > 0 ? calcs[i - 1] : null;
+        const momPct   = prev && Math.abs(prev.net) > 0 ? ((c.net - prev.net) / Math.abs(prev.net)) * 100 : null;
+        const varPrior = prev ? c.net - prev.net : null;
+        const cr       = c.collRate !== null ? (c.collRate * 100).toFixed(1) + '%' : '—';
+        const momStr   = momPct   === null ? '—' : (momPct   >= 0 ? '+' : '') + momPct.toFixed(1) + '%';
+        const varStr   = varPrior === null ? '—' : (varPrior >= 0 ? '+' : '') + cdFmt(varPrior);
+        const momCls   = momPct   === null ? 'cv-muted' : momPct   >= 0 ? 'cv-pos' : 'cv-neg';
+        const varCls   = varPrior === null ? 'cv-muted' : varPrior >= 0 ? 'cv-pos' : 'cv-neg';
+        const rwCls    = c.runway === null || c.runway >= 12 ? 'cv-pos' : c.runway >= 3 ? 'cv-amber' : 'cv-neg';
+        html += `<tr>
+            <td>${cdLabel(cashMonths[i].id)}</td>
+            <td>${cdFmt(c.opening)}</td>
+            <td class="cv-pos">${cdFmt(c.totalIn)}</td>
+            <td class="cv-neg">${cdFmt(c.totalOut)}</td>
+            <td class="${c.net >= 0 ? 'cv-pos' : 'cv-neg'}">${cdFmt(c.net)}</td>
+            <td class="${c.closing >= 0 ? 'cv-pos' : 'cv-neg'}">${cdFmt(c.closing)}</td>
+            <td class="${c.burn > 0 ? 'cv-neg' : 'cv-muted'}">${c.burn > 0 ? cdFmt(c.burn) : '—'}</td>
+            <td class="${rwCls}">${cdFmtRw(c.runway)}</td>
+            <td>${cr}</td>
+            <td class="${momCls}">${momStr}</td>
+            <td class="${varCls}">${varStr}</td>
+        </tr>`;
+    });
+    document.getElementById('cd-calcs-tbody').innerHTML = html;
+
+    function rollAvg(n, field) {
+        if (calcs.length < n) return null;
+        return calcs.slice(-n).reduce((s, c) => s + c[field], 0) / n;
+    }
+    const rg = document.getElementById('cd-rolling-grid');
+    rg.innerHTML = ['3','6','12'].map(ns => {
+        const n     = parseInt(ns);
+        const aIn   = rollAvg(n, 'totalIn');
+        const aOut  = rollAvg(n, 'totalOut');
+        const aBurn = rollAvg(n, 'burn');
+        const ok    = calcs.length >= n;
+        return `<div class="kpi">
+            <div class="kpi-lbl">${ns}-Month Rolling Avg</div>
+            ${ok ? `<div class="roll-inner">
+                <span style="color:var(--text3)">Avg Cash In</span> <span class="roll-val-pos">${cdFmt(aIn)}</span><br>
+                <span style="color:var(--text3)">Avg Cash Out</span> <span class="roll-val-neg">${cdFmt(aOut)}</span><br>
+                <span style="color:var(--text3)">Avg Burn</span> <span class="${aBurn > 0 ? 'roll-val-neg' : 'roll-val-pos'}">${aBurn > 0 ? cdFmt(aBurn) : '£0'}</span>
+            </div>` : `<div style="color:var(--text3);font-size:14px;margin-top:10px">Need ${n} months — have ${calcs.length}</div>`}
+        </div>`;
+    }).join('');
+}
+
+// ── Charts Tab ──
+const cdCharts = {};
+
+function cdMkChart(id, cfg) {
+    if (cdCharts[id]) cdCharts[id].destroy();
+    cdCharts[id] = new Chart(document.getElementById(id), cfg);
+}
+
+function cashRenderCharts() {
+    const empty   = document.getElementById('cd-charts-empty');
+    const content = document.getElementById('cd-charts-content');
+    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
+    empty.style.display = 'none'; content.style.display = 'block';
+
+    const calcs  = cdCalcAll();
+    const labels = cashMonths.map(m => cdLabel(m.id));
+    const xAxis  = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12}}, grid:{color:'rgba(255,255,255,.05)'} };
+    const yAxis  = { ticks:{color:'rgba(220,240,228,.4)',font:{size:12},callback:v=>'£'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:'rgba(255,255,255,.05)'} };
+    const lgd    = { labels:{color:'rgba(220,240,228,.5)',font:{size:13}} };
+    const gbpTip = ctx => ' £' + ctx.parsed.y.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0});
+
+    /* 1. Cash Balance Trend */
+    cdMkChart('cd-chart-balance', {
+        type:'line',
+        data:{ labels, datasets:[{ label:'Closing Cash', data:calcs.map(c=>c.closing), borderColor:'var(--g1)', backgroundColor:'rgba(76,217,123,.08)', pointBackgroundColor:'var(--g1)', tension:.35, fill:true, borderWidth:2 }] },
+        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:gbpTip}}}, scales:{x:xAxis,y:yAxis} }
+    });
+
+    /* 2. Cash In vs Cash Out */
+    cdMkChart('cd-chart-inout', {
+        type:'bar',
+        data:{ labels, datasets:[
+            { label:'Cash In',  data:calcs.map(c=>c.totalIn),  backgroundColor:'rgba(76,217,123,.75)',  borderRadius:4 },
+            { label:'Cash Out', data:calcs.map(c=>c.totalOut), backgroundColor:'rgba(248,113,113,.75)', borderRadius:4 }
+        ]},
+        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:gbpTip}}}, scales:{x:xAxis,y:yAxis} }
+    });
+
+    /* 3. Burn Rate Trend */
+    cdMkChart('cd-chart-burn', {
+        type:'bar',
+        data:{ labels, datasets:[{ label:'Burn Rate', data:calcs.map(c=>c.burn), backgroundColor:calcs.map(c=>c.burn>0?'rgba(248,113,113,.8)':'rgba(76,217,123,.35)'), borderRadius:4 }] },
+        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:gbpTip}}}, scales:{x:xAxis,y:yAxis} }
+    });
+
+    /* 4. Runway Trend (capped 36 mo) */
+    cdMkChart('cd-chart-runway', {
+        type:'line',
+        data:{ labels, datasets:[{ label:'Runway', data:calcs.map(c=>c.runway!==null?Math.min(c.runway,36):36), borderColor:'var(--amber)', backgroundColor:'rgba(251,191,36,.07)', pointBackgroundColor:'var(--amber)', tension:.3, fill:true, borderWidth:2 }] },
+        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:ctx=>' '+cdFmtRw(calcs[ctx.dataIndex].runway)}}}, scales:{x:xAxis,y:{...yAxis,ticks:{...yAxis.ticks,callback:v=>v>=36?'36+ mo':v+' mo'}}} }
+    });
+
+    /* 5. Waterfall — most recent month, floating bars [bottom, top] */
+    const wf     = calcs[calcs.length - 1];
+    const wfLbl  = cdLabel(cashMonths[cashMonths.length - 1].id);
+    document.getElementById('cd-waterfall-lbl').textContent = wfLbl;
+    cdMkChart('cd-chart-waterfall', {
+        type:'bar',
+        data:{ labels:['Opening Cash','Cash In','Cash Out','Closing Cash'], datasets:[{
+            label:'Waterfall',
+            data:[[0,wf.opening],[wf.opening,wf.opening+wf.totalIn],[wf.closing,wf.opening+wf.totalIn],[0,wf.closing]],
+            backgroundColor:['rgba(100,148,180,.85)','rgba(76,217,123,.85)','rgba(248,113,113,.85)','rgba(45,212,191,.85)'],
+            borderRadius:5, borderSkipped:false
+        }]},
+        options:{ responsive:true, maintainAspectRatio:true,
+            plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>' £'+Math.abs(ctx.raw[1]-ctx.raw[0]).toLocaleString('en-GB',{minimumFractionDigits:0})}} },
+            scales:{x:xAxis,y:yAxis}
+        }
+    });
+}
+
+// ── Add Month Modal ──
+function cashOpenAddMonth() {
+    const ySel  = document.getElementById('cd-add-year');
+    const mSel  = document.getElementById('cd-add-month');
+    const openI = document.getElementById('cd-add-opening');
+    const note  = document.getElementById('cd-add-opening-note');
+
+    ySel.innerHTML = '';
+    const curYear = new Date().getFullYear();
+    for (let y = curYear + 1; y >= 2020; y--) {
+        const o = document.createElement('option');
+        o.value = y; o.textContent = y;
+        ySel.appendChild(o);
+    }
+    ySel.value = curYear;
+
+    if (cashMonths.length) {
+        const last = cashMonths[cashMonths.length - 1].id;
+        let [ly, lm] = last.split('-').map(Number);
+        lm++; if (lm > 12) { lm = 1; ly++; }
+        ySel.value = ly;
+        mSel.value = lm.toString().padStart(2, '0');
+        const calcs     = cdCalcAll();
+        const lastClose = calcs[calcs.length - 1].closing;
+        openI.value     = lastClose.toFixed(2);
+        openI.disabled  = true;
+        note.textContent = 'Auto-set from ' + cdLabel(cashMonths[cashMonths.length - 1].id) + ' closing (' + cdFmtFull(lastClose) + ').';
+    } else {
+        mSel.value       = (new Date().getMonth() + 1).toString().padStart(2, '0');
+        openI.disabled   = false;
+        openI.value      = '';
+        note.textContent = 'Enter your current cash balance to start tracking.';
+    }
+    document.getElementById('cd-add-modal').classList.add('open');
+    document.addEventListener('keydown', cdEscModal);
+}
+
+function cashCloseAddMonth() {
+    document.getElementById('cd-add-modal').classList.remove('open');
+    document.removeEventListener('keydown', cdEscModal);
+}
+
+function cdEscModal(e) { if (e.key === 'Escape') cashCloseAddMonth(); }
+
+function cashConfirmAddMonth() {
+    const y  = document.getElementById('cd-add-year').value;
+    const m  = document.getElementById('cd-add-month').value;
+    const id = y + '-' + m;
+    if (cashMonths.find(mo => mo.id === id)) { alert(cdLabel(id) + ' already exists.'); return; }
+
+    const opening = cashMonths.length
+        ? cdCalcAll()[cashMonths.length - 1].closing
+        : parseFloat(document.getElementById('cd-add-opening').value) || 0;
+
+    cashMonths.push({
+        id, openingCash: opening,
+        customerPayments:0, retainers:0, subscriptionRevenue:0, loanProceeds:0, refunds:0, otherIncome:0,
+        payroll:0, contractors:0, marketing:0, software:0, rent:0, inventory:0,
+        taxes:0, debtRepayment:0, ownerDraws:0, miscExpenses:0,
+        invoicesSent:0, cashReceived:0
+    });
+    cashMonths.sort((a, b) => a.id < b.id ? -1 : 1);
+    cashSave();
+    cashCloseAddMonth();
+
+    // Jump to inputs tab for new month
+    cashShowTab('inputs', document.querySelectorAll('#page-cash .cd-tab')[1]);
+    cdPopulateInpSel();
+    document.getElementById('cd-inp-sel').value = id;
+    cashRenderInputs();
+}
+
+function cashDeleteMonth() {
+    const id = document.getElementById('cd-inp-sel').value;
+    if (!confirm('Delete ' + cdLabel(id) + '? This cannot be undone.')) return;
+    cashMonths = cashMonths.filter(m => m.id !== id);
+    cashSave();
+    cashRenderInputs();
+}
+// ══════════════════════════════════════════════════════════════
 </script>
 
 </body>
