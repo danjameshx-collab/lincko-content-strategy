@@ -425,6 +425,13 @@
         .cv-muted{color:var(--text3)!important}
         .cv-amber{color:var(--amber)!important}
         #page-cash .inp{width:140px}
+        .di-2col{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+        @media(max-width:700px){.di-2col{grid-template-columns:1fr}}
+        .inp-row-calc{font-weight:700;font-size:16px;color:var(--text);min-width:100px;text-align:right}
+        .di-calc-row{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;border-bottom:1px solid rgba(255,255,255,.04)}
+        .di-calc-row:last-child{border-bottom:none}
+        .di-calc-lbl{font-size:14px;color:var(--text3)}
+        .modal-wide{max-width:520px!important}
     </style>
 </head>
 <body>
@@ -663,15 +670,14 @@
         <div class="cd-tab-bar">
             <button class="cd-tab active" onclick="cashShowTab('overview',this)">Dashboard</button>
             <button class="cd-tab" onclick="cashShowTab('charts',this)">Charts</button>
-            <button class="cd-tab" onclick="cashShowTab('inputs',this)">Data Inputs</button>
         </div>
 
         <!-- ── OVERVIEW ── -->
         <div class="cd-section active" id="cd-sec-overview">
             <div id="cd-dash-empty" class="empty" style="display:none">
                 <div class="ico">◈</div>
-                <p>No months yet. Add your first month to start tracking cash.</p>
-                <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Add First Month</button>
+                <p>No months yet. Add your first month in Data Input.</p>
+                <button class="btn btn-p" onclick="goToDataInput()">+ Add First Month</button>
             </div>
             <div id="cd-dash-content" style="display:none">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
@@ -681,7 +687,7 @@
                     </div>
                     <div style="display:flex;align-items:center;gap:10px">
                         <button class="kw-tog-all" id="cd-btn-tog-all" onclick="cdToggleAllWorkings(this)">▸ Workings</button>
-                        <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Month</button>
+                        <button class="btn btn-p" onclick="goToDataInput()">+ Month</button>
                     </div>
                 </div>
                 <div class="sec-hdr"><span class="sec-title">Cash Position</span></div>
@@ -690,84 +696,6 @@
                 <div class="kpi-grid g4" id="cd-row2"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Rolling Averages</span></div>
                 <div class="kpi-grid g3" id="cd-rolling-grid"></div>
-            </div>
-        </div>
-
-        <!-- ── DATA INPUTS ── -->
-        <div class="cd-section" id="cd-sec-inputs">
-            <div id="cd-inp-empty" class="empty" style="display:none">
-                <div class="ico">✎</div>
-                <p>No months yet.</p>
-                <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Add First Month</button>
-            </div>
-            <div id="cd-inp-content" style="display:none">
-                <div class="inp-month-bar">
-                    <select class="period-sel" id="cd-inp-sel" onchange="cashRenderInputs()"></select>
-                    <button class="btn btn-d" onclick="cashDeleteMonth()">Delete Month</button>
-                </div>
-                <!-- Opening Cash -->
-                <div class="inp-section">
-                    <div class="inp-section-hdr">
-                        <div class="inp-section-dot" style="background:#64748b"></div>
-                        <div class="inp-section-title">Opening Cash</div>
-                    </div>
-                    <div class="inp-row">
-                        <div class="inp-row-lbl">Opening Cash Balance</div>
-                        <input class="inp" type="number" id="cd-inp-openingCash" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00">
-                    </div>
-                    <div style="padding:8px 20px 14px;font-size:13px;color:var(--text3)" id="cd-opening-note"></div>
-                </div>
-                <!-- Inflows -->
-                <div class="inp-section">
-                    <div class="inp-section-hdr">
-                        <div class="inp-section-dot" style="background:var(--g1)"></div>
-                        <div class="inp-section-title">Cash Inflows</div>
-                    </div>
-                    <div class="inp-row"><div class="inp-row-lbl">Customer Payments</div><input class="inp" type="number" id="cd-inp-customerPayments" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Retainers</div><input class="inp" type="number" id="cd-inp-retainers" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Subscription Revenue</div><input class="inp" type="number" id="cd-inp-subscriptionRevenue" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Loan Proceeds</div><input class="inp" type="number" id="cd-inp-loanProceeds" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Refunds Received</div><input class="inp" type="number" id="cd-inp-refunds" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Other Income</div><input class="inp" type="number" id="cd-inp-otherIncome" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row-total">
-                        <div class="inp-total-lbl">Total Cash In</div>
-                        <div class="inp-total-val" id="cd-total-in">£0</div>
-                    </div>
-                </div>
-                <!-- Outflows -->
-                <div class="inp-section">
-                    <div class="inp-section-hdr">
-                        <div class="inp-section-dot" style="background:var(--red)"></div>
-                        <div class="inp-section-title">Cash Outflows</div>
-                    </div>
-                    <div class="inp-row"><div class="inp-row-lbl">Payroll</div><input class="inp" type="number" id="cd-inp-payroll" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Contractors</div><input class="inp" type="number" id="cd-inp-contractors" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Marketing</div><input class="inp" type="number" id="cd-inp-marketing" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Software &amp; Tools</div><input class="inp" type="number" id="cd-inp-software" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Rent &amp; Facilities</div><input class="inp" type="number" id="cd-inp-rent" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Inventory</div><input class="inp" type="number" id="cd-inp-inventory" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Taxes</div><input class="inp" type="number" id="cd-inp-taxes" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Debt Repayment</div><input class="inp" type="number" id="cd-inp-debtRepayment" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Owner Draws</div><input class="inp" type="number" id="cd-inp-ownerDraws" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Misc Expenses</div><input class="inp" type="number" id="cd-inp-miscExpenses" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row-total" style="border-top-color:rgba(248,113,113,.2);background:rgba(248,113,113,.03)">
-                        <div class="inp-total-lbl" style="color:var(--red)">Total Cash Out</div>
-                        <div class="inp-total-val" style="color:var(--red)" id="cd-total-out">£0</div>
-                    </div>
-                </div>
-                <!-- Collection -->
-                <div class="inp-section">
-                    <div class="inp-section-hdr">
-                        <div class="inp-section-dot" style="background:var(--amber)"></div>
-                        <div class="inp-section-title">Collection</div>
-                    </div>
-                    <div class="inp-row"><div class="inp-row-lbl">Invoices Sent</div><input class="inp" type="number" id="cd-inp-invoicesSent" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Cash Received</div><input class="inp" type="number" id="cd-inp-cashReceived" min="0" step="0.01" oninput="cashAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row-total" style="border-top-color:rgba(251,191,36,.2);background:rgba(251,191,36,.03)">
-                        <div class="inp-total-lbl" style="color:var(--amber)">Collection Rate</div>
-                        <div class="inp-total-val" style="color:var(--amber)" id="cd-coll-rate">—</div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -815,7 +743,6 @@
         <!-- Sub-navigation tabs -->
         <div class="cd-tab-bar">
             <button class="cd-tab active" onclick="retShowTab('overview',this)">Dashboard</button>
-            <button class="cd-tab" onclick="retShowTab('inputs',this)">Data Inputs</button>
             <button class="cd-tab" onclick="retShowTab('calcs',this)">Calculations</button>
             <button class="cd-tab" onclick="retShowTab('charts',this)">Charts</button>
         </div>
@@ -825,7 +752,7 @@
             <div id="ret-dash-empty" class="empty" style="display:none">
                 <div class="ico">◉</div>
                 <p>No months yet. Add your first month via the Income Dashboard to start tracking retention.</p>
-                <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Add First Month</button>
+                <button class="btn btn-p" onclick="goToDataInput()">+ Add First Month</button>
             </div>
             <div id="ret-dash-content" style="display:none">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
@@ -835,43 +762,13 @@
                     </div>
                     <div style="display:flex;align-items:center;gap:10px">
                         <button class="kw-tog-all" id="ret-btn-tog-all" onclick="retToggleAllWorkings(this)">▸ Workings</button>
-                        <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Month</button>
+                        <button class="btn btn-p" onclick="goToDataInput()">+ Month</button>
                     </div>
                 </div>
                 <div class="sec-hdr"><span class="sec-title">MRR Position</span></div>
                 <div class="kpi-grid g3" id="ret-row1"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Retention Metrics</span></div>
                 <div class="kpi-grid g3" id="ret-row2"></div>
-            </div>
-        </div>
-
-        <!-- ── DATA INPUTS ── -->
-        <div class="cd-section" id="ret-sec-inputs">
-            <div id="ret-inp-empty" class="empty" style="display:none">
-                <div class="ico">✎</div>
-                <p>No months yet.</p>
-                <button class="btn btn-p" onclick="cashOpenAddMonth()">+ Add First Month</button>
-            </div>
-            <div id="ret-inp-content" style="display:none">
-                <div class="inp-month-bar">
-                    <select class="period-sel" id="ret-inp-sel" onchange="retRenderInputs()"></select>
-                </div>
-                <div class="inp-section">
-                    <div class="inp-section-hdr">
-                        <div class="inp-section-dot" style="background:#a78bfa"></div>
-                        <div class="inp-section-title">Recurring Revenue (MRR)</div>
-                    </div>
-                    <div class="inp-row"><div class="inp-row-lbl">Starting MRR</div><input class="inp" type="number" id="ret-inp-startingMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">New MRR</div><input class="inp" type="number" id="ret-inp-newMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Expansion MRR</div><input class="inp" type="number" id="ret-inp-expansionMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Contraction MRR</div><input class="inp" type="number" id="ret-inp-contractionMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Churned MRR</div><input class="inp" type="number" id="ret-inp-churnedMRR" min="0" step="0.01" oninput="retAutoSave()" placeholder="0.00"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Ending MRR Override <span style="font-size:12px;color:var(--text3)">(optional)</span></div><input class="inp" type="number" id="ret-inp-endingMRROverride" min="0" step="0.01" oninput="retAutoSave()" placeholder="Auto-calc"></div>
-                    <div class="inp-row-total" style="border-top-color:rgba(167,139,250,.2);background:rgba(167,139,250,.03)">
-                        <div class="inp-total-lbl" style="color:#a78bfa">Ending MRR (calc)</div>
-                        <div class="inp-total-val" style="color:#a78bfa" id="ret-ending-mrr">—</div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -986,65 +883,146 @@
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
             <div>
                 <h2 style="font-size:17px;font-weight:700;color:var(--text)">Data Input</h2>
-                <p style="font-size:12px;color:var(--text3);margin-top:3px">Enter raw monthly data. Metrics calculate automatically.</p>
+                <p style="font-size:12px;color:var(--text3);margin-top:3px">All monthly inputs in one place — business metrics, cash flow, and recurring revenue.</p>
             </div>
             <button class="btn btn-p" onclick="openModal()">+ Add Month</button>
         </div>
 
-        <!-- Raw input table -->
-        <div class="tbl-wrap" style="margin-bottom:22px">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="min-width:130px">Period</th>
-                        <th>Revenue ($)</th>
-                        <th>COGS ($)</th>
-                        <th>CAC ($)</th>
-                        <th>Fixed Costs ($)</th>
-                        <th>Clients (Start)</th>
-                        <th>New Clients</th>
-                        <th>Clients Churned</th>
-                        <th>Rev Churned ($)</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="inp-body"></tbody>
-            </table>
-            <div id="inp-empty" class="empty">
-                <div class="ico">📋</div>
-                <p>No months yet. Click <strong>+ Add Month</strong> to begin.</p>
-            </div>
+        <div id="di-empty" class="empty">
+            <div class="ico">📋</div>
+            <p>No months yet. Click <strong>+ Add Month</strong> to begin.</p>
         </div>
 
-        <!-- Calculated preview -->
-        <div class="sec-hdr" style="margin-top:8px">
-            <span class="sec-title">Calculated Metrics</span>
-            <span style="font-size:11px;color:var(--text3)">Auto-derived from inputs above</span>
-        </div>
-        <div class="tbl-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="min-width:130px">Period</th>
-                        <th>Gross Profit</th>
-                        <th>Gross Margin</th>
-                        <th>Total CAC</th>
-                        <th>Net Profit</th>
-                        <th>Net Margin</th>
-                        <th>Total Cost</th>
-                        <th>Logo Churn</th>
-                        <th>Rev Churn</th>
-                        <th>Retention</th>
-                        <th>Lifespan</th>
-                        <th>LTGP</th>
-                        <th>LTGP:CAC</th>
-                        <th>Rev/Client</th>
-                    </tr>
-                </thead>
-                <tbody id="calc-body"></tbody>
-            </table>
-            <div id="calc-empty" class="empty" style="display:none;padding:28px">
-                <p>Add data above to see calculations.</p>
+        <div id="di-form" style="display:none">
+            <div class="inp-month-bar">
+                <select class="period-sel" id="di-month-sel" onchange="renderDataInput()"></select>
+                <button class="btn btn-d" onclick="diDeleteMonth()">Delete Month</button>
+            </div>
+
+            <!-- Business Metrics -->
+            <div class="inp-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:var(--teal)"></div>
+                    <div class="inp-section-title">Business Metrics</div>
+                </div>
+                <div class="di-2col">
+                    <div class="inp-row"><div class="inp-row-lbl">Revenue</div><input type="number" class="inp" id="di-rev" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">COGS</div><input type="number" class="inp" id="di-cogs" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">CAC <span style="font-size:12px;color:var(--text3)">(per client)</span></div><input type="number" class="inp" id="di-cac" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Fixed Costs</div><input type="number" class="inp" id="di-opex" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Clients at Start</div><input type="number" class="inp" id="di-cs" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">New Clients</div><input type="number" class="inp" id="di-nc" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Clients Churned</div><input type="number" class="inp" id="di-ch" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Revenue Churned</div><input type="number" class="inp" id="di-rc" oninput="diAutoSave()" placeholder="0"></div>
+                </div>
+            </div>
+
+            <!-- Cash Position -->
+            <div class="inp-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:#64748b"></div>
+                    <div class="inp-section-title">Cash Position</div>
+                </div>
+                <div class="inp-row">
+                    <div class="inp-row-lbl">Opening Cash Balance</div>
+                    <input type="number" class="inp" id="di-openingCash" oninput="diAutoSave()" placeholder="0.00" step="0.01">
+                </div>
+                <div style="padding:8px 20px 14px;font-size:13px;color:var(--text3)" id="di-opening-note"></div>
+            </div>
+
+            <!-- Cash Inflows -->
+            <div class="inp-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:var(--g1)"></div>
+                    <div class="inp-section-title">Cash Inflows</div>
+                </div>
+                <div class="di-2col">
+                    <div class="inp-row"><div class="inp-row-lbl">Customer Payments</div><input type="number" class="inp" id="di-customerPayments" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Retainers</div><input type="number" class="inp" id="di-retainers" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Subscription Revenue</div><input type="number" class="inp" id="di-subscriptionRevenue" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Loan Proceeds</div><input type="number" class="inp" id="di-loanProceeds" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Refunds Received</div><input type="number" class="inp" id="di-refunds" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Other Income</div><input type="number" class="inp" id="di-otherIncome" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                </div>
+                <div class="inp-row-total"><div class="inp-total-lbl">Total Cash In</div><div class="inp-total-val" id="di-total-in">£0</div></div>
+            </div>
+
+            <!-- Cash Outflows -->
+            <div class="inp-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:var(--red)"></div>
+                    <div class="inp-section-title">Cash Outflows</div>
+                </div>
+                <div class="di-2col">
+                    <div class="inp-row"><div class="inp-row-lbl">Payroll</div><input type="number" class="inp" id="di-payroll" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Contractors</div><input type="number" class="inp" id="di-contractors" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Marketing</div><input type="number" class="inp" id="di-marketing" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Software &amp; Tools</div><input type="number" class="inp" id="di-software" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Rent &amp; Facilities</div><input type="number" class="inp" id="di-rent" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Inventory</div><input type="number" class="inp" id="di-inventory" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Taxes</div><input type="number" class="inp" id="di-taxes" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Debt Repayment</div><input type="number" class="inp" id="di-debtRepayment" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Owner Draws</div><input type="number" class="inp" id="di-ownerDraws" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Misc Expenses</div><input type="number" class="inp" id="di-miscExpenses" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                </div>
+                <div class="inp-row-total" style="border-top-color:rgba(248,113,113,.2);background:rgba(248,113,113,.03)">
+                    <div class="inp-total-lbl" style="color:var(--red)">Total Cash Out</div>
+                    <div class="inp-total-val" style="color:var(--red)" id="di-total-out">£0</div>
+                </div>
+            </div>
+
+            <!-- Collection -->
+            <div class="inp-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:var(--amber)"></div>
+                    <div class="inp-section-title">Collection</div>
+                </div>
+                <div class="di-2col">
+                    <div class="inp-row"><div class="inp-row-lbl">Invoices Sent</div><input type="number" class="inp" id="di-invoicesSent" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Cash Received</div><input type="number" class="inp" id="di-cashReceived" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                </div>
+                <div class="inp-row-total" style="border-top-color:rgba(251,191,36,.2);background:rgba(251,191,36,.03)">
+                    <div class="inp-total-lbl" style="color:var(--amber)">Collection Rate</div>
+                    <div class="inp-total-val" style="color:var(--amber)" id="di-coll-rate">—</div>
+                </div>
+            </div>
+
+            <!-- Recurring Revenue -->
+            <div class="inp-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:#a78bfa"></div>
+                    <div class="inp-section-title">Recurring Revenue (MRR)</div>
+                </div>
+                <div class="di-2col">
+                    <div class="inp-row"><div class="inp-row-lbl">Starting MRR</div><input type="number" class="inp" id="di-startingMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">New MRR</div><input type="number" class="inp" id="di-newMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Expansion MRR</div><input type="number" class="inp" id="di-expansionMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Contraction MRR</div><input type="number" class="inp" id="di-contractionMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Churned MRR</div><input type="number" class="inp" id="di-churnedMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Ending MRR Override <span style="font-size:12px;color:var(--text3)">(optional)</span></div><input type="number" class="inp" id="di-endingMRROverride" oninput="diAutoSave()" placeholder="Auto-calc" step="0.01"></div>
+                </div>
+                <div class="inp-row-total" style="border-top-color:rgba(167,139,250,.2);background:rgba(167,139,250,.03)">
+                    <div class="inp-total-lbl" style="color:#a78bfa">Ending MRR (calc)</div>
+                    <div class="inp-total-val" style="color:#a78bfa" id="di-ending-mrr">—</div>
+                </div>
+            </div>
+
+            <!-- Calculated Preview -->
+            <div class="inp-section" id="di-calcs-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:var(--text3)"></div>
+                    <div class="inp-section-title">Calculated Metrics <span style="font-size:12px;font-weight:400;color:var(--text3)">auto-derived</span></div>
+                </div>
+                <div class="di-2col">
+                    <div class="di-calc-row"><span class="di-calc-lbl">Gross Profit</span><span class="inp-row-calc" id="di-calc-gp">—</span></div>
+                    <div class="di-calc-row"><span class="di-calc-lbl">Gross Margin</span><span class="inp-row-calc" id="di-calc-gm">—</span></div>
+                    <div class="di-calc-row"><span class="di-calc-lbl">Net Profit</span><span class="inp-row-calc" id="di-calc-np">—</span></div>
+                    <div class="di-calc-row"><span class="di-calc-lbl">Net Margin</span><span class="inp-row-calc" id="di-calc-nm">—</span></div>
+                    <div class="di-calc-row"><span class="di-calc-lbl">Logo Churn Rate</span><span class="inp-row-calc" id="di-calc-lchurn">—</span></div>
+                    <div class="di-calc-row"><span class="di-calc-lbl">Revenue Churn</span><span class="inp-row-calc" id="di-calc-rchurn">—</span></div>
+                    <div class="di-calc-row"><span class="di-calc-lbl">LTGP:CAC</span><span class="inp-row-calc" id="di-calc-ratio">—</span></div>
+                    <div class="di-calc-row"><span class="di-calc-lbl">Runway</span><span class="inp-row-calc" id="di-calc-runway">—</span></div>
+                </div>
             </div>
         </div>
     </div><!-- /page-input -->
@@ -1270,82 +1248,20 @@
 
 <!-- ── Add Month Modal ── -->
 <div class="modal-ov" id="modal">
-    <div class="modal">
+    <div class="modal modal-wide">
         <div class="modal-title">Add Month</div>
-        <div class="fg span2">
+        <div class="fg span2" style="margin-bottom:16px">
             <label class="fl">Period</label>
             <select class="fs" id="m-period"><option value="">Select month…</option></select>
         </div>
-        <div class="form-grid">
-            <div class="fg">
-                <label class="fl">Revenue ($)</label>
-                <input type="text" inputmode="decimal" class="fi" id="m-rev" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
-            </div>
-            <div class="fg">
-                <label class="fl">COGS ($)</label>
-                <input type="text" inputmode="decimal" class="fi" id="m-cogs" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
-            </div>
-            <div class="fg">
-                <label class="fl">CAC ($) <span style="font-weight:400;font-size:10px">per customer acquired</span></label>
-                <input type="text" inputmode="decimal" class="fi" id="m-cac" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
-            </div>
-            <div class="fg">
-                <label class="fl">Fixed Costs ($) <span style="font-weight:400;font-size:10px">total fixed costs</span></label>
-                <input type="text" inputmode="decimal" class="fi" id="m-opex" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
-            </div>
-            <div class="fg">
-                <label class="fl">Clients at Start</label>
-                <input type="text" inputmode="numeric" class="fi" id="m-cs" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
-            </div>
-            <div class="fg">
-                <label class="fl">New Clients</label>
-                <input type="text" inputmode="numeric" class="fi" id="m-nc" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
-            </div>
-            <div class="fg">
-                <label class="fl">Clients Churned</label>
-                <input type="text" inputmode="numeric" class="fi" id="m-ch" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
-            </div>
-            <div class="fg">
-                <label class="fl">Revenue Churned ($)</label>
-                <input type="text" inputmode="decimal" class="fi" id="m-rc" placeholder="0" onfocus="stripInput(this)" onblur="fmtInput(this)">
-            </div>
+        <div class="fg" style="margin-bottom:4px">
+            <label class="fl">Opening Cash Balance</label>
+            <input type="number" class="fi" id="m-opening" placeholder="0.00" min="0" step="0.01">
+            <div style="font-size:12px;color:var(--text3);margin-top:5px" id="m-opening-note">Enter your current cash balance for this month.</div>
         </div>
         <div class="modal-acts">
             <button class="btn btn-g" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-p" onclick="saveMonth()">Save Month</button>
-        </div>
-    </div>
-</div>
-
-<!-- ── Income Dashboard: Add Month Modal ── -->
-<div class="modal-ov" id="cd-add-modal">
-    <div class="modal">
-        <div class="modal-title">Add Month — Income Dashboard</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="fg">
-                <label class="fl">Year</label>
-                <select class="fs" id="cd-add-year"></select>
-            </div>
-            <div class="fg">
-                <label class="fl">Month</label>
-                <select class="fs" id="cd-add-month">
-                    <option value="01">January</option><option value="02">February</option>
-                    <option value="03">March</option><option value="04">April</option>
-                    <option value="05">May</option><option value="06">June</option>
-                    <option value="07">July</option><option value="08">August</option>
-                    <option value="09">September</option><option value="10">October</option>
-                    <option value="11">November</option><option value="12">December</option>
-                </select>
-            </div>
-        </div>
-        <div class="fg">
-            <label class="fl">Opening Cash Balance</label>
-            <input class="fi" type="number" id="cd-add-opening" placeholder="0.00" min="0" step="0.01">
-            <div style="font-size:13px;color:var(--text3);margin-top:6px" id="cd-add-opening-note"></div>
-        </div>
-        <div class="modal-acts">
-            <button class="btn btn-g" onclick="cashCloseAddMonth()">Cancel</button>
-            <button class="btn btn-p" onclick="cashConfirmAddMonth()">Add Month</button>
+            <button class="btn btn-p" onclick="saveMonth()">Add Month →</button>
         </div>
     </div>
 </div>
@@ -1892,68 +1808,181 @@ function renderAnalytics() {
 }
 
 // ══ Input Tables ══
-function renderInputTables() {
-    const ms = sorted();
-    const ib = document.getElementById('inp-body');
-    const cb = document.getElementById('calc-body');
-    const ie = document.getElementById('inp-empty');
-    const ce = document.getElementById('calc-empty');
-    ib.innerHTML = ''; cb.innerHTML = '';
+function renderInputTables() { renderDataInput(); }
 
-    if (!ms.length) { ie.style.display='block'; ce.style.display='block'; return; }
-    ie.style.display='none'; ce.style.display='none';
+// ══ Unified Data Input Form ══
+let diSaveTimer = null;
 
-    ms.forEach(m => {
-        const fields = ['rev','cogs','cac','opex','cs','nc','ch','rc'];
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${m.label}</td>` +
-            fields.map(f => {
-                const raw = m[f] || '';
-                const display = raw ? (+raw).toLocaleString('en-US') : '';
-                return `<td><input class="inp" type="text" inputmode="decimal" value="${display}"
-                    onfocus="this.value=this.value.replace(/,/g,'')"
-                    onblur="fmtInput(this)"
-                    onchange="updField('${m.id}','${f}',this.value)"></td>`;
-            }).join('') +
-            `<td><button class="btn btn-d" onclick="delMonth('${m.id}')">✕</button></td>`;
-        ib.appendChild(tr);
+function goToDataInput() {
+    showPage('input', document.querySelectorAll('.nav-item')[5]);
+    openModal();
+}
 
-        const c = calc(m);
-        const gCol = v => v >= 0 ? 'color:var(--g1)' : 'color:var(--red)';
-        const churnCol = v => v <= 5 ? 'color:var(--g1)' : 'color:var(--red)';
-        const retCol = v => v >= 95 ? 'color:var(--g1)' : '';
-        const ratioCol = v => v === null ? '' : v >= 3 ? 'color:var(--g1)' : 'color:var(--red)';
+function renderDataInput() {
+    const ms      = sorted();
+    const empty   = document.getElementById('di-empty');
+    const form    = document.getElementById('di-form');
+    if (!ms.length) { empty.style.display='block'; form.style.display='none'; return; }
+    empty.style.display = 'none'; form.style.display = 'block';
 
-        const ctr = document.createElement('tr');
-        ctr.innerHTML = `
-            <td>${m.label}</td>
-            <td style="${gCol(c.gp)}">${f$(c.gp)}</td>
-            <td style="${gCol(c.gm)}">${fPct(c.gm)}</td>
-            <td>${f$(c.totalCac)}</td>
-            <td style="${gCol(c.np)}">${f$(c.np)}</td>
-            <td style="${gCol(c.nm)}">${fPct(c.nm)}</td>
-            <td>${f$(c.tc)}</td>
-            <td style="${churnCol(c.lchurn)}">${fPct(c.lchurn)}</td>
-            <td style="${churnCol(c.rchurn)}">${fPct(c.rchurn)}</td>
-            <td style="${retCol(c.ret)}">${fPct(c.ret)}</td>
-            <td>${fMo(c.lifespan)}</td>
-            <td>${c.ltgp!=null?f$(c.ltgp):'—'}</td>
-            <td style="${ratioCol(c.ratio)}">${c.ratio!=null?fX(c.ratio):'—'}</td>
-            <td>${f$(c.rpc)}</td>
-        `;
-        cb.appendChild(ctr);
+    /* Populate month selector */
+    const sel = document.getElementById('di-month-sel');
+    const cur = sel.value;
+    sel.innerHTML = '';
+    ms.slice().reverse().forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.id; o.textContent = m.label;
+        sel.appendChild(o);
     });
+    if (cur && ms.find(m => m.id === cur)) sel.value = cur;
+    else sel.value = ms[ms.length - 1].id;
+
+    diLoadMonth(sel.value);
+}
+
+function diLoadMonth(id) {
+    const m  = months.find(mo => mo.id === id);
+    const cm = cashMonths.find(mo => mo.id === id) || {};
+    const ms = sorted();
+    const idx = ms.findIndex(mo => mo.id === id);
+
+    /* Business fields */
+    ['rev','cogs','cac','opex','cs','nc','ch','rc'].forEach(f => {
+        const el = document.getElementById('di-' + f);
+        if (el) el.value = m && m[f] ? m[f] : '';
+    });
+
+    /* Opening cash */
+    const openEl  = document.getElementById('di-openingCash');
+    const noteEl  = document.getElementById('di-opening-note');
+    const calcs   = cdCalcAll();
+    if (idx === 0 || !cashMonths.find(mo => mo.id === id)) {
+        openEl.disabled    = false;
+        openEl.value       = cm.openingCash || '';
+        noteEl.textContent = 'First month — enter your starting cash balance.';
+    } else {
+        const prevIdx = cashMonths.findIndex(mo => mo.id === id);
+        const prevC   = prevIdx > 0 ? calcs[prevIdx - 1] : null;
+        if (prevC) {
+            openEl.disabled    = true;
+            openEl.value       = prevC.closing.toFixed(2);
+            noteEl.textContent = 'Auto-set from prior month closing (' + cdFmtFull(prevC.closing) + ').';
+        } else {
+            openEl.disabled    = false;
+            openEl.value       = cm.openingCash || '';
+            noteEl.textContent = 'Enter your starting cash balance.';
+        }
+    }
+
+    /* Cash fields */
+    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived',
+     'startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
+        const el = document.getElementById('di-' + k);
+        if (el) el.value = cm[k] || '';
+    });
+    const overEl = document.getElementById('di-endingMRROverride');
+    if (overEl) overEl.value = (cm.endingMRROverride != null && cm.endingMRROverride !== '') ? cm.endingMRROverride : '';
+
+    diUpdateTotals();
+}
+
+function diUpdateTotals() {
+    const g  = k => parseFloat(document.getElementById('di-' + k)?.value) || 0;
+    const ti = CD_INFLOW_FIELDS.reduce((s,k) => s + g(k), 0);
+    const to = CD_OUTFLOW_FIELDS.reduce((s,k) => s + g(k), 0);
+    const inv = g('invoicesSent'), rec = g('cashReceived');
+    const cr  = inv > 0 ? rec / inv : null;
+    const overV = document.getElementById('di-endingMRROverride')?.value;
+    const endMRR = (overV && overV !== '') ? parseFloat(overV) : g('startingMRR') + g('newMRR') + g('expansionMRR') - g('contractionMRR') - g('churnedMRR');
+    const el = id => document.getElementById(id);
+    if (el('di-total-in'))  el('di-total-in').textContent  = cdFmtFull(ti);
+    if (el('di-total-out')) el('di-total-out').textContent = cdFmtFull(to);
+    if (el('di-coll-rate')) el('di-coll-rate').textContent = cr !== null ? (cr*100).toFixed(1)+'%' : '—';
+    if (el('di-ending-mrr')) el('di-ending-mrr').textContent = cdFmtFull(endMRR);
+    /* Business calcs preview */
+    const id = document.getElementById('di-month-sel')?.value;
+    const bm = id ? months.find(m => m.id === id) : null;
+    if (bm) {
+        /* Temporarily apply form values for preview */
+        const tmp = Object.assign({}, bm,
+            {rev:g('rev'),cogs:g('cogs'),cac:g('cac'),opex:g('opex'),cs:g('cs'),nc:g('nc'),ch:g('ch'),rc:g('rc')});
+        const c   = calc(tmp);
+        if (el('di-calc-gp'))     el('di-calc-gp').textContent     = f$(c.gp);
+        if (el('di-calc-gm'))     el('di-calc-gm').textContent     = fPct(c.gm);
+        if (el('di-calc-np'))     el('di-calc-np').textContent     = f$(c.np);
+        if (el('di-calc-nm'))     el('di-calc-nm').textContent     = fPct(c.nm);
+        if (el('di-calc-lchurn')) el('di-calc-lchurn').textContent = fPct(c.lchurn);
+        if (el('di-calc-rchurn')) el('di-calc-rchurn').textContent = fPct(c.rchurn);
+        if (el('di-calc-ratio'))  el('di-calc-ratio').textContent  = c.ratio != null ? fX(c.ratio) : '—';
+    }
+    /* Runway preview from cash */
+    if (id && cashMonths.length) {
+        const calcs = cdCalcAll();
+        const cidx  = cashMonths.findIndex(m => m.id === id);
+        if (cidx >= 0 && el('di-calc-runway')) {
+            el('di-calc-runway').textContent = cdFmtRw(calcs[cidx].runway);
+        }
+    }
+}
+
+function diAutoSave() {
+    diUpdateTotals();
+    clearTimeout(diSaveTimer);
+    diSaveTimer = setTimeout(diCommit, 400);
+}
+
+function diCommit() {
+    const id = document.getElementById('di-month-sel')?.value;
+    if (!id) return;
+    const g = k => parseFloat(document.getElementById('di-' + k)?.value) || 0;
+
+    /* Business data → months[] + Firebase */
+    let m = months.find(mo => mo.id === id);
+    if (m) {
+        ['rev','cogs','cac','opex','cs','nc','ch','rc'].forEach(f => { m[f] = g(f); });
+        save();
+    }
+
+    /* Cash data → cashMonths[] + localStorage */
+    let cm = cashMonths.find(mo => mo.id === id);
+    if (!cm) {
+        cm = { id, openingCash:0, customerPayments:0, retainers:0, subscriptionRevenue:0,
+               loanProceeds:0, refunds:0, otherIncome:0, payroll:0, contractors:0,
+               marketing:0, software:0, rent:0, inventory:0, taxes:0, debtRepayment:0,
+               ownerDraws:0, miscExpenses:0, invoicesSent:0, cashReceived:0,
+               startingMRR:0, newMRR:0, expansionMRR:0, contractionMRR:0, churnedMRR:0, endingMRROverride:null };
+        cashMonths.push(cm);
+        cashMonths.sort((a,b) => a.id < b.id ? -1 : 1);
+    }
+    const openEl = document.getElementById('di-openingCash');
+    if (openEl && !openEl.disabled) cm.openingCash = parseFloat(openEl.value) || 0;
+    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent','cashReceived',
+     'startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
+        cm[k] = g(k);
+    });
+    const overEl = document.getElementById('di-endingMRROverride');
+    cm.endingMRROverride = (overEl && overEl.value !== '') ? parseFloat(overEl.value) : null;
+    cashSave();
+}
+
+function diDeleteMonth() {
+    const id = document.getElementById('di-month-sel').value;
+    if (!confirm('Delete ' + (months.find(m=>m.id===id)?.label || id) + '? This cannot be undone.')) return;
+    months      = months.filter(m => m.id !== id);
+    cashMonths  = cashMonths.filter(m => m.id !== id);
+    save(); cashSave(); renderDataInput(); populateSel();
 }
 
 function updField(id, field, value) {
     const m = months.find(m=>m.id===id);
-    if (m) { m[field] = parseNum(value); save(); renderInputTables(); }
+    if (m) { m[field] = parseNum(value); save(); }
 }
 
 function delMonth(id) {
     if (!confirm('Delete this month? This cannot be undone.')) return;
-    months = months.filter(m=>m.id!==id);
-    save(); renderInputTables(); populateSel();
+    months     = months.filter(m=>m.id!==id);
+    cashMonths = cashMonths.filter(m=>m.id!==id);
+    save(); cashSave(); renderDataInput(); populateSel();
 }
 
 // ══ Modal ══
@@ -1961,10 +1990,9 @@ function openModal() {
     const sel = document.getElementById('m-period');
     sel.innerHTML = '<option value="">Select month…</option>';
     const ex = new Set(months.map(m=>m.id));
-    // Range: May 2026 → today + 24 months (extends automatically each month)
     const now = new Date();
     const endDate = new Date(now.getFullYear(), now.getMonth() + 24, 1);
-    let iy = 2026, im = 5; // May 2026
+    let iy = 2024, im = 1;
     while (iy < endDate.getFullYear() || (iy === endDate.getFullYear() && im <= endDate.getMonth() + 1)) {
         const id = iy + '-' + String(im).padStart(2, '0');
         if (!ex.has(id)) {
@@ -1974,31 +2002,65 @@ function openModal() {
         }
         im++; if (im > 12) { im = 1; iy++; }
     }
-    ['m-rev','m-cogs','m-cac','m-opex','m-cs','m-nc','m-ch','m-rc'].forEach(id=>{
-        document.getElementById(id).value='';
-    });
+    /* Pre-select next logical month */
+    if (months.length) {
+        const last = months[months.length - 1].id;
+        let [ly, lm] = last.split('-').map(Number);
+        lm++; if (lm > 12) { lm = 1; ly++; }
+        const next = ly + '-' + String(lm).padStart(2,'0');
+        if (sel.querySelector(`option[value="${next}"]`)) sel.value = next;
+    }
+    /* Opening cash */
+    const openEl  = document.getElementById('m-opening');
+    const noteEl  = document.getElementById('m-opening-note');
+    if (cashMonths.length) {
+        const calcs    = cdCalcAll();
+        const lastClose = calcs[calcs.length - 1].closing;
+        openEl.value     = lastClose.toFixed(2);
+        openEl.disabled  = true;
+        noteEl.textContent = 'Auto-set from ' + cdLabel(cashMonths[cashMonths.length-1].id) + ' closing (' + cdFmtFull(lastClose) + ').';
+    } else {
+        openEl.disabled   = false;
+        openEl.value      = '';
+        noteEl.textContent = 'Enter your current cash balance to start tracking.';
+    }
     document.getElementById('modal').classList.add('open');
 }
 
-function closeModal() { document.getElementById('modal').classList.remove('open') }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
 function saveMonth() {
     const pid = document.getElementById('m-period').value;
     if (!pid) { alert('Please select a period.'); return; }
+    if (months.find(m => m.id === pid)) { alert(cdLabel(pid) + ' already exists.'); return; }
     const [yr, mo] = pid.split('-');
     const label = MONTHS[+mo-1] + ' ' + yr;
-    months.push({
-        id:pid, label,
-        rev:   parseNum(document.getElementById('m-rev').value),
-        cogs:  parseNum(document.getElementById('m-cogs').value),
-        cac:   parseNum(document.getElementById('m-cac').value),
-        opex:  parseNum(document.getElementById('m-opex').value),
-        cs:    parseNum(document.getElementById('m-cs').value),
-        nc:    parseNum(document.getElementById('m-nc').value),
-        ch:    parseNum(document.getElementById('m-ch').value),
-        rc:    parseNum(document.getElementById('m-rc').value)
-    });
-    save(); closeModal(); renderInputTables(); populateSel();
+
+    /* Create business month */
+    months.push({ id:pid, label, rev:0, cogs:0, cac:0, opex:0, cs:0, nc:0, ch:0, rc:0 });
+    months.sort((a,b) => a.id < b.id ? -1 : 1);
+
+    /* Create cash month */
+    const opening = cashMonths.length
+        ? cdCalcAll()[cashMonths.length - 1].closing
+        : parseFloat(document.getElementById('m-opening').value) || 0;
+    if (!cashMonths.find(m => m.id === pid)) {
+        cashMonths.push({ id:pid, openingCash:opening,
+            customerPayments:0, retainers:0, subscriptionRevenue:0, loanProceeds:0, refunds:0, otherIncome:0,
+            payroll:0, contractors:0, marketing:0, software:0, rent:0, inventory:0,
+            taxes:0, debtRepayment:0, ownerDraws:0, miscExpenses:0,
+            invoicesSent:0, cashReceived:0,
+            startingMRR:0, newMRR:0, expansionMRR:0, contractionMRR:0, churnedMRR:0, endingMRROverride:null });
+        cashMonths.sort((a,b) => a.id < b.id ? -1 : 1);
+    }
+
+    save(); cashSave(); closeModal();
+    /* Navigate to Data Input with new month selected */
+    showPage('input', document.querySelectorAll('.nav-item')[5]);
+    renderDataInput();
+    document.getElementById('di-month-sel').value = pid;
+    diLoadMonth(pid);
+    populateSel();
 }
 
 // ══ Forecast Engine ══
@@ -2636,7 +2698,6 @@ function cashRenderPage() {
 
 function cashRenderTab() {
     if      (cashActiveTab === 'overview') cashRenderOverview();
-    else if (cashActiveTab === 'inputs')   cashRenderInputs();
     else if (cashActiveTab === 'charts')   cashRenderCharts();
 }
 
@@ -2796,85 +2857,6 @@ function cashRenderOverview() {
     if (togBtn) togBtn.textContent = '▸ Workings';
 }
 
-// ── Inputs Tab ──
-let cdSaveTimer = null;
-
-function cdPopulateInpSel() {
-    const sel = document.getElementById('cd-inp-sel');
-    if (!sel) return;
-    const cur = sel.value;
-    sel.innerHTML = '';
-    cashMonths.slice().reverse().forEach(m => {
-        const o = document.createElement('option');
-        o.value = m.id; o.textContent = cdLabel(m.id);
-        sel.appendChild(o);
-    });
-    if (cur && cashMonths.find(m => m.id === cur)) sel.value = cur;
-    else if (cashMonths.length) sel.value = cashMonths[cashMonths.length - 1].id;
-}
-
-function cashRenderInputs() {
-    const empty   = document.getElementById('cd-inp-empty');
-    const content = document.getElementById('cd-inp-content');
-    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
-    empty.style.display = 'none'; content.style.display = 'block';
-    cdPopulateInpSel();
-
-    const id  = document.getElementById('cd-inp-sel').value;
-    const idx = cashMonths.findIndex(m => m.id === id);
-    if (idx < 0) return;
-    const m     = cashMonths[idx];
-    const calcs = cdCalcAll();
-    const openEl = document.getElementById('cd-inp-openingCash');
-    const noteEl = document.getElementById('cd-opening-note');
-
-    if (idx === 0) {
-        openEl.disabled    = false;
-        openEl.value       = m.openingCash || '';
-        noteEl.textContent = 'First month — enter your starting cash balance.';
-    } else {
-        openEl.disabled    = true;
-        openEl.value       = calcs[idx - 1].closing.toFixed(2);
-        noteEl.textContent = 'Auto-set from ' + cdLabel(cashMonths[idx - 1].id) + ' closing (' + cdFmtFull(calcs[idx - 1].closing) + ').';
-    }
-
-    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived'].forEach(k => {
-        const el = document.getElementById('cd-inp-' + k);
-        if (el) el.value = m[k] || '';
-    });
-    cdUpdateTotals();
-}
-
-function cdUpdateTotals() {
-    const g = k => parseFloat(document.getElementById('cd-inp-' + k)?.value) || 0;
-    const totalIn  = CD_INFLOW_FIELDS.reduce((s, k) => s + g(k), 0);
-    const totalOut = CD_OUTFLOW_FIELDS.reduce((s, k) => s + g(k), 0);
-    const inv = g('invoicesSent'), rec = g('cashReceived');
-    const cr  = inv > 0 ? rec / inv : null;
-    document.getElementById('cd-total-in').textContent  = cdFmtFull(totalIn);
-    document.getElementById('cd-total-out').textContent = cdFmtFull(totalOut);
-    document.getElementById('cd-coll-rate').textContent = cr !== null ? (cr * 100).toFixed(1) + '%' : '—';
-}
-
-function cashAutoSave() {
-    cdUpdateTotals();
-    clearTimeout(cdSaveTimer);
-    cdSaveTimer = setTimeout(cdCommitInputs, 350);
-}
-
-function cdCommitInputs() {
-    const id  = document.getElementById('cd-inp-sel').value;
-    const idx = cashMonths.findIndex(m => m.id === id);
-    if (idx < 0) return;
-    const m = cashMonths[idx];
-    if (idx === 0) m.openingCash = parseFloat(document.getElementById('cd-inp-openingCash').value) || 0;
-    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived'].forEach(k => {
-        const el = document.getElementById('cd-inp-' + k);
-        if (el) m[k] = parseFloat(el.value) || 0;
-    });
-    cashSave();
-}
-
 // ── Workings toggle for Income Dashboard ──
 let cdWorkingsOpen = false;
 function cdToggleAllWorkings(btn) {
@@ -2961,87 +2943,6 @@ function cashRenderCharts() {
 
 }
 
-// ── Add Month Modal ──
-function cashOpenAddMonth() {
-    const ySel  = document.getElementById('cd-add-year');
-    const mSel  = document.getElementById('cd-add-month');
-    const openI = document.getElementById('cd-add-opening');
-    const note  = document.getElementById('cd-add-opening-note');
-
-    ySel.innerHTML = '';
-    const curYear = new Date().getFullYear();
-    for (let y = curYear + 1; y >= 2020; y--) {
-        const o = document.createElement('option');
-        o.value = y; o.textContent = y;
-        ySel.appendChild(o);
-    }
-    ySel.value = curYear;
-
-    if (cashMonths.length) {
-        const last = cashMonths[cashMonths.length - 1].id;
-        let [ly, lm] = last.split('-').map(Number);
-        lm++; if (lm > 12) { lm = 1; ly++; }
-        ySel.value = ly;
-        mSel.value = lm.toString().padStart(2, '0');
-        const calcs     = cdCalcAll();
-        const lastClose = calcs[calcs.length - 1].closing;
-        openI.value     = lastClose.toFixed(2);
-        openI.disabled  = true;
-        note.textContent = 'Auto-set from ' + cdLabel(cashMonths[cashMonths.length - 1].id) + ' closing (' + cdFmtFull(lastClose) + ').';
-    } else {
-        mSel.value       = (new Date().getMonth() + 1).toString().padStart(2, '0');
-        openI.disabled   = false;
-        openI.value      = '';
-        note.textContent = 'Enter your current cash balance to start tracking.';
-    }
-    document.getElementById('cd-add-modal').classList.add('open');
-    document.addEventListener('keydown', cdEscModal);
-}
-
-function cashCloseAddMonth() {
-    document.getElementById('cd-add-modal').classList.remove('open');
-    document.removeEventListener('keydown', cdEscModal);
-}
-
-function cdEscModal(e) { if (e.key === 'Escape') cashCloseAddMonth(); }
-
-function cashConfirmAddMonth() {
-    const y  = document.getElementById('cd-add-year').value;
-    const m  = document.getElementById('cd-add-month').value;
-    const id = y + '-' + m;
-    if (cashMonths.find(mo => mo.id === id)) { alert(cdLabel(id) + ' already exists.'); return; }
-
-    const opening = cashMonths.length
-        ? cdCalcAll()[cashMonths.length - 1].closing
-        : parseFloat(document.getElementById('cd-add-opening').value) || 0;
-
-    cashMonths.push({
-        id, openingCash: opening,
-        customerPayments:0, retainers:0, subscriptionRevenue:0, loanProceeds:0, refunds:0, otherIncome:0,
-        payroll:0, contractors:0, marketing:0, software:0, rent:0, inventory:0,
-        taxes:0, debtRepayment:0, ownerDraws:0, miscExpenses:0,
-        invoicesSent:0, cashReceived:0,
-        startingMRR:0, newMRR:0, expansionMRR:0, contractionMRR:0, churnedMRR:0, endingMRROverride:null
-    });
-    cashMonths.sort((a, b) => a.id < b.id ? -1 : 1);
-    cashSave();
-    cashCloseAddMonth();
-
-    // Jump to inputs tab for new month (index 2: Dashboard=0, Charts=1, Data Inputs=2)
-    cashShowTab('inputs', document.querySelectorAll('#page-cash .cd-tab')[2]);
-    cdPopulateInpSel();
-    document.getElementById('cd-inp-sel').value = id;
-    cashRenderInputs();
-}
-
-function cashDeleteMonth() {
-    const id = document.getElementById('cd-inp-sel').value;
-    if (!confirm('Delete ' + cdLabel(id) + '? This cannot be undone.')) return;
-    cashMonths = cashMonths.filter(m => m.id !== id);
-    cashSave();
-    cashRenderInputs();
-}
-
 // ══════════════════════════════════════════════════════════════
 //  CUSTOMER RETENTION DASHBOARD
 //  Shares cashMonths[] data — MRR fields stored alongside cash.
@@ -3063,7 +2964,6 @@ function retRenderPage() { retRenderTab(); }
 
 function retRenderTab() {
     if      (retActiveTab === 'overview') retRenderOverview();
-    else if (retActiveTab === 'inputs')   retRenderInputs();
     else if (retActiveTab === 'calcs')    retRenderCalcs();
     else if (retActiveTab === 'charts')   retRenderCharts();
 }
@@ -3187,59 +3087,6 @@ function retToggleAllWorkings(btn) {
         if (tog) tog.textContent = retWorkingsOpen ? '▾ Hide working' : '▸ Show working';
     });
     btn.textContent = retWorkingsOpen ? '▾ Workings' : '▸ Workings';
-}
-
-// ── Data Inputs ──
-function retRenderInputs() {
-    const empty   = document.getElementById('ret-inp-empty');
-    const content = document.getElementById('ret-inp-content');
-    if (!cashMonths.length) { empty.style.display='block'; content.style.display='none'; return; }
-    empty.style.display = 'none'; content.style.display = 'block';
-    retPopulateSel('ret-inp-sel', retRenderInputs);
-
-    const id  = document.getElementById('ret-inp-sel').value;
-    const idx = cashMonths.findIndex(m => m.id === id);
-    if (idx < 0) return;
-    const m = cashMonths[idx];
-
-    ['startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
-        const el = document.getElementById('ret-inp-' + k);
-        if (el) el.value = m[k] || '';
-    });
-    const overEl = document.getElementById('ret-inp-endingMRROverride');
-    if (overEl) overEl.value = (m.endingMRROverride !== null && m.endingMRROverride !== undefined && m.endingMRROverride !== '') ? m.endingMRROverride : '';
-    retUpdateMRRPreview();
-}
-
-function retUpdateMRRPreview() {
-    const g = k => parseFloat(document.getElementById('ret-inp-' + k)?.value) || 0;
-    const overEl = document.getElementById('ret-inp-endingMRROverride');
-    const endEl  = document.getElementById('ret-ending-mrr');
-    if (endEl) {
-        const overVal = overEl && overEl.value !== '' ? parseFloat(overEl.value) : null;
-        const endMRR  = overVal !== null ? overVal : g('startingMRR') + g('newMRR') + g('expansionMRR') - g('contractionMRR') - g('churnedMRR');
-        endEl.textContent = cdFmtFull(endMRR);
-    }
-}
-
-function retAutoSave() {
-    retUpdateMRRPreview();
-    clearTimeout(retSaveTimer);
-    retSaveTimer = setTimeout(retCommitInputs, 350);
-}
-
-function retCommitInputs() {
-    const id  = document.getElementById('ret-inp-sel').value;
-    const idx = cashMonths.findIndex(m => m.id === id);
-    if (idx < 0) return;
-    const m = cashMonths[idx];
-    ['startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
-        const el = document.getElementById('ret-inp-' + k);
-        if (el) m[k] = parseFloat(el.value) || 0;
-    });
-    const overEl = document.getElementById('ret-inp-endingMRROverride');
-    m.endingMRROverride = (overEl && overEl.value !== '') ? parseFloat(overEl.value) : null;
-    cashSave();
 }
 
 // ── Calculations ──
