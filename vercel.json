@@ -1,4 +1,6 @@
 {
+  "buildCommand": "node build-config.js",
+  "installCommand": "",
   "rewrites": [
     { "source": "/", "destination": "/Claude Code/Lincko/Content/YT Scraper/index.html" }
   ]
