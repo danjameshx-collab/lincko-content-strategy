@@ -1366,11 +1366,12 @@ function calc(m) {
     const rchurn = rev > 0 ? rc / rev * 100 : 0;       // Revenue Churn = RC/R × 100
 
     // ── Unit Economics ───────────────────────────────────────────────────────
-    // Lifespan = 1 ÷ (Logo Churn / 100)  →  e.g. 50% churn = 1÷0.5 = 2 months
-    const lifespan = lchurn > 0 ? 1 / (lchurn / 100) : null;
+    // Lifespan = 1 ÷ churn rate; falls back to revenue churn when logo churn = 0
+    const lifespan = lchurn > 0 ? 1 / (lchurn / 100)
+                   : rchurn > 0 ? 1 / (rchurn / 100) : null;
     const cacVal   = cac > 0 ? cac : null;
     // LTGP = (Revenue ÷ Avg Clients) × (Gross Margin ÷ 100) × Lifespan
-    const ltgp  = (rpc > 0 && lifespan !== null && gm > 0)
+    const ltgp  = (rpc > 0 && lifespan !== null)
                   ? rpc * (gm / 100) * lifespan : null;
     // LTGP:CAC = LTGP ÷ CAC
     const ratio = (ltgp !== null && cacVal !== null) ? ltgp / cacVal : null;
@@ -1419,15 +1420,16 @@ function calcBlended(ms) {
     const rpc        = calcs.reduce((s,c) => s + c.rpc, 0) / n;
     const avgClients = calcs.reduce((s,c) => s + c.avgClients, 0) / n;
 
-    // Lifespan from average logo churn
-    const lifespan = lchurn > 0 ? 1 / (lchurn / 100) : null;
+    // Lifespan from avg logo churn; falls back to avg revenue churn when logo churn = 0
+    const lifespan = lchurn > 0 ? 1 / (lchurn / 100)
+                   : rchurn > 0 ? 1 / (rchurn / 100) : null;
 
     // Blended CAC = total acquisition spend ÷ total new clients
     const cac    = nc > 0 ? totalCac / nc : null;
     const cacVal = cac;
 
     // LTGP from average rpc, blended GM, avg lifespan
-    const ltgp = (rpc > 0 && lifespan !== null && gm > 0)
+    const ltgp = (rpc > 0 && lifespan !== null)
                  ? rpc * (gm / 100) * lifespan : null;
 
     const ratio = (ltgp !== null && cacVal !== null && cacVal > 0) ? ltgp / cacVal : null;
@@ -2104,9 +2106,9 @@ function calcAvg(ms) {
     const nm        = avg(calcs.map(c=>c.nm));
     const tc        = cogs + totalCac + opex;
     const ret       = 100 - lchurn;
-    const lifespan  = lchurn > 0 ? 1/(lchurn/100) : null;
+    const lifespan  = lchurn > 0 ? 1/(lchurn/100) : rchurn > 0 ? 1/(rchurn/100) : null;
     const cacVal    = cac > 0 ? cac : null;
-    const ltgp      = (rpc>0&&lifespan!==null&&gm>0) ? rpc*(gm/100)*lifespan : null;
+    const ltgp      = (rpc>0&&lifespan!==null) ? rpc*(gm/100)*lifespan : null;
     const ratio     = (ltgp!==null&&cacVal&&cacVal>0) ? ltgp/cacVal : null;
 
     return {rev,cogs,cac,opex,cs,nc,ch,rc,
