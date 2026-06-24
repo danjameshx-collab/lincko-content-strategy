@@ -823,7 +823,7 @@
                 <div class="sec-hdr"><span class="sec-title">MRR Position</span></div>
                 <div class="kpi-grid g4" id="ret-row1"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Retention Metrics</span></div>
-                <div class="kpi-grid g4" id="ret-row2"></div>
+                <div class="kpi-grid g5" id="ret-row2"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Rolling Averages</span></div>
                 <div class="kpi-grid g3" id="ret-rolling-grid"></div>
 
@@ -3103,6 +3103,10 @@ function retRenderOverview() {
     const calcs = cdCalcAll();
     const c    = calcs[idx];
     const prev = idx > 0 ? calcs[idx - 1] : null;
+    const bm      = months.find(m => m.id === id);
+    const prevBm  = idx > 0 ? months.find(m => m.id === cashMonths[idx-1].id) : null;
+    const rchurn  = bm && bm.rev > 0 && bm.rc > 0  ? bm.rc  / bm.rev  * 100 : null;
+    const prevRch = prevBm && prevBm.rev > 0 && prevBm.rc > 0 ? prevBm.rc / prevBm.rev * 100 : null;
     function pct(v)  { return v !== null ? (v * 100).toFixed(1) + '%' : '—'; }
     function pp(cur, prv, field) {
         if (!prv || prv[field] === null || cur[field] === null) return '';
@@ -3168,6 +3172,13 @@ function retRenderOverview() {
             <div class="kpi-work">${cdFmt(c.churnMRR)} ÷ ${cdFmt(c.startMRR)}</div>
             <div class="kpi-fml">Churned MRR ÷ Starting MRR</div>
             ${pp(c, prev, 'churnRate')}
+        </div>
+        <div class="kpi" title="Revenue Churn = Revenue Churned ÷ Total Revenue × 100">
+            <div class="kpi-lbl">Revenue Churn</div>
+            <div class="kpi-val ${rchurn !== null ? (rchurn <= 2 ? 'g' : rchurn <= 5 ? 'a' : 'r') : ''}">${rchurn !== null ? rchurn.toFixed(1) + '%' : '—'}</div>
+            <div class="kpi-work">${rchurn !== null && bm ? fC(bm.rc) + ' ÷ ' + fC(bm.rev) : 'Enter Revenue & Revenue Churned in Data Input'}</div>
+            <div class="kpi-fml">Revenue Churned ÷ Total Revenue × 100</div>
+            ${rchurn !== null && prevRch !== null ? (() => { const d = rchurn - prevRch; return Math.abs(d) < 0.01 ? '' : `<div class="kpi-delta ${d < 0 ? 'up' : 'dn'}">${d < 0 ? '▼' : '▲'} ${Math.abs(d).toFixed(1)}pp</div>`; })() : ''}
         </div>
         <div class="kpi" title="Expansion Rate = Expansion MRR ÷ Starting MRR">
             <div class="kpi-lbl">Expansion Rate</div>
