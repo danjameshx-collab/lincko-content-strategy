@@ -948,8 +948,8 @@
                     <div class="inp-section-title">Revenue</div>
                 </div>
                 <div class="di-2col">
-                    <div class="inp-row"><div class="inp-row-lbl">Total Revenue</div><input type="number" class="inp" id="di-rev" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Cost of Goods Sold (COGS)</div><input type="number" class="inp" id="di-cogs" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Total Revenue</div><input type="text" inputmode="decimal" class="inp" id="di-rev" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Cost of Goods Sold (COGS)</div><input type="text" inputmode="decimal" class="inp" id="di-cogs" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
                 </div>
             </div>
 
@@ -960,9 +960,9 @@
                     <div class="inp-section-title">Operating Expenses</div>
                 </div>
                 <div class="di-2col">
-                    <div class="inp-row"><div class="inp-row-lbl">Sales &amp; Marketing (S&amp;M)</div><input type="number" class="inp" id="di-sm" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">General &amp; Administrative (G&amp;A)</div><input type="number" class="inp" id="di-ga" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Research &amp; Development (R&amp;D)</div><input type="number" class="inp" id="di-rd" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Sales &amp; Marketing (S&amp;M)</div><input type="text" inputmode="decimal" class="inp" id="di-sm" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">General &amp; Administrative (G&amp;A)</div><input type="text" inputmode="decimal" class="inp" id="di-ga" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Research &amp; Development (R&amp;D)</div><input type="text" inputmode="decimal" class="inp" id="di-rd" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
                 </div>
             </div>
 
@@ -973,8 +973,8 @@
                     <div class="inp-section-title">Below the Line</div>
                 </div>
                 <div class="di-2col">
-                    <div class="inp-row"><div class="inp-row-lbl">Interest Expense</div><input type="number" class="inp" id="di-interest" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Tax</div><input type="number" class="inp" id="di-tax" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Interest Expense</div><input type="text" inputmode="decimal" class="inp" id="di-interest" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Tax</div><input type="text" inputmode="decimal" class="inp" id="di-tax" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
                 </div>
             </div>
 
@@ -985,10 +985,10 @@
                     <div class="inp-section-title">Unit Economics</div>
                 </div>
                 <div class="di-2col">
-                    <div class="inp-row"><div class="inp-row-lbl">CAC <span style="font-size:12px;color:var(--text3)">(per client)</span></div><input type="number" class="inp" id="di-cac" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Starting Client Count</div><input type="number" class="inp" id="di-cs" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">New Clients</div><input type="number" class="inp" id="di-nc" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Clients Churned</div><input type="number" class="inp" id="di-ch" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">CAC <span style="font-size:12px;color:var(--text3)">(per client)</span></div><input type="text" inputmode="decimal" class="inp" id="di-cac" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Starting Client Count</div><input type="text" inputmode="decimal" class="inp" id="di-cs" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">New Clients</div><input type="text" inputmode="decimal" class="inp" id="di-nc" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Clients Churned</div><input type="text" inputmode="decimal" class="inp" id="di-ch" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0"></div>
                 </div>
             </div>
 
@@ -1000,7 +1000,7 @@
                 </div>
                 <div class="inp-row">
                     <div class="inp-row-lbl">Opening Cash Balance</div>
-                    <input type="number" class="inp" id="di-openingCash" oninput="diAutoSave()" placeholder="0.00" step="0.01">
+                    <input type="text" inputmode="decimal" class="inp" id="di-openingCash" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00">
                 </div>
                 <div style="padding:8px 20px 14px;font-size:13px;color:var(--text3)" id="di-opening-note"></div>
             </div>
@@ -1012,11 +1012,11 @@
                     <div class="inp-section-title">Cash Inflows</div>
                 </div>
                 <div class="di-2col">
-                    <div class="inp-row"><div class="inp-row-lbl">Customer Payments</div><input type="number" class="inp" id="di-customerPayments" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Retainers</div><input type="number" class="inp" id="di-retainers" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Subscription Revenue</div><input type="number" class="inp" id="di-subscriptionRevenue" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Loan Proceeds</div><input type="number" class="inp" id="di-loanProceeds" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Other Income</div><input type="number" class="inp" id="di-otherIncome" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Customer Payments</div><input type="text" inputmode="decimal" class="inp" id="di-customerPayments" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Retainers</div><input type="text" inputmode="decimal" class="inp" id="di-retainers" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Subscription Revenue</div><input type="text" inputmode="decimal" class="inp" id="di-subscriptionRevenue" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Loan Proceeds</div><input type="text" inputmode="decimal" class="inp" id="di-loanProceeds" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Other Income</div><input type="text" inputmode="decimal" class="inp" id="di-otherIncome" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
                 </div>
                 <div class="inp-row-total"><div class="inp-total-lbl">Total Cash In</div><div class="inp-total-val" id="di-total-in">£0</div></div>
             </div>
@@ -1028,16 +1028,16 @@
                     <div class="inp-section-title">Cash Outflows</div>
                 </div>
                 <div class="di-2col">
-                    <div class="inp-row"><div class="inp-row-lbl">Payroll</div><input type="number" class="inp" id="di-payroll" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Contractors</div><input type="number" class="inp" id="di-contractors" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Marketing</div><input type="number" class="inp" id="di-marketing" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Software &amp; Tools</div><input type="number" class="inp" id="di-software" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Rent &amp; Facilities</div><input type="number" class="inp" id="di-rent" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Inventory</div><input type="number" class="inp" id="di-inventory" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Taxes</div><input type="number" class="inp" id="di-taxes" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Debt Repayment</div><input type="number" class="inp" id="di-debtRepayment" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Owner Draws</div><input type="number" class="inp" id="di-ownerDraws" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Misc Expenses</div><input type="number" class="inp" id="di-miscExpenses" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Payroll</div><input type="text" inputmode="decimal" class="inp" id="di-payroll" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Contractors</div><input type="text" inputmode="decimal" class="inp" id="di-contractors" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Marketing</div><input type="text" inputmode="decimal" class="inp" id="di-marketing" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Software &amp; Tools</div><input type="text" inputmode="decimal" class="inp" id="di-software" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Rent &amp; Facilities</div><input type="text" inputmode="decimal" class="inp" id="di-rent" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Inventory</div><input type="text" inputmode="decimal" class="inp" id="di-inventory" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Taxes</div><input type="text" inputmode="decimal" class="inp" id="di-taxes" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Debt Repayment</div><input type="text" inputmode="decimal" class="inp" id="di-debtRepayment" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Owner Draws</div><input type="text" inputmode="decimal" class="inp" id="di-ownerDraws" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Misc Expenses</div><input type="text" inputmode="decimal" class="inp" id="di-miscExpenses" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
                 </div>
                 <div class="inp-row-total" style="border-top-color:rgba(248,113,113,.2);background:rgba(248,113,113,.03)">
                     <div class="inp-total-lbl" style="color:var(--red)">Total Cash Out</div>
@@ -1053,11 +1053,11 @@
                     <div class="inp-section-title">Recurring Revenue (MRR)</div>
                 </div>
                 <div class="di-2col">
-                    <div class="inp-row"><div class="inp-row-lbl">Starting MRR</div><input type="number" class="inp" id="di-startingMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">New MRR</div><input type="number" class="inp" id="di-newMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Expansion MRR</div><input type="number" class="inp" id="di-expansionMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Contraction MRR</div><input type="number" class="inp" id="di-contractionMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Churned MRR</div><input type="number" class="inp" id="di-churnedMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Starting MRR</div><input type="text" inputmode="decimal" class="inp" id="di-startingMRR" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">New MRR</div><input type="text" inputmode="decimal" class="inp" id="di-newMRR" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Expansion MRR</div><input type="text" inputmode="decimal" class="inp" id="di-expansionMRR" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Contraction MRR</div><input type="text" inputmode="decimal" class="inp" id="di-contractionMRR" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Churned MRR</div><input type="text" inputmode="decimal" class="inp" id="di-churnedMRR" onfocus="stripInput(this)" onblur="fmtInput(this)" oninput="diAutoSave()" placeholder="0.00"></div>
                 </div>
                 <div class="inp-row-total" style="border-top-color:rgba(167,139,250,.2);background:rgba(167,139,250,.03)">
                     <div class="inp-total-lbl" style="color:#a78bfa">Ending MRR (calc)</div>
@@ -1301,7 +1301,7 @@
         </div>
         <div class="fg" style="margin-bottom:4px">
             <label class="fl">Opening Cash Balance</label>
-            <input type="number" class="fi" id="m-opening" placeholder="0.00" min="0" step="0.01">
+            <input type="text" inputmode="decimal" class="fi" id="m-opening" onfocus="stripInput(this)" onblur="fmtInput(this)" placeholder="0.00">
             <div style="font-size:12px;color:var(--text3);margin-top:5px" id="m-opening-note">Enter your current cash balance for this month.</div>
         </div>
         <div class="modal-acts">
@@ -1916,7 +1916,7 @@ function diLoadMonth(id) {
     /* Business fields */
     ['rev','cogs','cac','sm','ga','rd','interest','tax','cs','nc','ch'].forEach(f => {
         const el = document.getElementById('di-' + f);
-        if (el) el.value = m && m[f] ? m[f] : '';
+        if (el) { el.value = m && m[f] ? m[f] : ''; fmtInput(el); }
     });
 
     /* Opening cash */
@@ -1926,17 +1926,19 @@ function diLoadMonth(id) {
     if (idx === 0 || !cashMonths.find(mo => mo.id === id)) {
         openEl.disabled    = false;
         openEl.value       = cm.openingCash || '';
+        fmtInput(openEl);
         noteEl.textContent = 'First month — enter your starting cash balance.';
     } else {
         const prevIdx = cashMonths.findIndex(mo => mo.id === id);
         const prevC   = prevIdx > 0 ? calcs[prevIdx - 1] : null;
         if (prevC) {
             openEl.disabled    = true;
-            openEl.value       = prevC.closing.toFixed(2);
+            openEl.value       = prevC.closing.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
             noteEl.textContent = 'Auto-set from prior month closing (' + cdFmtFull(prevC.closing) + ').';
         } else {
             openEl.disabled    = false;
             openEl.value       = cm.openingCash || '';
+            fmtInput(openEl);
             noteEl.textContent = 'Enter your starting cash balance.';
         }
     }
@@ -1945,13 +1947,13 @@ function diLoadMonth(id) {
     [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS,
      'startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
         const el = document.getElementById('di-' + k);
-        if (el) el.value = cm[k] || '';
+        if (el) { el.value = cm[k] || ''; fmtInput(el); }
     });
     diUpdateTotals();
 }
 
 function diUpdateTotals() {
-    const g  = k => parseFloat(document.getElementById('di-' + k)?.value) || 0;
+    const g  = k => parseNum(document.getElementById('di-' + k)?.value);
     const ti = CD_INFLOW_FIELDS.reduce((s,k) => s + g(k), 0);
     const to = CD_OUTFLOW_FIELDS.reduce((s,k) => s + g(k), 0);
     const endMRR = g('startingMRR') + g('newMRR') + g('expansionMRR') - g('contractionMRR') - g('churnedMRR');
@@ -1995,7 +1997,7 @@ function diAutoSave() {
 function diCommit() {
     const id = document.getElementById('di-month-sel')?.value;
     if (!id) return;
-    const g = k => parseFloat(document.getElementById('di-' + k)?.value) || 0;
+    const g = k => parseNum(document.getElementById('di-' + k)?.value);
 
     /* Business data → months[] + Firebase */
     let m = months.find(mo => mo.id === id);
@@ -2102,7 +2104,7 @@ function saveMonth() {
     /* Create cash month */
     const opening = cashMonths.length
         ? cdCalcAll()[cashMonths.length - 1].closing
-        : parseFloat(document.getElementById('m-opening').value) || 0;
+        : parseNum(document.getElementById('m-opening').value);
     if (!cashMonths.find(m => m.id === pid)) {
         cashMonths.push({ id:pid, openingCash:opening,
             customerPayments:0, retainers:0, subscriptionRevenue:0, loanProceeds:0, otherIncome:0,
