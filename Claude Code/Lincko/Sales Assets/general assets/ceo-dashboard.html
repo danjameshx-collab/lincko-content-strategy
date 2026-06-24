@@ -3172,19 +3172,19 @@ function retRenderOverview() {
             <div class="kpi-fml">Churned MRR ÷ Starting MRR</div>
             ${pp(c, prev, 'churnRate')}
         </div>
-        <div class="kpi" title="Expansion Rate = Expansion MRR ÷ Starting MRR">
-            <div class="kpi-lbl">Expansion Rate</div>
-            <div class="kpi-val ${c.expRate !== null && c.expRate > 0 ? 'g' : ''}">${pct(c.expRate)}</div>
-            <div class="kpi-work">${cdFmt(c.expMRR)} ÷ ${cdFmt(c.startMRR)}</div>
-            <div class="kpi-fml">Expansion MRR ÷ Starting MRR</div>
-            ${pp(c, prev, 'expRate')}
-        </div>
         <div class="kpi" title="Revenue Churn = Revenue Churned ÷ Total Revenue × 100">
             <div class="kpi-lbl">Revenue Churn</div>
             <div class="kpi-val ${bc ? (bc.rchurn <= 2 ? 'g' : bc.rchurn <= 5 ? 'a' : 'r') : ''}">${bc && bc.rev > 0 ? bc.rchurn.toFixed(1) + '%' : '—'}</div>
             <div class="kpi-work">${bc && bc.rev > 0 ? fC(bc.rc) + ' ÷ ' + fC(bc.rev) : 'Enter Revenue & Revenue Churned in Data Input'}</div>
             <div class="kpi-fml">Revenue Churned ÷ Total Revenue × 100</div>
             ${bc && prevBc && bc.rev > 0 && prevBc.rev > 0 ? (() => { const d = bc.rchurn - prevBc.rchurn; return Math.abs(d) < 0.01 ? '' : `<div class="kpi-delta ${d < 0 ? 'up' : 'dn'}">${d < 0 ? '▼' : '▲'} ${Math.abs(d).toFixed(1)}pp</div>`; })() : ''}
+        </div>
+        <div class="kpi" title="Expansion Rate = Expansion MRR ÷ Starting MRR">
+            <div class="kpi-lbl">Expansion Rate</div>
+            <div class="kpi-val ${c.expRate !== null && c.expRate > 0 ? 'g' : ''}">${pct(c.expRate)}</div>
+            <div class="kpi-work">${cdFmt(c.expMRR)} ÷ ${cdFmt(c.startMRR)}</div>
+            <div class="kpi-fml">Expansion MRR ÷ Starting MRR</div>
+            ${pp(c, prev, 'expRate')}
         </div>`;
 
     /* Rolling Averages */
