@@ -3101,6 +3101,10 @@ function retRenderOverview() {
     const calcs = cdCalcAll();
     const c    = calcs[idx];
     const prev = idx > 0 ? calcs[idx - 1] : null;
+    const bm   = months.find(m => m.id === id);
+    const bc   = bm ? calc(bm) : null;
+    const prevBm = idx > 0 ? months.find(m => m.id === cashMonths[idx-1].id) : null;
+    const prevBc = prevBm ? calc(prevBm) : null;
 
     function pct(v)  { return v !== null ? (v * 100).toFixed(1) + '%' : '—'; }
     function pp(cur, prv, field) {
@@ -3174,6 +3178,13 @@ function retRenderOverview() {
             <div class="kpi-work">${cdFmt(c.expMRR)} ÷ ${cdFmt(c.startMRR)}</div>
             <div class="kpi-fml">Expansion MRR ÷ Starting MRR</div>
             ${pp(c, prev, 'expRate')}
+        </div>
+        <div class="kpi" title="Revenue Churn = Revenue Churned ÷ Total Revenue × 100">
+            <div class="kpi-lbl">Revenue Churn</div>
+            <div class="kpi-val ${bc ? (bc.rchurn <= 2 ? 'g' : bc.rchurn <= 5 ? 'a' : 'r') : ''}">${bc && bc.rev > 0 ? bc.rchurn.toFixed(1) + '%' : '—'}</div>
+            <div class="kpi-work">${bc && bc.rev > 0 ? fC(bc.rc) + ' ÷ ' + fC(bc.rev) : 'Enter Revenue & Revenue Churned in Data Input'}</div>
+            <div class="kpi-fml">Revenue Churned ÷ Total Revenue × 100</div>
+            ${bc && prevBc && bc.rev > 0 && prevBc.rev > 0 ? (() => { const d = bc.rchurn - prevBc.rchurn; return Math.abs(d) < 0.01 ? '' : `<div class="kpi-delta ${d < 0 ? 'up' : 'dn'}">${d < 0 ? '▼' : '▲'} ${Math.abs(d).toFixed(1)}pp</div>`; })() : ''}
         </div>`;
 
     /* Rolling Averages */
