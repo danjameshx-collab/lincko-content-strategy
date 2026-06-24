@@ -421,7 +421,6 @@
         body.light-mode .status-badge.unknown { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08); }
         body.light-mode .di-calc-row { border-bottom-color: rgba(0,0,0,.05); }
         body.light-mode .referral-inp { background: rgba(0,0,0,.04); }
-        body.light-mode .coll-bar-wrap { background: rgba(0,0,0,.07); }
         body.light-mode #pw-btn:hover { color: #fff; }
         /* Theme toggle button */
         .theme-btn {
@@ -482,8 +481,6 @@
         .inp-row-total{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:rgba(42,120,70,.04);border-top:1px solid rgba(42,120,70,.15)}
         .inp-total-lbl{font-size:14px;font-weight:700;color:var(--g2)}
         .inp-total-val{font-size:18px;font-weight:700;color:var(--g1)}
-        .coll-bar-wrap{width:100%;height:5px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;margin-top:7px}
-        .coll-bar-fill{height:100%;border-radius:100px;transition:width .5s}
         .cd-fml-ref{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:var(--text3);line-height:1.9}
         .cd-fml-ref strong{color:var(--text2);display:block;margin-bottom:2px}
         .roll-inner{font-size:15px;color:var(--text2);line-height:2.1;margin-top:8px}
@@ -656,7 +653,7 @@
                     <div class="kpi-lbl">Total Cost</div>
                     <div class="kpi-val" id="k-tc">—</div>
                     <div class="kpi-work" id="kw-tc">—</div>
-                    <div class="kpi-fml">COGS + Total CAC + Fixed Costs</div>
+                    <div class="kpi-fml">COGS + CAC Spend + S&amp;M + G&amp;A + R&amp;D + Interest + Tax</div>
                 </div>
                 <div class="kpi">
                     <div class="kpi-lbl">COGS</div>
@@ -668,12 +665,12 @@
 
             <!-- Unit Economics -->
             <div class="sec-hdr"><span class="sec-title">Unit Economics</span></div>
-            <div class="kpi-grid g5">
+            <div class="kpi-grid g4">
                 <div class="kpi">
                     <div class="kpi-lbl">LTGP</div>
                     <div class="kpi-val g" id="k-ltgp">—</div>
                     <div class="kpi-work" id="kw-ltgp">—</div>
-                    <div class="kpi-fml">(Rev/Client) × Gross Margin × Lifespan</div>
+                    <div class="kpi-fml">(GP ÷ Starting Clients) × (1 ÷ Logo Churn) = GP ÷ Monthly Churn Count</div>
                 </div>
                 <div class="kpi">
                     <div class="kpi-lbl">CAC</div>
@@ -691,13 +688,7 @@
                     <div class="kpi-lbl">Customer Lifespan</div>
                     <div class="kpi-val" id="k-life">—</div>
                     <div class="kpi-work" id="kw-life">—</div>
-                    <div class="kpi-fml">1 ÷ (Logo Churn ÷ 100)</div>
-                </div>
-                <div class="kpi">
-                    <div class="kpi-lbl">Avg Revenue / Client</div>
-                    <div class="kpi-val" id="k-rpc">—</div>
-                    <div class="kpi-work" id="kw-rpc">—</div>
-                    <div class="kpi-fml">Revenue ÷ Avg Clients</div>
+                    <div class="kpi-fml">1 ÷ Logo Churn Rate</div>
                 </div>
             </div>
 
@@ -717,16 +708,10 @@
                     <div class="kpi-fml">Clients Churned ÷ Clients Start × 100</div>
                 </div>
                 <div class="kpi">
-                    <div class="kpi-lbl">Revenue Churn</div>
-                    <div class="kpi-val" id="k-rchurn">—</div>
-                    <div class="kpi-work" id="kw-rchurn">—</div>
-                    <div class="kpi-fml">Revenue Churned ÷ Revenue × 100</div>
-                </div>
-                <div class="kpi">
                     <div class="kpi-lbl">Net Client Change</div>
                     <div class="kpi-val" id="k-netc">—</div>
                     <div class="kpi-work" id="kw-netc">—</div>
-                    <div class="kpi-fml">New Clients − Clients Churned</div>
+                    <div class="kpi-fml">New Clients − Churned</div>
                 </div>
             </div>
 
@@ -761,9 +746,9 @@
                     </div>
                 </div>
                 <div class="sec-hdr"><span class="sec-title">Cash Position</span></div>
-                <div class="kpi-grid g4" id="cd-row1"></div>
+                <div class="kpi-grid g5" id="cd-row1"></div>
                 <div class="sec-hdr" style="margin-top:4px"><span class="sec-title">Performance</span></div>
-                <div class="kpi-grid g4" id="cd-row2"></div>
+                <div class="kpi-grid g3" id="cd-row2"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Rolling Averages</span></div>
                 <div class="kpi-grid g3" id="cd-rolling-grid"></div>
             </div>
@@ -788,11 +773,11 @@
                 </div>
                 <div class="charts-row cr2">
                     <div class="chart-card">
-                        <div class="chart-title"><span class="cdot" style="color:var(--red)"></span> Burn Rate Trend</div>
+                        <div class="chart-title"><span class="cdot" style="color:var(--red)"></span> Gross Burn Trend</div>
                         <canvas id="cd-chart-burn" height="200"></canvas>
                     </div>
                     <div class="chart-card">
-                        <div class="chart-title"><span class="cdot" style="color:var(--amber)"></span> Runway Trend <span style="font-size:13px;color:var(--text3);font-weight:400">(capped 36 mo)</span></div>
+                        <div class="chart-title"><span class="cdot" style="color:var(--amber)"></span> Gross Burn Runway Trend <span style="font-size:13px;color:var(--text3);font-weight:400">(capped 36 mo)</span></div>
                         <canvas id="cd-chart-runway" height="200"></canvas>
                     </div>
                 </div>
@@ -836,9 +821,11 @@
                     </div>
                 </div>
                 <div class="sec-hdr"><span class="sec-title">MRR Position</span></div>
-                <div class="kpi-grid g3" id="ret-row1"></div>
+                <div class="kpi-grid g4" id="ret-row1"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Retention Metrics</span></div>
-                <div class="kpi-grid g3" id="ret-row2"></div>
+                <div class="kpi-grid g4" id="ret-row2"></div>
+                <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Rolling Averages</span></div>
+                <div class="kpi-grid g3" id="ret-rolling-grid"></div>
 
                 <!-- Inline calculations panel (toggled by ▸ Calculations button) -->
                 <div id="ret-calcs-panel" style="display:none;margin-top:20px;border-top:1px solid var(--border);padding-top:18px">
@@ -860,7 +847,7 @@
                         <canvas id="ret-chart-mrr" height="200"></canvas>
                     </div>
                     <div class="chart-card">
-                        <div class="chart-title"><span class="cdot" style="color:var(--g1)"></span> NRR &amp; GR Trend</div>
+                        <div class="chart-title"><span class="cdot" style="color:var(--g1)"></span> Net Retention Rate (NRR) &amp; Gross Retention Rate (GRR) Trend</div>
                         <canvas id="ret-chart-nrr" height="200"></canvas>
                     </div>
                 </div>
@@ -929,11 +916,6 @@
                 <div class="chart-card"><div style="position:relative;height:300px"><canvas id="c-churn"></canvas></div></div>
             </div>
 
-            <div class="bo-section">
-                <h1 class="bo-heading">Cost Structure</h1>
-                <div class="chart-card"><div style="position:relative;height:300px"><canvas id="c-costs"></canvas></div></div>
-            </div>
-
         </div>
 
     </div><!-- /page-analytics -->
@@ -959,21 +941,54 @@
                 <button class="btn btn-d" onclick="diDeleteMonth()">Delete Month</button>
             </div>
 
-            <!-- Business Metrics -->
+            <!-- Revenue -->
+            <div class="inp-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:var(--g1)"></div>
+                    <div class="inp-section-title">Revenue</div>
+                </div>
+                <div class="di-2col">
+                    <div class="inp-row"><div class="inp-row-lbl">Total Revenue</div><input type="number" class="inp" id="di-rev" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Cost of Goods Sold (COGS)</div><input type="number" class="inp" id="di-cogs" oninput="diAutoSave()" placeholder="0"></div>
+                </div>
+            </div>
+
+            <!-- Operating Expenses -->
+            <div class="inp-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:var(--amber)"></div>
+                    <div class="inp-section-title">Operating Expenses</div>
+                </div>
+                <div class="di-2col">
+                    <div class="inp-row"><div class="inp-row-lbl">Sales &amp; Marketing (S&amp;M)</div><input type="number" class="inp" id="di-sm" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">General &amp; Administrative (G&amp;A)</div><input type="number" class="inp" id="di-ga" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Research &amp; Development (R&amp;D)</div><input type="number" class="inp" id="di-rd" oninput="diAutoSave()" placeholder="0"></div>
+                </div>
+            </div>
+
+            <!-- Below the Line -->
+            <div class="inp-section">
+                <div class="inp-section-hdr">
+                    <div class="inp-section-dot" style="background:var(--red)"></div>
+                    <div class="inp-section-title">Below the Line</div>
+                </div>
+                <div class="di-2col">
+                    <div class="inp-row"><div class="inp-row-lbl">Interest Expense</div><input type="number" class="inp" id="di-interest" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Tax</div><input type="number" class="inp" id="di-tax" oninput="diAutoSave()" placeholder="0"></div>
+                </div>
+            </div>
+
+            <!-- Unit Economics -->
             <div class="inp-section">
                 <div class="inp-section-hdr">
                     <div class="inp-section-dot" style="background:var(--teal)"></div>
-                    <div class="inp-section-title">Business Metrics</div>
+                    <div class="inp-section-title">Unit Economics</div>
                 </div>
                 <div class="di-2col">
-                    <div class="inp-row"><div class="inp-row-lbl">Revenue</div><input type="number" class="inp" id="di-rev" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">COGS</div><input type="number" class="inp" id="di-cogs" oninput="diAutoSave()" placeholder="0"></div>
                     <div class="inp-row"><div class="inp-row-lbl">CAC <span style="font-size:12px;color:var(--text3)">(per client)</span></div><input type="number" class="inp" id="di-cac" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Fixed Costs</div><input type="number" class="inp" id="di-opex" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Clients at Start</div><input type="number" class="inp" id="di-cs" oninput="diAutoSave()" placeholder="0"></div>
+                    <div class="inp-row"><div class="inp-row-lbl">Starting Client Count</div><input type="number" class="inp" id="di-cs" oninput="diAutoSave()" placeholder="0"></div>
                     <div class="inp-row"><div class="inp-row-lbl">New Clients</div><input type="number" class="inp" id="di-nc" oninput="diAutoSave()" placeholder="0"></div>
                     <div class="inp-row"><div class="inp-row-lbl">Clients Churned</div><input type="number" class="inp" id="di-ch" oninput="diAutoSave()" placeholder="0"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Revenue Churned</div><input type="number" class="inp" id="di-rc" oninput="diAutoSave()" placeholder="0"></div>
                 </div>
             </div>
 
@@ -1001,7 +1016,6 @@
                     <div class="inp-row"><div class="inp-row-lbl">Retainers</div><input type="number" class="inp" id="di-retainers" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
                     <div class="inp-row"><div class="inp-row-lbl">Subscription Revenue</div><input type="number" class="inp" id="di-subscriptionRevenue" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
                     <div class="inp-row"><div class="inp-row-lbl">Loan Proceeds</div><input type="number" class="inp" id="di-loanProceeds" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Refunds Received</div><input type="number" class="inp" id="di-refunds" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
                     <div class="inp-row"><div class="inp-row-lbl">Other Income</div><input type="number" class="inp" id="di-otherIncome" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
                 </div>
                 <div class="inp-row-total"><div class="inp-total-lbl">Total Cash In</div><div class="inp-total-val" id="di-total-in">£0</div></div>
@@ -1031,21 +1045,6 @@
                 </div>
             </div>
 
-            <!-- Collection -->
-            <div class="inp-section">
-                <div class="inp-section-hdr">
-                    <div class="inp-section-dot" style="background:var(--amber)"></div>
-                    <div class="inp-section-title">Collection</div>
-                </div>
-                <div class="di-2col">
-                    <div class="inp-row"><div class="inp-row-lbl">Invoices Sent</div><input type="number" class="inp" id="di-invoicesSent" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Cash Received</div><input type="number" class="inp" id="di-cashReceived" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                </div>
-                <div class="inp-row-total" style="border-top-color:rgba(251,191,36,.2);background:rgba(251,191,36,.03)">
-                    <div class="inp-total-lbl" style="color:var(--amber)">Collection Rate</div>
-                    <div class="inp-total-val" style="color:var(--amber)" id="di-coll-rate">—</div>
-                </div>
-            </div>
 
             <!-- Recurring Revenue -->
             <div class="inp-section">
@@ -1059,7 +1058,6 @@
                     <div class="inp-row"><div class="inp-row-lbl">Expansion MRR</div><input type="number" class="inp" id="di-expansionMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
                     <div class="inp-row"><div class="inp-row-lbl">Contraction MRR</div><input type="number" class="inp" id="di-contractionMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
                     <div class="inp-row"><div class="inp-row-lbl">Churned MRR</div><input type="number" class="inp" id="di-churnedMRR" oninput="diAutoSave()" placeholder="0.00" step="0.01"></div>
-                    <div class="inp-row"><div class="inp-row-lbl">Ending MRR Override <span style="font-size:12px;color:var(--text3)">(optional)</span></div><input type="number" class="inp" id="di-endingMRROverride" oninput="diAutoSave()" placeholder="Auto-calc" step="0.01"></div>
                 </div>
                 <div class="inp-row-total" style="border-top-color:rgba(167,139,250,.2);background:rgba(167,139,250,.03)">
                     <div class="inp-total-lbl" style="color:#a78bfa">Ending MRR (calc)</div>
@@ -1079,9 +1077,8 @@
                     <div class="di-calc-row"><span class="di-calc-lbl">Net Profit</span><span class="inp-row-calc" id="di-calc-np">—</span></div>
                     <div class="di-calc-row"><span class="di-calc-lbl">Net Margin</span><span class="inp-row-calc" id="di-calc-nm">—</span></div>
                     <div class="di-calc-row"><span class="di-calc-lbl">Logo Churn Rate</span><span class="inp-row-calc" id="di-calc-lchurn">—</span></div>
-                    <div class="di-calc-row"><span class="di-calc-lbl">Revenue Churn</span><span class="inp-row-calc" id="di-calc-rchurn">—</span></div>
                     <div class="di-calc-row"><span class="di-calc-lbl">LTGP:CAC</span><span class="inp-row-calc" id="di-calc-ratio">—</span></div>
-                    <div class="di-calc-row"><span class="di-calc-lbl">Runway</span><span class="inp-row-calc" id="di-calc-runway">—</span></div>
+                    <div class="di-calc-row"><span class="di-calc-lbl">Gross Burn Runway</span><span class="inp-row-calc" id="di-calc-runway">—</span></div>
                 </div>
             </div>
         </div>
@@ -1152,22 +1149,10 @@
                         <div class="kpi-fml">Clients Churned ÷ Clients Start</div>
                     </div>
                     <div class="kpi">
-                        <div class="kpi-lbl">Revenue Churn</div>
-                        <div class="kpi-val" id="fc-cd-rchurn">—</div>
-                        <div class="kpi-work" id="kw-fc-cd-rchurn">—</div>
-                        <div class="kpi-fml">Rev Churned ÷ Revenue</div>
-                    </div>
-                    <div class="kpi">
                         <div class="kpi-lbl">New Revenue / Month</div>
                         <div class="kpi-val" id="fc-cd-newrev">—</div>
                         <div class="kpi-work" id="kw-fc-cd-newrev">—</div>
                         <div class="kpi-fml">New Clients × Rev/Client</div>
-                    </div>
-                    <div class="kpi">
-                        <div class="kpi-lbl">Lost Revenue / Month</div>
-                        <div class="kpi-val" id="fc-cd-lostrev">—</div>
-                        <div class="kpi-work" id="kw-fc-cd-lostrev">—</div>
-                        <div class="kpi-fml">Revenue Churned (direct input)</div>
                     </div>
                 </div>
 
@@ -1387,58 +1372,85 @@ const fMo = (n) => (n == null || !isFinite(n) || n > 999) ? '∞ mo' : n.toFixed
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-function calc(m) {
+function calc(m, mrrData) {
     // ── Raw inputs ──────────────────────────────────────────────────────────
-    const rev   = +m.rev  ||0;   // Revenue
-    const cogs  = +m.cogs ||0;   // COGS
-    const cac   = +m.cac  ||0;   // CAC per customer acquired
-    const opex  = +m.opex ||0;   // Fixed Costs
+    const rev      = +m.rev      ||0;   // Revenue
+    const cogs     = +m.cogs     ||0;   // COGS
+    const cac      = +m.cac      ||0;   // CAC per customer acquired
+    const sm       = +m.sm       ||0;   // Sales & Marketing
+    const ga       = +m.ga       ||0;   // General & Administrative
+    const rd       = +m.rd       ||0;   // Research & Development
+    const interest = +m.interest ||0;   // Interest Expense
+    const tax      = +m.tax      ||0;   // Tax
+    const opex     = sm + ga + rd;      // Total Operating Expenses
     const cs    = +m.cs   ||0;   // Clients at Start
     const nc    = +m.nc   ||0;   // New Clients
     const ch    = +m.ch   ||0;   // Clients Churned
-    const rc    = +m.rc   ||0;   // Revenue Churned
 
     // ── Acquisition Cost ─────────────────────────────────────────────────────
     const totalCac = cac * nc;                          // Total CAC = CAC × New Clients
 
     // ── Gross Profit & Margin ────────────────────────────────────────────────
-    const gp = rev - cogs;                              // Gross Profit = R − C
-    const gm = rev > 0 ? gp / rev * 100 : 0;           // Gross Margin = (R−C)/R × 100
+    const gp = rev - cogs;                              // Gross Profit = Revenue − COGS
+    const gm = rev > 0 ? gp / rev * 100 : 0;           // Gross Margin = (Revenue − COGS) / Revenue × 100
 
-    // ── Net Profit & Margin ──────────────────────────────────────────────────
-    // Net Profit = Revenue − COGS − Total CAC − Fixed Costs
-    const oi = rev - cogs - totalCac - opex;
-    const np = oi;
-    const nm = rev > 0 ? np / rev * 100 : 0;           // Net Margin = np/R × 100
+    // ── P&L Waterfall ────────────────────────────────────────────────────────
+    const ebit = gp - opex;                             // Operating Profit = Gross Profit − S&M − G&A − R&D
+    const ebt  = ebit - interest;                       // Profit Before Tax = Operating Profit − Interest
+    const np   = ebt - tax;                             // Net Profit = Profit Before Tax − Tax
+    const nm   = rev > 0 ? np / rev * 100 : 0;         // Net Margin = Net Profit ÷ Revenue × 100
 
     // ── Total Cost ───────────────────────────────────────────────────────────
-    // Total Cost = COGS + (CAC × New Clients) + Fixed Costs
-    const tc = cogs + totalCac + opex;
+    const tc = cogs + totalCac + opex + interest + tax;
+
+    // ── MRR Data (sourced from Recurring Revenue / cashMonths) ───────────────
+    const startingMRR = mrrData && +mrrData.startingMRR > 0 ? +mrrData.startingMRR : 0;
+    const newMRR      = mrrData && +mrrData.newMRR > 0 ? +mrrData.newMRR : 0;
 
     // ── Client Metrics ───────────────────────────────────────────────────────
-    const ce         = cs + nc - ch;                    // Ending Clients = CS + NC − CH
-    const avgClients = (cs + ce) / 2;                   // Avg Active Clients = (Start + End) / 2
-    const rpc = avgClients > 0 ? rev / avgClients : 0;  // Revenue per Client = R ÷ Avg Clients
+    const ce           = cs + nc - ch;                   // Clients at End = CS + NC − CH
+    const totalClients = cs + nc;
+    const avgClients   = totalClients;
+    // General ARPA (display only — total revenue across all clients)
+    const rpc = totalClients > 0 ? rev / totalClients : 0;
 
     // ── Churn & Retention ────────────────────────────────────────────────────
-    const lchurn = cs > 0 ? ch / cs * 100 : 0;         // Logo Churn = CH/CS × 100
-    const ret    = 100 - lchurn;                        // Retention = 100 − Logo Churn
-    const rchurn = rev > 0 ? rc / rev * 100 : 0;       // Revenue Churn = RC/R × 100
+    // Logo Churn Rate = Clients Churned ÷ Clients at Start
+    const lchurn = cs > 0 ? ch / cs * 100 : 0;
+    const ret    = 100 - lchurn;
 
     // ── Unit Economics ───────────────────────────────────────────────────────
-    // Lifespan = 1 ÷ churn rate; falls back to revenue churn when logo churn = 0
-    const lifespan = lchurn > 0 ? 1 / (lchurn / 100)
-                   : rchurn > 0 ? 1 / (rchurn / 100) : null;
-    const cacVal   = cac > 0 ? cac : null;
-    // LTGP = (Revenue ÷ Avg Clients) × (Gross Margin ÷ 100) × Lifespan
-    const ltgp  = (rpc > 0 && lifespan !== null)
-                  ? rpc * (gm / 100) * lifespan : null;
-    // LTGP:CAC = LTGP ÷ CAC
-    const ratio = (ltgp !== null && cacVal !== null) ? ltgp / cacVal : null;
+    // ARPU = Revenue ÷ Starting Clients (same base as logo churn denominator)
+    const arpu = cs > 0 ? rev / cs : null;
 
-    return {rev,cogs,cac,opex,cs,nc,ch,rc,
-            totalCac,gp,gm,oi,np,nm,tc,ce,avgClients,rpc,
-            lchurn,ret,rchurn,lifespan,cacVal,ltgp,ratio};
+    // Customer Lifespan = 1 ÷ Logo Churn Rate
+    const lifespan = lchurn > 0 ? 1 / (lchurn / 100) : null;
+
+    // Monthly GP per client = GP ÷ Starting Clients
+    const mgp = cs > 0 ? gp / cs : null;
+
+    // LTGP = Monthly GP per client × Customer Lifetime
+    const ltgp = mgp !== null && lifespan !== null ? mgp * lifespan : null;
+
+    const cacVal = cac > 0 ? cac : null;
+    // LTGP:CAC = LTGP ÷ CAC
+    const ratio = ltgp !== null && cacVal !== null ? ltgp / cacVal : null;
+
+    return {rev,cogs,cac,sm,ga,rd,interest,tax,opex,cs,nc,ch,
+            startingMRR,newMRR,totalCac,gp,gm,ebit,ebt,np,nm,tc,
+            ce,avgClients,rpc,arpu,mgp,
+            lchurn,ret,lifespan,cacVal,ltgp,ratio};
+}
+
+// Runs calc for each month using its own Starting Client Count input (no chaining/derivation)
+function calcChain(sortedMonths) {
+    const result = [];
+    for (const m of sortedMonths) {
+        const cashM   = typeof cashMonths !== 'undefined' ? cashMonths.find(cm => cm.id === m.id) : null;
+        const mrrData = cashM ? { startingMRR: cashM.startingMRR, newMRR: cashM.newMRR } : null;
+        result.push(calc(m, mrrData));
+    }
+    return result;
 }
 
 function save() {
@@ -1452,54 +1464,64 @@ function sorted() { return [...months].sort((a,b)=>a.id.localeCompare(b.id)) }
 // ══ Blended Calc (All Periods) ══
 function calcBlended(ms) {
     if (!ms.length) return null;
-    const calcs = ms.map(calc);
+    const calcs = calcChain(ms);
     const n = calcs.length;
 
     // Sum absolute values across all months
     const rev      = calcs.reduce((s,c) => s + c.rev,      0);
     const cogs     = calcs.reduce((s,c) => s + c.cogs,     0);
     const totalCac = calcs.reduce((s,c) => s + c.totalCac, 0);
-    const opex     = calcs.reduce((s,c) => s + c.opex,     0);
+    const sm       = calcs.reduce((s,c) => s + c.sm,       0);
+    const ga       = calcs.reduce((s,c) => s + c.ga,       0);
+    const rd       = calcs.reduce((s,c) => s + c.rd,       0);
+    const interest = calcs.reduce((s,c) => s + c.interest, 0);
+    const tax      = calcs.reduce((s,c) => s + c.tax,      0);
+    const opex     = sm + ga + rd;
     const nc       = calcs.reduce((s,c) => s + c.nc,       0);
     const ch       = calcs.reduce((s,c) => s + c.ch,       0);
-    const rc       = calcs.reduce((s,c) => s + c.rc,       0);
 
     // Derived from totals — blended margins
-    const gp = rev - cogs;
-    const gm = rev > 0 ? gp / rev * 100 : 0;
-    const np = rev - cogs - totalCac - opex;
-    const nm = rev > 0 ? np / rev * 100 : 0;
-    const tc = cogs + totalCac + opex;
+    const gp   = rev - cogs;
+    const gm   = rev > 0 ? gp / rev * 100 : 0;
+    const ebit = gp - opex;
+    const ebt  = ebit - interest;
+    const np   = ebt - tax;
+    const nm   = rev > 0 ? np / rev * 100 : 0;
+    const tc   = cogs + totalCac + opex + interest + tax;
 
     // Average rates
     const lchurn = calcs.reduce((s,c) => s + c.lchurn, 0) / n;
     const ret    = 100 - lchurn;
-    const rchurn = calcs.reduce((s,c) => s + c.rchurn, 0) / n;
 
     // Average per-client metrics
     const rpc        = calcs.reduce((s,c) => s + c.rpc, 0) / n;
     const avgClients = calcs.reduce((s,c) => s + c.avgClients, 0) / n;
 
-    // Lifespan from avg logo churn; falls back to avg revenue churn when logo churn = 0
-    const lifespan = lchurn > 0 ? 1 / (lchurn / 100)
-                   : rchurn > 0 ? 1 / (rchurn / 100) : null;
-
     // Blended CAC = total acquisition spend ÷ total new clients
-    const cac    = nc > 0 ? totalCac / nc : null;
+    const avgPerClientCac = calcs.reduce((s,c) => s + c.cac, 0) / n;
+    const cac    = nc > 0 ? totalCac / nc : (avgPerClientCac > 0 ? avgPerClientCac : null);
     const cacVal = cac;
 
-    // LTGP from average rpc, blended GM, avg lifespan
-    const ltgp = (rpc > 0 && lifespan !== null)
-                 ? rpc * (gm / 100) * lifespan : null;
+    // Blended LTGP: average of individual months' unit economics
+    const totalNewMRR      = calcs.reduce((s,c) => s + (c.newMRR      || 0), 0);
+    const totalStartingMRR = calcs.reduce((s,c) => s + (c.startingMRR || 0), 0);
+    const lifespan = lchurn > 0 ? 1 / (lchurn / 100) : null;
+    const arpuArr  = calcs.filter(c => c.arpu !== null).map(c => c.arpu);
+    const arpu     = arpuArr.length > 0 ? arpuArr.reduce((s,v)=>s+v,0)/arpuArr.length : null;
+    const mgpArr   = calcs.filter(c => c.mgp !== null).map(c => c.mgp);
+    const mgp      = mgpArr.length > 0 ? mgpArr.reduce((s,v)=>s+v,0)/mgpArr.length : null;
+    const ltgp     = mgp !== null && lifespan !== null ? mgp * lifespan : null;
 
-    const ratio = (ltgp !== null && cacVal !== null && cacVal > 0) ? ltgp / cacVal : null;
+    const ratio = ltgp !== null && cacVal !== null && cacVal > 0 ? ltgp / cacVal : null;
 
+    const startingMRR = totalStartingMRR;
+    const newMRR      = totalNewMRR;
     const cs = calcs[0].cs;
     const ce = calcs[calcs.length - 1].ce;
 
-    return {rev, cogs, cac, opex, cs, nc, ch, rc,
-            totalCac, gp, gm, np, nm, tc,
-            avgClients, rpc, lchurn, ret, rchurn,
+    return {rev, cogs, cac, sm, ga, rd, interest, tax, opex, cs, nc, ch,
+            startingMRR, newMRR, totalCac, gp, gm, ebit, ebt, np, nm, tc,
+            avgClients, rpc, arpu, mgp, lchurn, ret,
             lifespan, cacVal, ltgp, ratio, ce, n};
 }
 
@@ -1598,10 +1620,10 @@ function renderDashboard() {
             if (!c) return;
             periodLabel = 'All Periods';
         } else {
-            const cur = ms.find(m => m.id === selId);
-            if (!cur) return;
-            c = calc(cur);
-            periodLabel = cur.label;
+            const idx = ms.findIndex(m => m.id === selId);
+            if (idx < 0) return;
+            c = calcChain(ms)[idx];
+            periodLabel = ms[idx].label;
         }
     }
 
@@ -1636,11 +1658,6 @@ function renderDashboard() {
         ? 'Sum across ' + nLabel + ' · Avg ' + fC(c.rev / c.n) + '/mo'
         : f$(c.rev) + '  (direct input)');
 
-    set('k-rpc', f$(c.rpc));
-    w('kw-rpc', isBlended
-        ? 'Average across ' + nLabel
-        : fC(c.rev) + ' ÷ ((' + c.cs + ' + ' + c.ce + ') ÷ 2 = ' + c.avgClients + ')');
-
     const ratioEl = document.getElementById('k-ratio');
     ratioEl.textContent = c.ratio !== null ? c.ratio.toFixed(1) + ':1' : '—';
     w('kw-ratio', isBlended
@@ -1658,12 +1675,12 @@ function renderDashboard() {
     set('k-nm', fPct(c.nm), marginCls(c.nm));
     w('kw-nm', isBlended
         ? 'Total Net Profit ÷ Total Revenue (blended)'
-        : fC(c.np) + ' ÷ ' + fC(c.rev));
+        : 'GP ' + fC(c.gp) + ' − OpEx ' + fC(c.opex) + ' − Interest ' + fC(c.interest) + ' − Tax ' + fC(c.tax) + ' = ' + fC(c.np));
 
     set('k-tc', f$(c.tc));
     w('kw-tc', isBlended
-        ? 'Total across ' + nLabel + ' (COGS + CAC spend + Fixed Costs)'
-        : fC(c.cogs) + ' + ' + fC(c.totalCac) + ' + ' + fC(c.opex));
+        ? 'Total across ' + nLabel + ' (COGS + CAC + S&M + G&A + R&D + Interest + Tax)'
+        : fC(c.cogs) + ' COGS + ' + fC(c.totalCac) + ' CAC + ' + fC(c.sm) + ' S&M + ' + fC(c.ga) + ' G&A + ' + fC(c.rd) + ' R&D + ' + fC(c.interest) + ' Interest + ' + fC(c.tax) + ' Tax');
 
     set('k-cogs', f$(c.cogs));
     w('kw-cogs', isBlended
@@ -1672,9 +1689,9 @@ function renderDashboard() {
 
     // ── Unit Economics ──────────────────────────────────────────────────────
     set('k-ltgp', c.ltgp !== null ? f$(c.ltgp) : '—', 'kpi-val g');
-    w('kw-ltgp', isBlended
-        ? (c.ltgp != null ? 'Avg ' + fC(c.rpc) + '/client × ' + fPct(c.gm) + ' blended GM × ' + fMo(c.lifespan) + ' avg lifespan' : 'Needs churn & client data')
-        : (c.ltgp != null ? fC(c.rpc) + ' × ' + fPct(c.gm) + ' × ' + fMo(c.lifespan) : 'Needs churn & client data'));
+    w('kw-ltgp', c.ltgp != null
+        ? fC(c.gp) + ' GP ÷ ' + c.cs + ' starting clients = ' + fC(c.mgp) + '/mo × ' + fMo(c.lifespan) + ' lifespan'
+        : (c.cs <= 0 ? 'Need client data — enter New Clients & Starting MRR' : 'Need logo churn — enter Clients Churned'));
 
     set('k-cac', c.cacVal !== null ? f$(c.cacVal) : '—');
     w('kw-cac', isBlended
@@ -1687,9 +1704,9 @@ function renderDashboard() {
         : (c.nc > 0 ? fC(c.cac) + ' × ' + c.nc + ' new clients' : 'No new clients this period'));
 
     set('k-life', fMo(c.lifespan));
-    w('kw-life', isBlended
-        ? (c.lchurn > 0 ? 'Avg churn ' + fPct(c.lchurn) + ' → 1 ÷ (' + fPct(c.lchurn) + ' ÷ 100) = ' + fMo(c.lifespan) : 'No churn recorded')
-        : (c.lchurn > 0 ? '1 ÷ (' + fPct(c.lchurn) + ' ÷ 100) = ' + fMo(c.lifespan) : 'No churn recorded'));
+    w('kw-life', c.lifespan !== null
+        ? '1 ÷ ' + fPct(c.lchurn) + ' logo churn = ' + fMo(c.lifespan)
+        : 'Need logo churn — enter Clients Churned & prior month');
 
     // ── Retention & Churn ───────────────────────────────────────────────────
     set('k-ret', fPct(c.ret), 'kpi-val ' + (c.ret >= 95 ? 'g' : ''));
@@ -1702,16 +1719,11 @@ function renderDashboard() {
         ? 'Average across ' + nLabel
         : c.ch + ' churned ÷ ' + c.cs + ' start × 100');
 
-    set('k-rchurn', fPct(c.rchurn), 'kpi-val ' + (c.rchurn <= 5 ? 'g' : 'r'));
-    w('kw-rchurn', isBlended
-        ? 'Average across ' + nLabel
-        : fC(c.rc) + ' ÷ ' + fC(c.rev) + ' × 100');
-
-    const net = c.nc - c.ch;
-    set('k-netc', (net >= 0 ? '+' : '') + net, 'kpi-val ' + (net >= 0 ? 'g' : 'r'));
+    const netc = c.nc - c.ch;   // New Clients − Clients Churned
+    set('k-netc', (netc >= 0 ? '+' : '') + netc, 'kpi-val ' + (netc >= 0 ? 'g' : 'r'));
     w('kw-netc', isBlended
-        ? '+' + c.nc + ' new − ' + c.ch + ' churned (total across ' + nLabel + ')'
-        : '+' + c.nc + ' new − ' + c.ch + ' churned');
+        ? c.nc + ' new − ' + c.ch + ' churned (across ' + nLabel + ')'
+        : c.nc + ' new − ' + c.ch + ' churned');
 }
 
 // ══ Charts ══
@@ -1854,28 +1866,11 @@ function renderAnalytics() {
     mkChart('c-churn','line',{
         labels,
         datasets:[
-            {label:'Logo Churn %',data:calcs.map(c=>+c.lchurn.toFixed(1)),borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.08)',fill:true,tension:.4,pointRadius:4,borderWidth:2,borderDash:[4,3]},
-            {label:'Revenue Churn %',data:calcs.map(c=>+c.rchurn.toFixed(1)),borderColor:'#fb923c',backgroundColor:'rgba(251,146,60,.06)',fill:true,tension:.4,pointRadius:4,borderWidth:2}
+            {label:'Logo Churn %',data:calcs.map(c=>+c.lchurn.toFixed(1)),borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.08)',fill:true,tension:.4,pointRadius:4,borderWidth:2}
         ]
     },{
         plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+'%'+momd(ctx,d=>d.toFixed(1)+'pp')}}},
         scales:{y:{ticks:{callback:pTick}}}
-    });
-
-    // 6. Cost Structure — stacked bar over all periods
-    mkChart('c-costs','bar',{
-        labels,
-        datasets:[
-            {label:'COGS',data:calcs.map(c=>c.cogs),backgroundColor:'rgba(76,217,123,.75)',borderRadius:4},
-            {label:'CAC',data:calcs.map(c=>c.totalCac),backgroundColor:'rgba(139,92,246,.75)',borderRadius:4},
-            {label:'Fixed Costs',data:calcs.map(c=>c.opex),backgroundColor:'rgba(251,191,36,.75)',borderRadius:4}
-        ]
-    },{
-        plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fC(ctx.parsed.y)+momd(ctx,fC)}}},
-        scales:{
-            x:{...CD.scales.x,stacked:true},
-            y:{...CD.scales.y,stacked:true,ticks:{...CD.scales.y.ticks,callback:gbpTick}}
-        }
     });
 }
 
@@ -1919,7 +1914,7 @@ function diLoadMonth(id) {
     const idx = ms.findIndex(mo => mo.id === id);
 
     /* Business fields */
-    ['rev','cogs','cac','opex','cs','nc','ch','rc'].forEach(f => {
+    ['rev','cogs','cac','sm','ga','rd','interest','tax','cs','nc','ch'].forEach(f => {
         const el = document.getElementById('di-' + f);
         if (el) el.value = m && m[f] ? m[f] : '';
     });
@@ -1947,14 +1942,11 @@ function diLoadMonth(id) {
     }
 
     /* Cash fields */
-    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent', 'cashReceived',
+    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS,
      'startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
         const el = document.getElementById('di-' + k);
         if (el) el.value = cm[k] || '';
     });
-    const overEl = document.getElementById('di-endingMRROverride');
-    if (overEl) overEl.value = (cm.endingMRROverride != null && cm.endingMRROverride !== '') ? cm.endingMRROverride : '';
-
     diUpdateTotals();
 }
 
@@ -1962,14 +1954,10 @@ function diUpdateTotals() {
     const g  = k => parseFloat(document.getElementById('di-' + k)?.value) || 0;
     const ti = CD_INFLOW_FIELDS.reduce((s,k) => s + g(k), 0);
     const to = CD_OUTFLOW_FIELDS.reduce((s,k) => s + g(k), 0);
-    const inv = g('invoicesSent'), rec = g('cashReceived');
-    const cr  = inv > 0 ? rec / inv : null;
-    const overV = document.getElementById('di-endingMRROverride')?.value;
-    const endMRR = (overV && overV !== '') ? parseFloat(overV) : g('startingMRR') + g('newMRR') + g('expansionMRR') - g('contractionMRR') - g('churnedMRR');
+    const endMRR = g('startingMRR') + g('newMRR') + g('expansionMRR') - g('contractionMRR') - g('churnedMRR');
     const el = id => document.getElementById(id);
     if (el('di-total-in'))  el('di-total-in').textContent  = cdFmtFull(ti);
     if (el('di-total-out')) el('di-total-out').textContent = cdFmtFull(to);
-    if (el('di-coll-rate')) el('di-coll-rate').textContent = cr !== null ? (cr*100).toFixed(1)+'%' : '—';
     if (el('di-ending-mrr')) el('di-ending-mrr').textContent = cdFmtFull(endMRR);
     /* Business calcs preview */
     const id = document.getElementById('di-month-sel')?.value;
@@ -1977,22 +1965,23 @@ function diUpdateTotals() {
     if (bm) {
         /* Temporarily apply form values for preview */
         const tmp = Object.assign({}, bm,
-            {rev:g('rev'),cogs:g('cogs'),cac:g('cac'),opex:g('opex'),cs:g('cs'),nc:g('nc'),ch:g('ch'),rc:g('rc')});
-        const c   = calc(tmp);
+            {rev:g('rev'),cogs:g('cogs'),cac:g('cac'),sm:g('sm'),ga:g('ga'),rd:g('rd'),interest:g('interest'),tax:g('tax'),cs:g('cs'),nc:g('nc'),ch:g('ch')});
+        const cashM   = cashMonths.find(cm => cm.id === bm.id);
+        const mrrData = cashM ? { startingMRR: cashM.startingMRR, newMRR: cashM.newMRR } : null;
+        const c   = calc(tmp, mrrData);
         if (el('di-calc-gp'))     el('di-calc-gp').textContent     = f$(c.gp);
         if (el('di-calc-gm'))     el('di-calc-gm').textContent     = fPct(c.gm);
         if (el('di-calc-np'))     el('di-calc-np').textContent     = f$(c.np);
         if (el('di-calc-nm'))     el('di-calc-nm').textContent     = fPct(c.nm);
         if (el('di-calc-lchurn')) el('di-calc-lchurn').textContent = fPct(c.lchurn);
-        if (el('di-calc-rchurn')) el('di-calc-rchurn').textContent = fPct(c.rchurn);
-        if (el('di-calc-ratio'))  el('di-calc-ratio').textContent  = c.ratio != null ? fX(c.ratio) : '—';
+        if (el('di-calc-ratio'))  el('di-calc-ratio').textContent  = c.ratio != null ? c.ratio.toFixed(1)+':1' : '—';
     }
-    /* Runway preview from cash */
+    /* Gross Burn Runway preview from cash */
     if (id && cashMonths.length) {
         const calcs = cdCalcAll();
         const cidx  = cashMonths.findIndex(m => m.id === id);
         if (cidx >= 0 && el('di-calc-runway')) {
-            el('di-calc-runway').textContent = cdFmtRw(calcs[cidx].runway);
+            el('di-calc-runway').textContent = cdFmtRw(calcs[cidx].grossBurnRunway);
         }
     }
 }
@@ -2011,7 +2000,7 @@ function diCommit() {
     /* Business data → months[] + Firebase */
     let m = months.find(mo => mo.id === id);
     if (m) {
-        ['rev','cogs','cac','opex','cs','nc','ch','rc'].forEach(f => { m[f] = g(f); });
+        ['rev','cogs','cac','sm','ga','rd','interest','tax','cs','nc','ch'].forEach(f => { m[f] = g(f); });
         save();
     }
 
@@ -2019,21 +2008,19 @@ function diCommit() {
     let cm = cashMonths.find(mo => mo.id === id);
     if (!cm) {
         cm = { id, openingCash:0, customerPayments:0, retainers:0, subscriptionRevenue:0,
-               loanProceeds:0, refunds:0, otherIncome:0, payroll:0, contractors:0,
+               loanProceeds:0, otherIncome:0, payroll:0, contractors:0,
                marketing:0, software:0, rent:0, inventory:0, taxes:0, debtRepayment:0,
-               ownerDraws:0, miscExpenses:0, invoicesSent:0, cashReceived:0,
-               startingMRR:0, newMRR:0, expansionMRR:0, contractionMRR:0, churnedMRR:0, endingMRROverride:null };
+               ownerDraws:0, miscExpenses:0,
+               startingMRR:0, newMRR:0, expansionMRR:0, contractionMRR:0, churnedMRR:0 };
         cashMonths.push(cm);
         cashMonths.sort((a,b) => a.id < b.id ? -1 : 1);
     }
     const openEl = document.getElementById('di-openingCash');
     if (openEl && !openEl.disabled) cm.openingCash = parseFloat(openEl.value) || 0;
-    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS, 'invoicesSent','cashReceived',
+    [...CD_INFLOW_FIELDS, ...CD_OUTFLOW_FIELDS,
      'startingMRR','newMRR','expansionMRR','contractionMRR','churnedMRR'].forEach(k => {
         cm[k] = g(k);
     });
-    const overEl = document.getElementById('di-endingMRROverride');
-    cm.endingMRROverride = (overEl && overEl.value !== '') ? parseFloat(overEl.value) : null;
     cashSave();
 }
 
@@ -2064,7 +2051,7 @@ function openModal() {
     const ex = new Set(months.map(m=>m.id));
     const now = new Date();
     const endDate = new Date(now.getFullYear(), now.getMonth() + 24, 1);
-    let iy = 2024, im = 1;
+    let iy = 2026, im = 6;
     while (iy < endDate.getFullYear() || (iy === endDate.getFullYear() && im <= endDate.getMonth() + 1)) {
         const id = iy + '-' + String(im).padStart(2, '0');
         if (!ex.has(id)) {
@@ -2109,7 +2096,7 @@ function saveMonth() {
     const label = MONTHS[+mo-1] + ' ' + yr;
 
     /* Create business month */
-    months.push({ id:pid, label, rev:0, cogs:0, cac:0, opex:0, cs:0, nc:0, ch:0, rc:0 });
+    months.push({ id:pid, label, rev:0, cogs:0, cac:0, sm:0, ga:0, rd:0, interest:0, tax:0, cs:0, nc:0, ch:0 });
     months.sort((a,b) => a.id < b.id ? -1 : 1);
 
     /* Create cash month */
@@ -2118,11 +2105,10 @@ function saveMonth() {
         : parseFloat(document.getElementById('m-opening').value) || 0;
     if (!cashMonths.find(m => m.id === pid)) {
         cashMonths.push({ id:pid, openingCash:opening,
-            customerPayments:0, retainers:0, subscriptionRevenue:0, loanProceeds:0, refunds:0, otherIncome:0,
+            customerPayments:0, retainers:0, subscriptionRevenue:0, loanProceeds:0, otherIncome:0,
             payroll:0, contractors:0, marketing:0, software:0, rent:0, inventory:0,
             taxes:0, debtRepayment:0, ownerDraws:0, miscExpenses:0,
-            invoicesSent:0, cashReceived:0,
-            startingMRR:0, newMRR:0, expansionMRR:0, contractionMRR:0, churnedMRR:0, endingMRROverride:null });
+            startingMRR:0, newMRR:0, expansionMRR:0, contractionMRR:0, churnedMRR:0 });
         cashMonths.sort((a,b) => a.id < b.id ? -1 : 1);
     }
 
@@ -2151,44 +2137,59 @@ function setForecastView(view, el) {
 
 function calcAvg(ms) {
     if (!ms.length) return null;
-    const calcs = ms.map(calc);
+    const calcs = calcChain(ms);
     const n = calcs.length;
     const avg = arr => arr.reduce((s,v)=>s+v,0)/n;
     const last = calcs[calcs.length-1];
 
     const nc        = avg(calcs.map(c=>c.nc));
     const ch        = avg(calcs.map(c=>c.ch));
-    const rc        = avg(calcs.map(c=>c.rc));
     const cs        = avg(calcs.map(c=>c.cs));
     const ce        = last.ce;    // latest actual end clients (projection starting point)
     const rev       = last.rev;   // latest actual revenue (projection starting point)
     const lchurn    = avg(calcs.map(c=>c.lchurn));
-    const rchurn    = avg(calcs.map(c=>c.rchurn));
     const rpc       = avg(calcs.map(c=>c.rpc));
     const avgClients= avg(calcs.map(c=>c.avgClients));
     const gm        = avg(calcs.map(c=>c.gm));
     const cogs      = avg(calcs.map(c=>c.cogs));
-    const opex      = avg(calcs.map(c=>c.opex));
+    const sm        = avg(calcs.map(c=>c.sm));
+    const ga        = avg(calcs.map(c=>c.ga));
+    const rd        = avg(calcs.map(c=>c.rd));
+    const interest  = avg(calcs.map(c=>c.interest));
+    const tax       = avg(calcs.map(c=>c.tax));
+    const opex      = sm + ga + rd;
     const totalCac  = avg(calcs.map(c=>c.totalCac));
     const cac       = avg(calcs.map(c=>c.cac||0));
     const gp        = avg(calcs.map(c=>c.gp));
+    const ebit      = avg(calcs.map(c=>c.ebit));
+    const ebt       = avg(calcs.map(c=>c.ebt));
     const np        = avg(calcs.map(c=>c.np));
     const nm        = avg(calcs.map(c=>c.nm));
-    const tc        = cogs + totalCac + opex;
+    const tc        = cogs + totalCac + opex + interest + tax;
     const ret       = 100 - lchurn;
-    const lifespan  = lchurn > 0 ? 1/(lchurn/100) : rchurn > 0 ? 1/(rchurn/100) : null;
     const cacVal    = cac > 0 ? cac : null;
-    const ltgp      = (rpc>0&&lifespan!==null) ? rpc*(gm/100)*lifespan : null;
-    const ratio     = (ltgp!==null&&cacVal&&cacVal>0) ? ltgp/cacVal : null;
 
-    return {rev,cogs,cac,opex,cs,nc,ch,rc,
-            totalCac,gp,gm,np,nm,tc,ce,avgClients,rpc,
-            lchurn,ret,rchurn,lifespan,cacVal,ltgp,ratio};
+    // Avg LTGP: avg monthly GP per active client × customer lifetime
+    const avgNewMRR      = avg(calcs.map(c=>c.newMRR      || 0));
+    const avgStartingMRR = avg(calcs.map(c=>c.startingMRR || 0));
+    const arpu    = ce > 0 ? rev / ce : null;   // latest monthly rev per active client
+    const mgpArr  = calcs.filter(c => c.mgp !== null).map(c => c.mgp);
+    const mgp     = mgpArr.length > 0 ? avg(mgpArr) : null;  // avg monthly GP per client
+    const lifespan = lchurn > 0 ? 1 / (lchurn / 100) : null;
+    const ltgp    = mgp !== null && lifespan !== null ? mgp * lifespan : null;
+    const ratio   = ltgp !== null && cacVal && cacVal > 0 ? ltgp / cacVal : null;
+
+    const startingMRR = avgStartingMRR;
+    const newMRR      = avgNewMRR;
+
+    return {rev,cogs,cac,sm,ga,rd,interest,tax,opex,cs,nc,ch,
+            startingMRR,newMRR,totalCac,gp,gm,ebit,ebt,np,nm,tc,
+            ce,avgClients,rpc,arpu,mgp,
+            lchurn,ret,lifespan,cacVal,ltgp,ratio};
 }
 
 function calcForecast(c) {
     const lchurnRate = c.lchurn / 100;
-    const rchurnRate = c.rchurn / 100;
 
     // Customer Ceiling = New Clients per month / Churn Rate
     const customerCeiling = (lchurnRate > 0 && c.nc > 0) ? c.nc / lchurnRate : null;
@@ -2199,9 +2200,9 @@ function calcForecast(c) {
     const customerStatus = customerSat === null ? 'unknown'
         : customerSat < 95 ? 'growing' : customerSat <= 105 ? 'stable' : 'shrinking';
 
-    // Revenue Ceiling = (New Clients × Rev/Client) / Revenue Churn Rate
+    // Revenue Ceiling = (New Clients × Rev/Client) / Logo Churn Rate
     const newRevAdded = c.nc * c.rpc;
-    const revCeiling = (rchurnRate > 0 && newRevAdded > 0) ? newRevAdded / rchurnRate : null;
+    const revCeiling = (lchurnRate > 0 && newRevAdded > 0) ? newRevAdded / lchurnRate : null;
     const revGap = revCeiling !== null ? revCeiling - c.rev : null;
     const revSat = (revCeiling !== null && revCeiling > 0)
         ? Math.min(c.rev / revCeiling * 100, 130) : null;
@@ -2228,11 +2229,11 @@ function calcForecast(c) {
         }
     }
     let monthsToRev = null;
-    if (revCeiling !== null && rchurnRate > 0) {
+    if (revCeiling !== null && lchurnRate > 0) {
         if (revSat >= 95) { monthsToRev = 0; }
         else {
             let r = c.rev, mo = 0, tgt = revCeiling * 0.95;
-            while (r < tgt && mo < 600) { r = r + newRevAdded - r * rchurnRate; mo++; }
+            while (r < tgt && mo < 600) { r = r + newRevAdded - r * lchurnRate; mo++; }
             monthsToRev = mo < 600 ? mo : null;
         }
     }
@@ -2242,7 +2243,7 @@ function calcForecast(c) {
     let pn = currentClients, pr = c.rev;
     for (let i = 0; i < 36; i++) {
         pn = Math.max(0, pn + c.nc - pn * lchurnRate);
-        pr = Math.max(0, pr + newRevAdded - pr * rchurnRate);
+        pr = Math.max(0, pr + newRevAdded - pr * lchurnRate);
         projN.push(Math.round(pn * 10) / 10);
         projR.push(Math.round(pr));
     }
@@ -2250,7 +2251,7 @@ function calcForecast(c) {
     return { customerCeiling, currentClients, customerGap, customerSat, customerStatus,
              revCeiling, revGap, revSat, revStatus, newRevAdded,
              direction, monthsToCust, monthsToRev, payback,
-             projN, projR, lchurnRate, rchurnRate };
+             projN, projR, lchurnRate };
 }
 
 function renderForecast() {
@@ -2306,7 +2307,7 @@ function renderForecast() {
     const m = ms.find(x => x.id === fcSel.value) || ms[ms.length - 1];
     fcSel.value = m.id;
 
-    const c = calc(m);
+    const c = calcChain(ms)[ms.indexOf(m)];
     const f = calcForecast(c);
     renderForecastSingle(c, f);
 }
@@ -2328,10 +2329,6 @@ function renderForecastSingle(c, f) {
     set('kw-fc-cd-lost', f.currentClients + ' × ' + fPct(c.lchurn));
     set('fc-cd-newrev', fC(f.newRevAdded));
     set('kw-fc-cd-newrev', c.nc + ' × ' + f$(c.rpc));
-    set('fc-cd-rchurn', fPct(c.rchurn));
-    set('kw-fc-cd-rchurn', fC(c.rc) + ' churned ÷ ' + fC(c.rev));
-    set('fc-cd-lostrev', fC(c.rc));
-    set('kw-fc-cd-lostrev', 'Direct input from data');
 
     // ── Direction Card ──
     const dirCard = document.getElementById('fc-direction');
@@ -2400,22 +2397,22 @@ function renderForecastSingle(c, f) {
 
     const revCeil = f.revCeiling !== null ? Math.round(f.revCeiling) : null;
     set('fc-rev-ceiling', revCeil !== null ? f$(revCeil) : '—');
-    set('kw-fc-rev-ceiling', revCeil !== null ? fC(f.newRevAdded) + ' ÷ ' + fPct(c.rchurn) + ' = ' + fC(revCeil) : 'Need revenue churn data');
+    set('kw-fc-rev-ceiling', revCeil !== null ? fC(f.newRevAdded) + ' ÷ ' + fPct(c.lchurn) + ' logo churn = ' + fC(revCeil) : 'Need acquisition & churn data');
 
     const revGapVal = revCeil !== null ? revCeil - c.rev : null;
     set('fc-rev-gap', revGapVal !== null ? (revGapVal >= 0 ? '' : '−') + f$(Math.abs(Math.round(revGapVal))) : '—');
     set('kw-fc-rev-gap', revGapVal !== null ? fC(revCeil) + ' − ' + fC(c.rev) + ' = ' + fC(Math.round(revGapVal)) : '—');
 
     let revMoTxt = '—', revMoWork = '—';
-    if (revCeil !== null && revGapVal !== null && f.rchurnRate > 0) {
+    if (revCeil !== null && revGapVal !== null && f.lchurnRate > 0) {
         if (revGapVal <= 0) { revMoTxt = 'At ceiling'; revMoWork = 'Already at or above ceiling'; }
         else {
             const targetGap = 0.05 * revCeil;
             if (targetGap >= revGapVal) { revMoTxt = '< 1 mo'; revMoWork = 'Within 5% of ceiling already'; }
             else {
-                const t = Math.round(Math.log(targetGap / revGapVal) / Math.log(1 - f.rchurnRate));
+                const t = Math.round(Math.log(targetGap / revGapVal) / Math.log(1 - f.lchurnRate));
                 revMoTxt = t + ' mo';
-                revMoWork = 'ln(' + (targetGap/revGapVal).toFixed(3) + ') ÷ ln(' + (1-f.rchurnRate).toFixed(4) + ') = ' + t;
+                revMoWork = 'ln(' + (targetGap/revGapVal).toFixed(3) + ') ÷ ln(' + (1-f.lchurnRate).toFixed(4) + ') = ' + t;
             }
         }
     }
@@ -2650,9 +2647,18 @@ function initTheme() {
     applyTheme(saved === 'light');
 }
 
+// ══ One-time cleanup: remove empty auto-created months ══
+function cleanupAutoCreatedMonths() {
+    const isEmpty = m => !m.rev && !m.cogs && !m.cac && !m.sm && !m.ga && !m.rd && !m.interest && !m.tax && !m.nc && !m.ch && !m.rc;
+    const before = months.length;
+    months = months.filter(m => !isEmpty(m));
+    if (months.length !== before) save();
+}
+
 // ══ Init ══
 function startApp() {
     initTheme();
+    cleanupAutoCreatedMonths();
     populateSel();
     renderDashboard();
     initWorkingToggles();
@@ -2702,7 +2708,7 @@ function cashSave() {
 cashLoad();
 
 // ── Calculations ──
-const CD_INFLOW_FIELDS  = ['customerPayments','retainers','subscriptionRevenue','loanProceeds','refunds','otherIncome'];
+const CD_INFLOW_FIELDS  = ['customerPayments','retainers','subscriptionRevenue','loanProceeds','otherIncome'];
 const CD_OUTFLOW_FIELDS = ['payroll','contractors','marketing','software','rent','inventory','taxes','debtRepayment','ownerDraws','miscExpenses'];
 const CD_MONTHS_NAMES   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -2715,25 +2721,31 @@ function cdCalcMonth(m, prevClosing) {
     const totalOut = CD_OUTFLOW_FIELDS.reduce((s, k) => s + cdN(m, k), 0);
     const net      = totalIn - totalOut;
     const closing  = opening + net;
-    const burn     = net < 0 ? Math.abs(net) : 0;
-    const inv      = cdN(m, 'invoicesSent');
-    const rec      = cdN(m, 'cashReceived');
-    const collRate = inv > 0 ? rec / inv : null;
+    const burn     = totalOut;   // Gross burn = Total Cash Out (always; never net-adjusted)
+    // Gross Burn Runway = Opening Cash ÷ Gross Burn. Worst-case survival if all income stopped.
+    const grossBurnRunway = burn > 0 ? opening / burn : null;
+    // Net Burn = Operating Cash In (Customer Payments + Retainers + Subscription Revenue) − Gross Burn.
+    // Excludes Loan Proceeds & Other Income (financing/non-operating).
+    const cashInOperating = cdN(m, 'customerPayments') + cdN(m, 'retainers') + cdN(m, 'subscriptionRevenue');
+    const netBurn = cashInOperating - burn;
+    // Net Burn Runway = Opening Cash ÷ |Net Burn|, only when actually burning (netBurn < 0).
+    const netBurnRunway = netBurn < 0 ? opening / Math.abs(netBurn) : null;
+    // Cash Growth Rate = Net Cash Flow ÷ Opening Cash × 100
+    const cashGrowthRate = opening > 0 ? (net / opening) * 100 : null;
     /* MRR / Retention */
     const startMRR  = cdN(m, 'startingMRR');
     const newMRR    = cdN(m, 'newMRR');
     const expMRR    = cdN(m, 'expansionMRR');
     const conMRR    = cdN(m, 'contractionMRR');
     const churnMRR  = cdN(m, 'churnedMRR');
-    const override  = m.endingMRROverride !== null && m.endingMRROverride !== undefined && m.endingMRROverride !== '' ? parseFloat(m.endingMRROverride) : null;
-    const endMRR    = override !== null ? override : startMRR + newMRR + expMRR - conMRR - churnMRR;
-    const nrr       = startMRR > 0 ? endMRR / startMRR : null;
+    const endMRR    = startMRR + newMRR + expMRR - conMRR - churnMRR;
+    const nrr       = startMRR > 0 ? (startMRR + expMRR - conMRR - churnMRR) / startMRR : 0;
     const gr        = startMRR > 0 ? (startMRR - conMRR - churnMRR) / startMRR : null;
     const churnRate = startMRR > 0 ? churnMRR / startMRR : null;
     const expRate   = startMRR > 0 ? expMRR / startMRR : null;
     const netMRRGrowth = endMRR - startMRR;
     const mrrGrowthPct = startMRR > 0 ? netMRRGrowth / startMRR : null;
-    return { opening, totalIn, totalOut, net, closing, burn, collRate, inv, rec, runway: null,
+    return { opening, totalIn, totalOut, net, closing, burn, grossBurnRunway, cashInOperating, netBurn, netBurnRunway, cashGrowthRate,
              startMRR, newMRR, expMRR, conMRR, churnMRR, endMRR, nrr, gr, churnRate, expRate, netMRRGrowth, mrrGrowthPct };
 }
 
@@ -2744,13 +2756,6 @@ function cdCalcAll() {
         const c = cdCalcMonth(m, prevClosing);
         prevClosing = c.closing;
         results.push(c);
-    });
-    /* Runway = Closing ÷ 3-Month Avg Burn (uses actual history window) */
-    results.forEach((c, i) => {
-        const w = Math.min(3, i + 1);
-        const avgBurn = results.slice(i - w + 1, i + 1).reduce((s, r) => s + r.burn, 0) / w;
-        c.avgBurn = avgBurn;
-        c.runway  = avgBurn > 0 ? c.closing / avgBurn : null;
     });
     return results;
 }
@@ -2767,15 +2772,16 @@ function cdFmt(v, dp=1) {
     if (abs >= 1e6)      s = (v / 1e6).toFixed(dp) + 'M';
     else if (abs >= 1e3) s = (v / 1e3).toFixed(dp) + 'k';
     else                 s = v.toFixed(dp);
-    return '£' + s;
+    return '$' + s;
 }
 function cdFmtFull(v) {
     if (v === null || v === undefined) return '—';
-    return '£' + v.toLocaleString('en-GB', { minimumFractionDigits:0, maximumFractionDigits:0 });
+    return '$' + v.toLocaleString('en-GB', { minimumFractionDigits:0, maximumFractionDigits:0 });
 }
 function cdFmtRw(v) {
     if (v === null) return '∞';
-    if (v <= 0) return '0 mo';
+    if (v <= 0) return '0 days';
+    if (v < 1) return Math.round(v * 30.44) + ' days';
     return v.toFixed(1) + ' mo';
 }
 
@@ -2843,7 +2849,7 @@ function cashRenderOverview() {
     const inflowLines = [
         ['Customer Payments', m.customerPayments], ['Retainers', m.retainers],
         ['Subscription Rev', m.subscriptionRevenue], ['Loan Proceeds', m.loanProceeds],
-        ['Refunds', m.refunds], ['Other Income', m.otherIncome]
+        ['Other Income', m.otherIncome]
     ].filter(([, v]) => v > 0).map(([l, v]) => l + ': ' + cdFmtFull(v)).join(' · ') || 'No inflows entered';
 
     const outflowLines = [
@@ -2854,12 +2860,6 @@ function cashRenderOverview() {
     ].filter(([, v]) => v > 0).map(([l, v]) => l + ': ' + cdFmtFull(v)).join(' · ') || 'No outflows entered';
 
     document.getElementById('cd-row1').innerHTML = `
-        <div class="kpi" title="Opening Cash = prior month's closing (auto-chained)">
-            <div class="kpi-lbl">Opening Cash</div>
-            <div class="kpi-val">${cdFmt(c.opening)}</div>
-            <div class="kpi-work">${prev ? '= ' + cdLabel(cashMonths[idx-1].id) + ' closing: ' + cdFmtFull(c.opening) : 'Manual entry — first month'}</div>
-            <div class="kpi-fml">Prior month Closing Cash</div>
-        </div>
         <div class="kpi" title="Total Cash In = sum of all inflow categories">
             <div class="kpi-lbl">Total Cash In</div>
             <div class="kpi-val g">${cdFmt(c.totalIn)}</div>
@@ -2880,49 +2880,52 @@ function cashRenderOverview() {
             <div class="kpi-work">${cdFmtFull(c.totalIn)} − ${cdFmtFull(c.totalOut)}</div>
             <div class="kpi-fml">Total Cash In − Total Cash Out</div>
             ${dBadge(c, prev, 'net')}
-        </div>`;
-
-    let crCls = '', crBarColor = 'var(--text3)';
-    if (c.collRate !== null) {
-        if      (c.collRate >= 0.9)  { crCls = 'g'; crBarColor = 'var(--g1)'; }
-        else if (c.collRate >= 0.75) { crCls = 'a'; crBarColor = 'var(--amber)'; }
-        else                         { crCls = 'r'; crBarColor = 'var(--red)'; }
-    }
-    const crW   = c.collRate !== null ? Math.min(100, c.collRate * 100).toFixed(1) : 0;
-    const rwCls = c.runway === null || c.runway >= 12 ? 'g' : c.runway >= 3 ? 'a' : 'r';
-    const rwWork = c.runway === null
-        ? 'No burn — runway is infinite'
-        : cdFmtFull(c.closing) + ' ÷ ' + cdFmt(c.avgBurn) + ' avg burn = ' + cdFmtRw(c.runway);
-
-    document.getElementById('cd-row2').innerHTML = `
+        </div>
+        <div class="kpi" title="Opening Cash = prior month's closing (auto-chained)">
+            <div class="kpi-lbl">Opening Cash</div>
+            <div class="kpi-val">${cdFmt(c.opening)}</div>
+            <div class="kpi-work">${prev ? '= ' + cdLabel(cashMonths[idx-1].id) + ' closing: ' + cdFmtFull(c.opening) : 'Manual entry — first month'}</div>
+            <div class="kpi-fml">Prior month Closing Cash</div>
+        </div>
         <div class="kpi" title="Closing Cash = Opening + Net Cash Flow">
             <div class="kpi-lbl">Closing Cash</div>
             <div class="kpi-val ${c.closing >= 0 ? 'g' : 'r'}">${cdFmt(c.closing)}</div>
             <div class="kpi-work">${cdFmtFull(c.opening)} + ${cdFmt(c.net)}</div>
             <div class="kpi-fml">Opening Cash + Net Cash Flow</div>
             ${dBadge(c, prev, 'closing')}
+        </div>`;
+
+    const gbrCls = c.grossBurnRunway === null || c.grossBurnRunway >= 12 ? 'g' : c.grossBurnRunway >= 3 ? 'a' : 'r';
+    const gbrWork = c.grossBurnRunway === null
+        ? 'No gross burn — runway is infinite'
+        : cdFmtFull(c.opening) + ' ÷ ' + cdFmt(c.burn) + ' gross burn = ' + cdFmtRw(c.grossBurnRunway);
+
+    const nbrCls = c.netBurnRunway === null ? 'g' : c.netBurnRunway >= 12 ? 'g' : c.netBurnRunway >= 3 ? 'a' : 'r';
+    const nbrWork = c.netBurnRunway === null
+        ? (c.netBurn >= 0 ? 'Cash generating — no net burn' : 'No opening cash to deplete')
+        : cdFmtFull(c.opening) + ' ÷ ' + cdFmt(Math.abs(c.netBurn)) + ' net burn = ' + cdFmtRw(c.netBurnRunway);
+
+    const cgrTxt = c.cashGrowthRate !== null ? (c.cashGrowthRate >= 0 ? '+' : '') + c.cashGrowthRate.toFixed(1) + '%' : '—';
+    const cgrCls = c.cashGrowthRate === null ? '' : c.cashGrowthRate >= 0 ? 'g' : 'r';
+
+    document.getElementById('cd-row2').innerHTML = `
+        <div class="kpi" title="Gross Burn Runway = Opening Cash ÷ Gross Burn. Worst case if all income stopped today.">
+            <div class="kpi-lbl">Gross Burn Runway</div>
+            <div class="kpi-val ${gbrCls}">${cdFmtRw(c.grossBurnRunway)}</div>
+            <div class="kpi-work">${gbrWork}</div>
+            <div class="kpi-fml">Opening Cash ÷ Gross Burn</div>
         </div>
-        <div class="kpi" title="Burn Rate = |Net| only when net is negative">
-            <div class="kpi-lbl">Burn Rate</div>
-            <div class="kpi-val ${c.burn > 0 ? 'r' : 'g'}">${c.burn > 0 ? cdFmt(c.burn) : '£0'}</div>
-            <div class="kpi-work">${c.burn > 0 ? '|' + cdFmt(c.net) + '| = ' + cdFmt(c.burn) : 'Net positive — no burn'}</div>
-            <div class="kpi-fml">|Net Cash Flow| when Net &lt; 0, else £0</div>
+        <div class="kpi" title="Net Burn Runway = Opening Cash ÷ |Net Burn|. Infinite when operating cash in covers gross burn.">
+            <div class="kpi-lbl">Net Burn Runway</div>
+            <div class="kpi-val ${nbrCls}">${cdFmtRw(c.netBurnRunway)}</div>
+            <div class="kpi-work">${nbrWork}</div>
+            <div class="kpi-fml">Opening Cash ÷ |Operating Cash In − Gross Burn|</div>
         </div>
-        <div class="kpi" title="Runway = Closing ÷ 3-Month Avg Burn. Infinite when burn = 0.">
-            <div class="kpi-lbl">Runway</div>
-            <div class="kpi-val ${rwCls}">${cdFmtRw(c.runway)}</div>
-            <div class="kpi-work">${rwWork}</div>
-            <div class="kpi-fml">Closing ÷ 3-Month Avg Burn Rate</div>
-        </div>
-        <div class="kpi" title="Collection Rate = Cash Received ÷ Invoices Sent. Green ≥90%, Amber ≥75%, Red <75%.">
-            <div class="kpi-lbl">Collection Rate</div>
-            <div class="kpi-val ${crCls}">${c.collRate !== null ? (c.collRate*100).toFixed(1)+'%' : '—'}</div>
-            ${c.collRate !== null ? `
-                <div class="kpi-work">${cdFmtFull(c.rec)} ÷ ${cdFmtFull(c.inv)}</div>
-                <div class="kpi-fml">Cash Received ÷ Invoices Sent</div>
-                <div class="coll-bar-wrap"><div class="coll-bar-fill" style="width:${crW}%;background:${crBarColor}"></div></div>
-                <div class="kpi-sub">${cdFmtFull(c.rec)} of ${cdFmtFull(c.inv)} invoiced</div>
-            ` : '<div class="kpi-work">No invoice data entered</div><div class="kpi-fml">Cash Received ÷ Invoices Sent</div>'}
+        <div class="kpi" title="Cash Growth Rate = Net Cash Flow ÷ Opening Cash × 100">
+            <div class="kpi-lbl">Cash Growth Rate</div>
+            <div class="kpi-val ${cgrCls}">${cgrTxt}</div>
+            <div class="kpi-work">${c.cashGrowthRate !== null ? cdFmtFull(c.net) + ' ÷ ' + cdFmtFull(c.opening) : 'No opening cash balance'}</div>
+            <div class="kpi-fml">Net Cash Flow ÷ Opening Cash</div>
         </div>`;
 
     /* Rolling Averages */
@@ -2990,7 +2993,7 @@ function cashRenderCharts() {
     const _gc    = isLight() ? 'rgba(0,0,0,.07)'     : 'rgba(255,255,255,.05)';
     const _lc    = isLight() ? 'rgba(13,23,16,.55)'  : 'rgba(220,240,228,.5)';
     const xAxis  = { ticks:{color:_tc,font:{size:12}}, grid:{color:_gc} };
-    const yAxis  = { ticks:{color:_tc,font:{size:12},callback:v=>'£'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:_gc} };
+    const yAxis  = { ticks:{color:_tc,font:{size:12},callback:v=>'$'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:_gc} };
     const lgd    = { labels:{color:_lc,font:{size:13}} };
     const gbpTip = ctx => ' £' + ctx.parsed.y.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0});
 
@@ -3011,18 +3014,18 @@ function cashRenderCharts() {
         options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:gbpTip}}}, scales:{x:xAxis,y:yAxis} }
     });
 
-    /* 3. Burn Rate Trend */
+    /* 3. Gross Burn Trend */
     cdMkChart('cd-chart-burn', {
         type:'bar',
-        data:{ labels, datasets:[{ label:'Burn Rate', data:calcs.map(c=>c.burn), backgroundColor:calcs.map(c=>c.burn>0?'rgba(248,113,113,.8)':'rgba(76,217,123,.35)'), borderRadius:4 }] },
+        data:{ labels, datasets:[{ label:'Gross Burn', data:calcs.map(c=>c.burn), backgroundColor:calcs.map(c=>c.burn>0?'rgba(248,113,113,.8)':'rgba(76,217,123,.35)'), borderRadius:4 }] },
         options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:gbpTip}}}, scales:{x:xAxis,y:yAxis} }
     });
 
-    /* 4. Runway Trend (capped 36 mo) */
+    /* 4. Gross Burn Runway Trend (capped 36 mo) */
     cdMkChart('cd-chart-runway', {
         type:'line',
-        data:{ labels, datasets:[{ label:'Runway', data:calcs.map(c=>c.runway!==null?Math.min(c.runway,36):36), borderColor:'var(--amber)', backgroundColor:'rgba(251,191,36,.07)', pointBackgroundColor:'var(--amber)', tension:.3, fill:true, borderWidth:2 }] },
-        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:ctx=>' '+cdFmtRw(calcs[ctx.dataIndex].runway)}}}, scales:{x:xAxis,y:{...yAxis,ticks:{...yAxis.ticks,callback:v=>v>=36?'36+ mo':v+' mo'}}} }
+        data:{ labels, datasets:[{ label:'Gross Burn Runway', data:calcs.map(c=>c.grossBurnRunway!==null?Math.min(c.grossBurnRunway,36):36), borderColor:'var(--amber)', backgroundColor:'rgba(251,191,36,.07)', pointBackgroundColor:'var(--amber)', tension:.3, fill:true, borderWidth:2 }] },
+        options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:ctx=>' '+cdFmtRw(calcs[ctx.dataIndex].grossBurnRunway)}}}, scales:{x:xAxis,y:{...yAxis,ticks:{...yAxis.ticks,callback:v=>v>=36?'36+ mo':v+' mo'}}} }
     });
 
     /* 5. Waterfall — most recent month, floating bars [bottom, top] */
@@ -3134,18 +3137,25 @@ function retRenderOverview() {
             <div class="kpi-work">${cdFmt(c.endMRR)} − ${cdFmt(c.startMRR)}</div>
             <div class="kpi-fml">Ending MRR − Starting MRR</div>
             ${mb(c, prev, 'netMRRGrowth')}
+        </div>
+        <div class="kpi" title="MRR Growth % = Net Growth ÷ Starting MRR">
+            <div class="kpi-lbl">MRR Growth %</div>
+            <div class="kpi-val ${c.mrrGrowthPct === null ? '' : c.mrrGrowthPct >= 0 ? 'g' : 'r'}">${pct(c.mrrGrowthPct)}</div>
+            <div class="kpi-work">${cdFmt(c.netMRRGrowth)} ÷ ${cdFmt(c.startMRR)}</div>
+            <div class="kpi-fml">Net MRR Growth ÷ Starting MRR</div>
+            ${pp(c, prev, 'mrrGrowthPct')}
         </div>`;
 
     document.getElementById('ret-row2').innerHTML = `
-        <div class="kpi" title="Net Revenue Retention = Ending ÷ Starting. >100% = expansion beats churn.">
-            <div class="kpi-lbl">NRR</div>
+        <div class="kpi" title="Net Revenue Retention = (Starting + Expansion − Contraction − Churn) ÷ Starting. Excludes new business. >100% = expansion beats churn.">
+            <div class="kpi-lbl">Net Retention Rate (NRR)</div>
             <div class="kpi-val ${c.nrr === null ? '' : c.nrr >= 1 ? 'g' : 'r'}">${pct(c.nrr)}</div>
-            <div class="kpi-work">${cdFmt(c.endMRR)} ÷ ${cdFmt(c.startMRR)}</div>
-            <div class="kpi-fml">Ending MRR ÷ Starting MRR</div>
+            <div class="kpi-work">(${cdFmt(c.startMRR)} + ${cdFmt(c.expMRR)} − ${cdFmt(c.conMRR)} − ${cdFmt(c.churnMRR)}) ÷ ${cdFmt(c.startMRR)}</div>
+            <div class="kpi-fml">(Starting + Expansion − Contraction − Churn) ÷ Starting MRR</div>
             ${pp(c, prev, 'nrr')}
         </div>
-        <div class="kpi" title="Gross Retention = (Starting − Contraction − Churn) ÷ Starting">
-            <div class="kpi-lbl">Gross Retention</div>
+        <div class="kpi" title="Gross Retention Rate = (Starting − Contraction − Churn) ÷ Starting">
+            <div class="kpi-lbl">Gross Retention Rate (GRR)</div>
             <div class="kpi-val ${c.gr === null ? '' : c.gr >= 0.85 ? 'g' : c.gr >= 0.7 ? 'a' : 'r'}">${pct(c.gr)}</div>
             <div class="kpi-work">(${cdFmt(c.startMRR)} − ${cdFmt(c.conMRR)} − ${cdFmt(c.churnMRR)}) ÷ ${cdFmt(c.startMRR)}</div>
             <div class="kpi-fml">(Starting − Contraction − Churn) ÷ Starting</div>
@@ -3164,14 +3174,40 @@ function retRenderOverview() {
             <div class="kpi-work">${cdFmt(c.expMRR)} ÷ ${cdFmt(c.startMRR)}</div>
             <div class="kpi-fml">Expansion MRR ÷ Starting MRR</div>
             ${pp(c, prev, 'expRate')}
-        </div>
-        <div class="kpi" title="MRR Growth % = Net Growth ÷ Starting MRR">
-            <div class="kpi-lbl">MRR Growth %</div>
-            <div class="kpi-val ${c.mrrGrowthPct === null ? '' : c.mrrGrowthPct >= 0 ? 'g' : 'r'}">${pct(c.mrrGrowthPct)}</div>
-            <div class="kpi-work">${cdFmt(c.netMRRGrowth)} ÷ ${cdFmt(c.startMRR)}</div>
-            <div class="kpi-fml">Net MRR Growth ÷ Starting MRR</div>
-            ${pp(c, prev, 'mrrGrowthPct')}
         </div>`;
+
+    /* Rolling Averages */
+    const retRG = document.getElementById('ret-rolling-grid');
+    if (retRG) {
+        retRG.innerHTML = [3, 6, 12].map(n => {
+            const ok    = calcs.length >= n;
+            const slice = calcs.slice(-n);
+
+            function rollAvg(field) {
+                const vals = slice.filter(r => r[field] !== null);
+                return vals.length ? vals.reduce((s, r) => s + r[field], 0) / vals.length : null;
+            }
+
+            const aNrr   = ok ? rollAvg('nrr')       : null;
+            const aGrr   = ok ? rollAvg('gr')         : null;
+            const aChurn = ok ? rollAvg('churnRate')  : null;
+            const aExp   = ok ? rollAvg('expRate')    : null;
+            const aGrowth= ok ? rollAvg('mrrGrowthPct') : null;
+
+            function rpct(v) { return v !== null ? (v * 100).toFixed(1) + '%' : '—'; }
+
+            return `<div class="kpi">
+                <div class="kpi-lbl">${n}-Month Rolling Avg</div>
+                ${ok ? `<div class="roll-inner">
+                    <span style="color:var(--text3)">Avg NRR</span> <span class="${aNrr !== null && aNrr >= 1 ? 'roll-val-pos' : 'roll-val-neg'}">${rpct(aNrr)}</span><br>
+                    <span style="color:var(--text3)">Avg GRR</span> <span class="${aGrr !== null && aGrr >= 0.85 ? 'roll-val-pos' : 'roll-val-neg'}">${rpct(aGrr)}</span><br>
+                    <span style="color:var(--text3)">Avg Churn Rate</span> <span class="${aChurn !== null && aChurn <= 0.05 ? 'roll-val-pos' : 'roll-val-neg'}">${rpct(aChurn)}</span><br>
+                    <span style="color:var(--text3)">Avg Expansion</span> <span class="${aExp !== null && aExp > 0 ? 'roll-val-pos' : ''}">${rpct(aExp)}</span><br>
+                    <span style="color:var(--text3)">Avg MRR Growth</span> <span class="${aGrowth !== null ? (aGrowth >= 0 ? 'roll-val-pos' : 'roll-val-neg') : ''}">${rpct(aGrowth)}</span>
+                </div>` : `<div style="color:var(--text3);font-size:14px;margin-top:10px">Need ${n} months — have ${calcs.length}</div>`}
+            </div>`;
+        }).join('');
+    }
 
     initWorkingToggles();
     const togBtn = document.getElementById('ret-btn-tog-all');
@@ -3200,7 +3236,6 @@ function retToggleCalcs(btn) {
 function retRenderCalcsPanel(id, c) {
     const el = document.getElementById('ret-calcs-panel-table');
     if (!el) return;
-    const m = cashMonths.find(mo => mo.id === id);
     function row(label, value, formula, cls='') {
         return `<tr>
             <td style="padding:8px 14px;color:var(--text3)">${label}</td>
@@ -3224,11 +3259,11 @@ function retRenderCalcsPanel(id, c) {
             ${row('Expansion MRR', cdFmtFull(c.expMRR), 'Manual entry', 'var(--teal)')}
             ${row('Contraction MRR', cdFmtFull(c.conMRR), 'Manual entry', 'var(--amber)')}
             ${row('Churned MRR', cdFmtFull(c.churnMRR), 'Manual entry', 'var(--red)')}
-            ${row('Ending MRR', cdFmtFull(c.endMRR), m && m.endingMRROverride != null && m.endingMRROverride !== '' ? 'Manual override' : 'Starting + New + Exp − Con − Churn', '#a78bfa')}
+            ${row('Ending MRR', cdFmtFull(c.endMRR), 'Starting + New + Exp − Con − Churn', '#a78bfa')}
             ${row('Net MRR Growth', cdFmtFull(c.netMRRGrowth), 'Ending − Starting', c.netMRRGrowth >= 0 ? 'var(--g1)' : 'var(--red)')}
             ${row('MRR Growth %', c.mrrGrowthPct !== null ? (c.mrrGrowthPct*100).toFixed(1)+'%' : '—', 'Net Growth ÷ Starting', c.mrrGrowthPct !== null ? (c.mrrGrowthPct >= 0 ? 'var(--g1)' : 'var(--red)') : '')}
-            ${row('NRR', c.nrr !== null ? (c.nrr*100).toFixed(1)+'%' : '—', 'Ending ÷ Starting', c.nrr !== null ? (c.nrr >= 1 ? 'var(--g1)' : 'var(--red)') : '')}
-            ${row('Gross Retention', c.gr !== null ? (c.gr*100).toFixed(1)+'%' : '—', '(Starting − Con − Churn) ÷ Starting', c.gr !== null ? (c.gr >= 0.85 ? 'var(--g1)' : c.gr >= 0.7 ? 'var(--amber)' : 'var(--red)') : '')}
+            ${row('Net Retention Rate (NRR)', c.nrr !== null ? (c.nrr*100).toFixed(1)+'%' : '—', '(Starting + Exp − Con − Churn) ÷ Starting', c.nrr !== null ? (c.nrr >= 1 ? 'var(--g1)' : 'var(--red)') : '')}
+            ${row('Gross Retention Rate (GRR)', c.gr !== null ? (c.gr*100).toFixed(1)+'%' : '—', '(Starting − Con − Churn) ÷ Starting', c.gr !== null ? (c.gr >= 0.85 ? 'var(--g1)' : c.gr >= 0.7 ? 'var(--amber)' : 'var(--red)') : '')}
             ${row('Churn Rate', c.churnRate !== null ? (c.churnRate*100).toFixed(1)+'%' : '—', 'Churned ÷ Starting', c.churnRate !== null ? (c.churnRate <= 0.02 ? 'var(--g1)' : c.churnRate <= 0.05 ? 'var(--amber)' : 'var(--red)') : '')}
             ${row('Expansion Rate', c.expRate !== null ? (c.expRate*100).toFixed(1)+'%' : '—', 'Expansion ÷ Starting', c.expRate !== null && c.expRate > 0 ? 'var(--g1)' : '')}
         </tbody>
@@ -3266,7 +3301,7 @@ function retRenderCharts() {
     const _gc2   = isLight() ? 'rgba(0,0,0,.07)'     : 'rgba(255,255,255,.05)';
     const _lc2   = isLight() ? 'rgba(13,23,16,.55)'  : 'rgba(220,240,228,.5)';
     const xAxis  = { ticks:{color:_tc2,font:{size:12}}, grid:{color:_gc2} };
-    const mrrY   = { ticks:{color:_tc2,font:{size:12},callback:v=>'£'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:_gc2} };
+    const mrrY   = { ticks:{color:_tc2,font:{size:12},callback:v=>'$'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}, grid:{color:_gc2} };
     const pctY   = { ticks:{color:_tc2,font:{size:12},callback:v=>v+'%'}, grid:{color:_gc2} };
     const lgd    = { labels:{color:_lc2,font:{size:13}} };
     const mrrTip = ctx => ' £' + ctx.parsed.y.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0});
@@ -3286,8 +3321,8 @@ function retRenderCharts() {
     retMkChart('ret-chart-nrr', {
         type:'line',
         data:{ labels, datasets:[
-            { label:'NRR %', data:calcs.map(c=>c.nrr!==null?(c.nrr*100):null), borderColor:'var(--g1)', backgroundColor:'rgba(76,217,123,.07)', tension:.35, fill:true, borderWidth:2, pointBackgroundColor:'var(--g1)', spanGaps:true },
-            { label:'GR %',  data:calcs.map(c=>c.gr!==null?(c.gr*100):null),   borderColor:'var(--teal)', backgroundColor:'transparent', tension:.35, fill:false, borderWidth:2, pointBackgroundColor:'var(--teal)', spanGaps:true }
+            { label:'Net Retention Rate (NRR) %', data:calcs.map(c=>c.nrr!==null?(c.nrr*100):null), borderColor:'var(--g1)', backgroundColor:'rgba(76,217,123,.07)', tension:.35, fill:true, borderWidth:2, pointBackgroundColor:'var(--g1)', spanGaps:true },
+            { label:'Gross Retention Rate (GRR) %',  data:calcs.map(c=>c.gr!==null?(c.gr*100):null),   borderColor:'var(--teal)', backgroundColor:'transparent', tension:.35, fill:false, borderWidth:2, pointBackgroundColor:'var(--teal)', spanGaps:true }
         ]},
         options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{labels:lgd.labels},tooltip:{callbacks:{label:pctTip}}},
             scales:{ x:xAxis, y:{...pctY, suggestedMin:70, suggestedMax:120, ticks:{...pctY.ticks,callback:v=>v+'%'}} }
