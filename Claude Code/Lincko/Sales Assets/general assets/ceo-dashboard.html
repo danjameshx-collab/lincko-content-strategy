@@ -823,7 +823,7 @@
                 <div class="sec-hdr"><span class="sec-title">MRR Position</span></div>
                 <div class="kpi-grid g4" id="ret-row1"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Retention Metrics</span></div>
-                <div class="kpi-grid g5" id="ret-row2"></div>
+                <div class="kpi-grid g4" id="ret-row2"></div>
                 <div class="sec-hdr" style="margin-top:8px"><span class="sec-title">Rolling Averages</span></div>
                 <div class="kpi-grid g3" id="ret-rolling-grid"></div>
 
@@ -3105,6 +3105,16 @@ function retRenderOverview() {
     const prev = idx > 0 ? calcs[idx - 1] : null;
     const rchurn  = c.startMRR > 0 ? (c.churnMRR + c.conMRR) / c.startMRR * 100 : null;
     const prevRch = prev && prev.startMRR > 0 ? (prev.churnMRR + prev.conMRR) / prev.startMRR * 100 : null;
+
+    /* Logo Churn — sourced from the business months[] (client counts), not cashMonths[] (MRR) */
+    const bm     = months.find(mo => mo.id === id);
+    const cs     = bm ? +bm.cs || 0 : 0;
+    const ch     = bm ? +bm.ch || 0 : 0;
+    const lchurn = cs > 0 ? ch / cs * 100 : null;
+    const prevBm     = idx > 0 ? months.find(mo => mo.id === cashMonths[idx - 1].id) : null;
+    const prevCs     = prevBm ? +prevBm.cs || 0 : 0;
+    const prevCh     = prevBm ? +prevBm.ch || 0 : 0;
+    const prevLchurn = prevCs > 0 ? prevCh / prevCs * 100 : null;
     function pct(v)  { return v !== null ? (v * 100).toFixed(1) + '%' : '—'; }
     function pp(cur, prv, field) {
         if (!prv || prv[field] === null || cur[field] === null) return '';
@@ -3157,22 +3167,8 @@ function retRenderOverview() {
             <div class="kpi-fml">(Starting + Expansion − Contraction − Churn) ÷ Starting MRR</div>
             ${pp(c, prev, 'nrr')}
         </div>
-        <div class="kpi" title="Gross Retention Rate = (Starting − Contraction − Churn) ÷ Starting">
-            <div class="kpi-lbl">Gross Retention Rate (GRR)</div>
-            <div class="kpi-val ${c.gr === null ? '' : c.gr >= 0.85 ? 'g' : c.gr >= 0.7 ? 'a' : 'r'}">${pct(c.gr)}</div>
-            <div class="kpi-work">(${cdFmt(c.startMRR)} − ${cdFmt(c.conMRR)} − ${cdFmt(c.churnMRR)}) ÷ ${cdFmt(c.startMRR)}</div>
-            <div class="kpi-fml">(Starting − Contraction − Churn) ÷ Starting</div>
-            ${pp(c, prev, 'gr')}
-        </div>
-        <div class="kpi" title="Churn Rate = Churned MRR ÷ Starting MRR. Lower is better.">
-            <div class="kpi-lbl">Churn Rate (Logo Churn)</div>
-            <div class="kpi-val ${c.churnRate === null ? '' : c.churnRate <= 0.02 ? 'g' : c.churnRate <= 0.05 ? 'a' : 'r'}">${pct(c.churnRate)}</div>
-            <div class="kpi-work">${cdFmt(c.churnMRR)} ÷ ${cdFmt(c.startMRR)}</div>
-            <div class="kpi-fml">Churned MRR ÷ Starting MRR</div>
-            ${pp(c, prev, 'churnRate')}
-        </div>
         <div class="kpi" title="Revenue Churn % = (Churned MRR + Contraction MRR) ÷ Starting MRR × 100">
-            <div class="kpi-lbl">Revenue Churn</div>
+            <div class="kpi-lbl">Revenue Churn (GRR)</div>
             <div class="kpi-val ${rchurn !== null ? (rchurn <= 2 ? 'g' : rchurn <= 5 ? 'a' : 'r') : ''}">${rchurn !== null ? rchurn.toFixed(1) + '%' : '—'}</div>
             <div class="kpi-work">${rchurn !== null ? '(' + cdFmt(c.churnMRR) + ' + ' + cdFmt(c.conMRR) + ') ÷ ' + cdFmt(c.startMRR) : 'Enter Starting MRR & Churned MRR in Data Input'}</div>
             <div class="kpi-fml">(Churned MRR + Contraction MRR) ÷ Starting MRR × 100</div>
@@ -3184,6 +3180,13 @@ function retRenderOverview() {
             <div class="kpi-work">${cdFmt(c.expMRR)} ÷ ${cdFmt(c.startMRR)}</div>
             <div class="kpi-fml">Expansion MRR ÷ Starting MRR</div>
             ${pp(c, prev, 'expRate')}
+        </div>
+        <div class="kpi" title="Logo Churn is purely a customer-count metric, so it ignores MRR entirely. Logo Churn % = Customers Lost ÷ Starting Customers × 100">
+            <div class="kpi-lbl">Logo Churn</div>
+            <div class="kpi-val ${lchurn !== null ? (lchurn <= 2 ? 'g' : lchurn <= 5 ? 'a' : 'r') : ''}">${lchurn !== null ? lchurn.toFixed(1) + '%' : '—'}</div>
+            <div class="kpi-work">${lchurn !== null ? ch + ' ÷ ' + cs : 'Enter Starting Clients & Clients Churned in Data Input'}</div>
+            <div class="kpi-fml">Customers Lost ÷ Starting Customers × 100</div>
+            ${lchurn !== null && prevLchurn !== null ? (() => { const d = lchurn - prevLchurn; return Math.abs(d) < 0.01 ? '' : `<div class="kpi-delta ${d < 0 ? 'up' : 'dn'}">${d < 0 ? '▼' : '▲'} ${Math.abs(d).toFixed(1)}pp</div>`; })() : ''}
         </div>`;
 
     /* Rolling Averages */
@@ -3199,7 +3202,6 @@ function retRenderOverview() {
             }
 
             const aNrr   = ok ? rollAvg('nrr')       : null;
-            const aGrr   = ok ? rollAvg('gr')         : null;
             const aChurn = ok ? rollAvg('churnRate')  : null;
             const aExp   = ok ? rollAvg('expRate')    : null;
             const aGrowth= ok ? rollAvg('mrrGrowthPct') : null;
@@ -3210,7 +3212,6 @@ function retRenderOverview() {
                 <div class="kpi-lbl">${n}-Month Rolling Avg</div>
                 ${ok ? `<div class="roll-inner">
                     <span style="color:var(--text3)">Avg NRR</span> <span class="${aNrr !== null && aNrr >= 1 ? 'roll-val-pos' : 'roll-val-neg'}">${rpct(aNrr)}</span><br>
-                    <span style="color:var(--text3)">Avg GRR</span> <span class="${aGrr !== null && aGrr >= 0.85 ? 'roll-val-pos' : 'roll-val-neg'}">${rpct(aGrr)}</span><br>
                     <span style="color:var(--text3)">Avg Churn Rate</span> <span class="${aChurn !== null && aChurn <= 0.05 ? 'roll-val-pos' : 'roll-val-neg'}">${rpct(aChurn)}</span><br>
                     <span style="color:var(--text3)">Avg Expansion</span> <span class="${aExp !== null && aExp > 0 ? 'roll-val-pos' : ''}">${rpct(aExp)}</span><br>
                     <span style="color:var(--text3)">Avg MRR Growth</span> <span class="${aGrowth !== null ? (aGrowth >= 0 ? 'roll-val-pos' : 'roll-val-neg') : ''}">${rpct(aGrowth)}</span>
