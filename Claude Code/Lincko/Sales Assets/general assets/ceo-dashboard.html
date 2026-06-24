@@ -3165,7 +3165,7 @@ function retRenderOverview() {
             ${pp(c, prev, 'gr')}
         </div>
         <div class="kpi" title="Churn Rate = Churned MRR ÷ Starting MRR. Lower is better.">
-            <div class="kpi-lbl">Churn Rate</div>
+            <div class="kpi-lbl">Churn Rate (Logo Churn)</div>
             <div class="kpi-val ${c.churnRate === null ? '' : c.churnRate <= 0.02 ? 'g' : c.churnRate <= 0.05 ? 'a' : 'r'}">${pct(c.churnRate)}</div>
             <div class="kpi-work">${cdFmt(c.churnMRR)} ÷ ${cdFmt(c.startMRR)}</div>
             <div class="kpi-fml">Churned MRR ÷ Starting MRR</div>
