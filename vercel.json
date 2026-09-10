@@ -3,6 +3,7 @@
   "outputDirectory": ".",
   "framework": null,
   "rewrites": [
-    { "source": "/", "destination": "/Claude Code/Lincko/Content/YT Scraper/index.html" }
+    { "source": "/", "destination": "/Claude Code/Lincko/Content/YT Scraper/index.html" },
+    { "source": "/stuff/:path*", "destination": "/Claude Code/Lincko/Content/YT Scraper/stuff/:path*" }
   ]
 }
