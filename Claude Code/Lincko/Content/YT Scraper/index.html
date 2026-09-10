@@ -729,6 +729,7 @@ const NICHES = {
       'https://www.youtube.com/@JeremyHaynesTraining',
       'https://www.youtube.com/@SamPiliero',
       'https://www.youtube.com/@goglencoco',
+      'https://www.youtube.com/@ed-lawrence',
     ],
     topicWords: 'cold email, copywriting, agency, outreach, leads, clients, B2B, SaaS',
     keywords: ['cold email strategy','B2B lead generation','agency growth tips','how to get clients']
@@ -1334,6 +1335,10 @@ function renderFrameworksView(el) {
       }
       case 'a-z':
         return a.template.localeCompare(b.template);
+      case 'channel': {
+        const chOf = fw => [...fw.channels].sort()[0] || '';
+        return chOf(a).localeCompare(chOf(b));
+      }
       default: return 0;
     }
   });
@@ -1345,6 +1350,7 @@ function renderFrameworksView(el) {
     { id:'best-outlier',  label:'Best Outlier'  },
     { id:'highest-views', label:'Highest Views' },
     { id:'a-z',           label:'A – Z'         },
+    { id:'channel',       label:'By Channel'    },
   ];
   const sortHtml = `
     <div class="fw-sort-bar">
