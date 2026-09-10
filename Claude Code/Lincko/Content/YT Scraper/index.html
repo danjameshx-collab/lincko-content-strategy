@@ -254,6 +254,13 @@ textarea{resize:vertical}
 .fn-title{font-size:15px;color:var(--text);line-height:1.5;flex:1}
 .fn-desc{font-size:13px;color:var(--text-dim);margin-top:4px;line-height:1.55}
 .fn-adhoc{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:4px;flex-shrink:0;white-space:nowrap;margin-top:4px;background:var(--surface3);color:var(--text-muted);border:1px solid var(--border2)}
+
+/* STUFF PAGE */
+.stuff-page{max-width:1200px;margin:0 auto;padding:36px 24px 80px}
+.stuff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:24px}
+.stuff-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .15s}
+.stuff-card:hover{border-color:var(--border2)}
+.stuff-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;cursor:pointer}
 </style>
 </head>
 <body>
@@ -263,6 +270,7 @@ textarea{resize:vertical}
   <div class="page-nav">
     <button class="page-nav-btn active" id="pNavResearch" onclick="setPage('research')">Research</button>
     <button class="page-nav-btn" id="pNavMyTitles" onclick="setPage('mytitles')">My Titles</button>
+    <button class="page-nav-btn" id="pNavStuff" onclick="setPage('stuff')">Stuff</button>
   </div>
   <div class="hdr-space"></div>
   <div class="hdr-stats">
@@ -678,6 +686,24 @@ textarea{resize:vertical}
       </div>
     </div>
 
+  </div>
+</div>
+
+<div id="stuffPage" style="display:none">
+  <div class="stuff-page">
+    <div class="tp-header">
+      <div class="tp-eyebrow"><span class="tp-eyebrow-dot"></span>Just Some Photos</div>
+      <h2 class="tp-title">Stuff</h2>
+      <p class="tp-sub">A quick place to grab these images</p>
+    </div>
+    <div class="stuff-grid">
+      <div class="stuff-card"><a href="stuff/20220731_014252_1000047255.jpg" target="_blank"><img src="stuff/20220731_014252_1000047255.jpg" loading="lazy"></a></div>
+      <div class="stuff-card"><a href="stuff/20221103_143401_1000046882.jpg" target="_blank"><img src="stuff/20221103_143401_1000046882.jpg" loading="lazy"></a></div>
+      <div class="stuff-card"><a href="stuff/20221202_075209_1000048250.jpg" target="_blank"><img src="stuff/20221202_075209_1000048250.jpg" loading="lazy"></a></div>
+      <div class="stuff-card"><a href="stuff/20241119_035046_IMG_1766.jpg" target="_blank"><img src="stuff/20241119_035046_IMG_1766.jpg" loading="lazy"></a></div>
+      <div class="stuff-card"><a href="stuff/20250210_073951_IMG_3069.jpg" target="_blank"><img src="stuff/20250210_073951_IMG_3069.jpg" loading="lazy"></a></div>
+      <div class="stuff-card"><a href="stuff/IMG_9879.jpg" target="_blank"><img src="stuff/IMG_9879.jpg" loading="lazy"></a></div>
+    </div>
   </div>
 </div>
 
@@ -1594,8 +1620,10 @@ function setPage(p) {
   currentPage = p;
   document.getElementById('researchPage').style.display = p === 'research' ? '' : 'none';
   document.getElementById('myTitlesPage').style.display = p === 'mytitles' ? 'block' : 'none';
+  document.getElementById('stuffPage').style.display = p === 'stuff' ? 'block' : 'none';
   document.getElementById('pNavResearch').classList.toggle('active', p === 'research');
   document.getElementById('pNavMyTitles').classList.toggle('active', p === 'mytitles');
+  document.getElementById('pNavStuff').classList.toggle('active', p === 'stuff');
 }
 
 function toggleTopic(card) { card.classList.toggle('open'); }
