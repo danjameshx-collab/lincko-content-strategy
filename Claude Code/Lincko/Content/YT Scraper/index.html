@@ -4,309 +4,298 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YouTube Title Researcher</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23e53935'/><polygon points='12,9 24,16 12,23' fill='white'/></svg>">
+<link rel="icon" type="image/png" href="logo.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0a0f;--surface:#13131f;--surface2:#1e1e30;--surface3:#252540;
-  --accent:#e53935;--text:#e2e2f0;--text-dim:#7a7a9a;--text-muted:#4a4a6a;
-  --border:#252535;--border2:#353555;--success:#22c55e;--warn:#f59e0b;--r:8px;--r2:12px;
+  --paper:#FFFFFF; --paper-raised:#FFFFFF; --paper-soft:#F7F8F7;
+  --ink:#14181B; --ink-soft:#5B6560; --ink-faint:#757E78;
+  --mimeo:#2F8F5B; --mimeo-ink:#E6F4EC;
+  --line:#E4E9E6; --line-strong:#CCD5D0;
+  --good:#2F8F5B; --warn:#B4691A;
+  --bespoke:#1E6B45; --bespoke-dark:#123D28; --bespoke-bg:#E6F4EC; --bespoke-bg-2:#DCF0E5;
+  --shadow: 0 1px 0 rgba(20,24,27,.03), 0 8px 20px -12px rgba(20,24,27,.14);
+  --shadow-hover: 0 1px 0 rgba(20,24,27,.03), 0 14px 30px -14px rgba(20,24,27,.22);
+  --shadow-lg: 0 2px 4px rgba(20,24,27,.04), 0 22px 44px -18px rgba(20,24,27,.24);
+  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;
+  --ease: cubic-bezier(.2,.7,.3,1);
+  --r:8px; --r2:14px;
+  /* legacy aliases used by inline styles in the JS render functions */
+  --bg:var(--paper); --surface:var(--paper-raised); --surface2:var(--paper); --surface3:var(--paper-soft);
+  --accent:var(--bespoke); --text:var(--ink); --text-dim:var(--ink-soft); --text-muted:var(--ink-faint);
+  --border:var(--line); --border2:var(--line-strong); --success:var(--good);
 }
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+html,body{overflow-x:clip;max-width:100%} /* clip, not hidden: hidden makes body a scroll container and breaks position:sticky */
+body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-height:100vh;font-size:14.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+::selection{background:var(--mimeo);color:var(--mimeo-ink)}
+:focus-visible{outline:2px solid var(--bespoke);outline-offset:2px;border-radius:4px}
 
-/* HEADER */
-.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:16px;height:56px;position:sticky;top:0;z-index:100}
-.logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700}
-.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px}
-.hdr-space{flex:1}
-.hdr-stats{display:flex;gap:20px;font-size:13px;color:var(--text-dim)}
-.hdr-stats strong{color:var(--text);font-weight:600}
+/* TOP TAB BAR (same style as the Shots library) */
+.top-tabs{
+  position:sticky; top:0; z-index:100; height:52px; display:flex; align-items:center; gap:6px;
+  padding:0 20px; background:var(--paper-raised); border-bottom:1px solid var(--line); box-shadow:0 1px 0 rgba(20,24,27,.03);
+  padding-left:calc(20px + env(safe-area-inset-left)); padding-right:calc(20px + env(safe-area-inset-right));
+  overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+}
+.top-tabs::-webkit-scrollbar{display:none}
+.top-tab-btn{
+  font-family:var(--font-display); font-weight:700; font-size:14.5px; letter-spacing:.02em;
+  padding:8px 18px; border-radius:999px; border:1px solid transparent; background:transparent; color:var(--ink-soft);
+  cursor:pointer; white-space:nowrap; flex:0 0 auto;
+  transition:background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.top-tab-btn:hover{color:var(--ink); background:var(--mimeo-ink)}
+.top-tab-btn.active{background:var(--bespoke); color:#fff; border-color:var(--bespoke)}
+@media (max-width:480px){
+  .top-tabs{padding-left:calc(12px + env(safe-area-inset-left)); padding-right:calc(12px + env(safe-area-inset-right)); gap:4px}
+  .top-tab-btn{padding:7px 14px; font-size:13.5px}
+}
 
 /* LAYOUT */
-.layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 56px)}
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 52px)}
 
 /* SIDEBAR */
-.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:16px;overflow-y:auto;height:calc(100vh - 56px);position:sticky;top:56px}
-.s-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
-.s-sec{margin-bottom:20px}
-.s-hint{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4}
+.sidebar{background:var(--paper-raised);border-right:1px solid var(--line);padding:20px 18px;overflow-y:auto;height:calc(100vh - 52px);position:sticky;top:52px}
+.s-label{font-family:var(--font-display);font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--bespoke);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.s-sec{margin-bottom:22px}
+.s-hint{font-size:11.5px;color:var(--ink-faint);margin-top:5px;line-height:1.45}
 
 /* FORM */
-input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);padding:7px 11px;font-size:13px;outline:none;transition:border-color .15s;font-family:inherit}
-input:focus,select:focus,textarea:focus{border-color:var(--accent)}
-input::placeholder{color:var(--text-muted)}
+input,select,textarea{width:100%;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);color:var(--ink);padding:8px 11px;font-size:13.5px;outline:none;transition:border-color .15s ease,box-shadow .15s ease;font-family:inherit}
+input:hover,select:hover,textarea:hover{border-color:var(--line-strong)}
+input:focus,select:focus,textarea:focus{border-color:var(--mimeo);box-shadow:0 0 0 3px rgba(47,143,91,.15)}
+input::placeholder,textarea::placeholder{color:var(--ink-faint)}
 textarea{resize:vertical}
+select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235B6560' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:10px 6px}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--r);border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;text-decoration:none}
-.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#ef5350}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.btn-sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-sec:hover{background:var(--surface3);border-color:var(--border2)}
-.btn-ghost{background:transparent;color:var(--text-dim);padding:4px 8px}.btn-ghost:hover{background:var(--surface2);color:var(--text)}
-.btn-sm{padding:4px 9px;font-size:12px}
-.btn-full{width:100%;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--paper-raised);color:var(--ink);font-size:12.5px;font-weight:700;letter-spacing:.01em;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .12s ease,box-shadow .15s ease;font-family:inherit;white-space:nowrap;text-decoration:none}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--bespoke);border-color:var(--bespoke);color:#fff;box-shadow:0 1px 0 rgba(20,24,27,.03),0 10px 20px -12px rgba(30,107,69,.45)}
+.btn-primary:hover{background:var(--bespoke-dark);border-color:var(--bespoke-dark);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-sec{background:var(--paper-raised);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow)}
+.btn-sec:hover{background:var(--paper-soft);border-color:var(--line-strong);box-shadow:var(--shadow-hover);transform:translateY(-1px)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--ink-soft);padding:4px 9px}
+.btn-ghost:hover{background:var(--mimeo-ink);color:var(--bespoke)}
+.btn-sm{padding:5px 11px;font-size:11.5px}
+.btn-full{width:100%;justify-content:center;padding:11px 16px;font-size:13px}
 
-/* NICHE/MODE TABS */
-.niche-tabs{display:flex;flex-wrap:wrap;gap:5px}
-.niche-tab{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
-.niche-tab:hover{color:var(--text);border-color:var(--border2)}
-.niche-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
-.mode-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:12px}
-.mode-tab{padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-dim);transition:all .15s}
-.mode-tab:hover{color:var(--text)}.mode-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
 /* CHANNEL LIST */
-.ch-list{display:flex;flex-direction:column;gap:4px;max-height:260px;overflow-y:auto}
-.ch-item{display:flex;align-items:center;gap:7px;padding:6px 8px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border)}
-.ch-item.ok{border-color:#22c55e33}.ch-item.err{border-color:#e5393533}
-.ch-avatar{width:24px;height:24px;border-radius:50%;background:var(--surface3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)}
+.ch-list{display:flex;flex-direction:column;gap:5px;max-height:260px;overflow-y:auto}
+.ch-item{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--paper);border-radius:var(--r);border:1px solid var(--line);transition:border-color .15s ease}
+.ch-item:hover{border-color:var(--line-strong)}
+.ch-item.ok{border-color:rgba(47,143,91,.3)}.ch-item.err{border-color:rgba(180,105,26,.35)}
+.ch-avatar{width:24px;height:24px;border-radius:50%;background:var(--bespoke-bg);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--bespoke)}
 .ch-avatar img{width:100%;height:100%;object-fit:cover}
-.ch-name{flex:1;font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ch-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.ch-dot.ok{background:var(--success)}.ch-dot.err{background:var(--accent)}
-.ch-dot.loading{background:var(--warn);animation:pulse 1s infinite}
-.add-row{display:flex;gap:5px;margin-top:7px}.add-row input{flex:1}
-.bulk-panel{margin-top:8px;display:none}.bulk-panel.open{display:block}
-.bulk-panel textarea{height:90px;font-size:12px}
-.bulk-actions{display:flex;gap:5px;margin-top:5px}
+.ch-name{flex:1;font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.ch-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ch-dot.ok{background:var(--good)}.ch-dot.err{background:var(--warn)}
+.ch-dot.loading{background:var(--mimeo);animation:pulse 1s infinite}
+.add-row{display:flex;gap:6px;margin-top:8px}.add-row input{flex:1}
+.bulk-panel{margin-top:8px;margin-bottom:8px;display:none}.bulk-panel.open{display:block}
+.bulk-panel textarea{height:90px;font-size:12.5px}
+.bulk-actions{display:flex;gap:6px;margin-top:6px}
 
 /* PROGRESS */
 .prog-wrap{display:none;margin-bottom:12px}.prog-wrap.show{display:block}
-.prog-track{height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-bottom:5px}
-.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+.prog-track{height:4px;background:var(--bespoke-bg);border-radius:999px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;background:var(--bespoke);border-radius:999px;transition:width .3s var(--ease)}
 .prog-row{display:flex;justify-content:space-between}
-.prog-text,.prog-count{font-size:12px;color:var(--text-dim)}
+.prog-text,.prog-count{font-size:12px;color:var(--ink-soft)}
 
 /* TOOLBAR */
-.toolbar{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);position:sticky;top:56px;z-index:90}
+.toolbar{padding:12px 20px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);position:sticky;top:52px;z-index:90}
 .tb-search{flex:1;min-width:180px;max-width:340px;position:relative}
-.tb-search input{padding-left:30px}
-.search-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;pointer-events:none}
+.tb-search input{padding-left:32px;border-radius:999px}
+.search-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-faint);pointer-events:none;display:flex}
+.search-ico svg{width:14px;height:14px}
+.toolbar select{border-radius:999px}
 .tb-space{flex:1}
-.view-toggle{display:flex;gap:2px;background:var(--surface2);padding:2px;border-radius:var(--r)}
-.view-btn{padding:5px 10px;border-radius:6px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;font-family:inherit}
-.view-btn.active{background:var(--surface3);color:var(--text)}
+.view-toggle{display:flex;gap:2px;background:var(--paper-soft);border:1px solid var(--line);padding:3px;border-radius:999px}
+.view-btn{padding:5px 13px;border-radius:999px;border:none;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:12.5px;font-weight:700;transition:all .15s ease;font-family:inherit}
+.view-btn:hover{color:var(--ink)}
+.view-btn.active{background:var(--bespoke);color:#fff}
 
 /* FRAMEWORK VIEW */
-.fw-wrap{padding:18px}
-.fw-cat-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
-.fw-cat-pill{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
-.fw-cat-pill:hover{color:var(--text);border-color:var(--border2)}
-.fw-cat-pill.active{background:var(--surface3);color:var(--text);border-color:var(--border2)}
+.fw-wrap{padding:22px 24px 40px}
+.fw-cat-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px}
+.fw-cat-pill{padding:5px 13px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s ease;font-family:inherit}
+.fw-cat-pill:hover{color:var(--ink);background:var(--mimeo-ink);border-color:var(--line-strong)}
+.fw-cat-pill.active{background:var(--bespoke);color:#fff;border-color:var(--bespoke)}
 
-.fw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(500px,1fr));gap:20px}
+.fw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(500px,1fr));gap:18px}
 
 /* FRAMEWORK CARD */
-.fw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:24px;display:flex;flex-direction:column;gap:16px;transition:border-color .15s}
-.fw-card:hover{border-color:var(--border2)}
+.fw-card{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--r2);padding:22px 24px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow);transition:border-color .15s ease,box-shadow .15s ease,transform .12s ease}
+.fw-card:hover{border-color:var(--mimeo);box-shadow:var(--shadow-hover);transform:translateY(-2px)}
 .fw-hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.fw-cat-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 9px;border-radius:4px}
-.fw-meta{font-size:12px;color:var(--text-muted)}
-.fw-meta strong{color:var(--text-dim)}
+.fw-cat-tag{font-family:var(--font-display);font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:999px}
+.fw-meta{font-size:12px;color:var(--ink-faint)}
+.fw-meta strong{color:var(--ink-soft)}
 
-/* THE FRAMEWORK TEMPLATE — the hero element */
-.fw-tpl{font-size:20px;font-weight:600;line-height:1.7;color:var(--text);word-break:break-word}
+/* THE FRAMEWORK TEMPLATE, the hero element */
+.fw-tpl{font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.6;color:var(--ink);word-break:break-word}
 
 /* OUTLIER BADGE */
-.ol{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap;flex-shrink:0;margin-left:6px}
-.ol-fire{background:#451a03;color:#fbbf24;border:1px solid #92400e}
-.ol-great{background:#14532d;color:#4ade80;border:1px solid #16a34a}
-.ol-good{background:#1a3a2a;color:#86efac;border:1px solid #166534}
-.ol-above{background:#1e2d1e;color:#6ee7b7;border:1px solid #14532d}
-.ol-avg{background:var(--surface3);color:var(--text-muted);border:1px solid var(--border)}
-.ol-below{background:#2d1a0a;color:#fb923c;border:1px solid #9a3412}
-.ol-low{background:#3d0f0f;color:#fca5a5;border:1px solid #7f1d1d}
+.ol{display:inline-flex;align-items:center;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap;flex-shrink:0;margin-left:6px}
+.ol-fire{background:#FFF3D6;color:#8A5A00;border:1px solid #F0D48A}
+.ol-great{background:var(--bespoke);color:#fff;border:1px solid var(--bespoke)}
+.ol-good{background:var(--bespoke-bg-2);color:var(--bespoke-dark);border:1px solid rgba(30,107,69,.25)}
+.ol-above{background:var(--mimeo-ink);color:var(--bespoke);border:1px solid rgba(47,143,91,.2)}
+.ol-avg{background:var(--paper-soft);color:var(--ink-faint);border:1px solid var(--line)}
+.ol-below{background:#FBEEE0;color:var(--warn);border:1px solid #EFD3B4}
+.ol-low{background:#F9E3DF;color:#A33B2A;border:1px solid #ECC3BB}
 
 /* FRAMEWORK SORT BAR */
 .fw-sort-bar{display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.fw-sort-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-right:2px}
-.fw-sort-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
-.fw-sort-btn:hover{color:var(--text);border-color:var(--border2)}
-.fw-sort-btn.active{background:var(--surface3);color:var(--text);border-color:var(--border2)}
+.fw-sort-lbl{font-family:var(--font-display);font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--bespoke);margin-right:4px}
+.fw-sort-btn{padding:5px 13px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s ease;font-family:inherit}
+.fw-sort-btn:hover{color:var(--ink);background:var(--mimeo-ink);border-color:var(--line-strong)}
+.fw-sort-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
 
 /* PLACEHOLDERS */
-.ph{display:inline-flex;align-items:center;padding:1px 8px;border-radius:5px;font-size:13px;font-weight:700;font-family:'Courier New',monospace;vertical-align:middle;margin:0 1px}
-.ph-n{background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb33}
-.ph-dollar{background:#14532d;color:#4ade80;border:1px solid #16a34a33}
-.ph-pct{background:#44250a;color:#fb923c;border:1px solid #ea580c33}
-.ph-topic{background:#3b0764;color:#c084fc;border:1px solid #9333ea33}
+.ph{display:inline-flex;align-items:center;padding:1px 9px;border-radius:6px;font-size:13px;font-weight:700;font-family:var(--font-mono);vertical-align:middle;margin:0 1px;letter-spacing:0}
+.ph-n{background:#E4EEF8;color:#1F5A93;border:1px solid #C7DAEE}
+.ph-dollar{background:var(--bespoke-bg);color:var(--bespoke);border:1px solid rgba(30,107,69,.22)}
+.ph-pct{background:#FBEEE0;color:var(--warn);border:1px solid #EFD3B4}
+.ph-topic{background:#EFE8F7;color:#6A3FA0;border:1px solid #DCCDEE}
 
-.fw-divider{height:1px;background:var(--border)}
+.fw-divider{height:1px;background:var(--line)}
 
-.fw-examples{display:flex;flex-direction:column;gap:5px}
-.fw-ex{font-size:12px;color:var(--text-dim);line-height:1.4}
-.fw-ex a{color:inherit;text-decoration:none}
-.fw-ex a:hover{color:var(--accent)}
+.fw-examples{display:flex;flex-direction:column;gap:10px}
+.fw-ex{font-size:13px;color:var(--ink);line-height:1.45}
+.fw-ex a{color:inherit;text-decoration:none;font-weight:600}
+.fw-ex a:hover{color:var(--bespoke)}
 .fw-ex-src{display:flex;align-items:center;gap:6px;margin-top:4px}
-.fw-ch-avatar{width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--surface3)}
-.fw-ch-fallback{display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-muted);font-weight:700;background:var(--surface3)}
-.fw-ch-name{font-size:12px;color:var(--text-dim);font-weight:500}
-.fw-ex-views{font-size:11px;color:var(--text-muted);margin-left:2px}
-.fw-more-btn{font-size:12px;color:var(--text-muted);cursor:pointer;padding:3px 0}
-.fw-more-btn:hover{color:var(--text-dim)}
+.fw-ch-avatar{width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--bespoke-bg)}
+.fw-ch-fallback{display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--bespoke);font-weight:800;background:var(--bespoke-bg)}
+.fw-ch-name{font-size:12px;color:var(--ink-soft);font-weight:600}
+.fw-ex-views{font-size:11.5px;color:var(--ink-faint);margin-left:2px}
+.fw-more-btn{font-size:12px;font-weight:700;color:var(--bespoke);cursor:pointer;padding:3px 0}
+.fw-more-btn:hover{color:var(--bespoke-dark);text-decoration:underline}
 
 .fw-actions{display:flex;gap:6px;flex-wrap:wrap}
-.fw-avg-views{font-size:11px;color:var(--text-muted);margin-left:auto;align-self:center}
-.fw-avg-views strong{color:var(--success)}
+.fw-avg-views{font-size:11.5px;color:var(--ink-faint);margin-left:auto;align-self:center}
+.fw-avg-views strong{color:var(--bespoke)}
 
 /* RESULTS TABLE */
-.results{padding:18px;flex:1}
-.res-table{width:100%;border-collapse:collapse}
-.res-table th{text-align:left;padding:9px 11px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
-.res-table td{padding:9px 11px;border-bottom:1px solid var(--border);vertical-align:middle}
-.res-table tr:hover td{background:var(--surface)}
-.title-cell{display:flex;align-items:flex-start;gap:9px}
-.thumb-sm{width:80px;height:45px;object-fit:cover;border-radius:4px;flex-shrink:0;background:var(--surface3)}
-.title-txt a{color:var(--text);text-decoration:none;font-weight:500;line-height:1.4;font-size:13px}
-.title-txt a:hover{color:var(--accent)}
-.ch-link{color:var(--text-dim);text-decoration:none;font-size:12px}.ch-link:hover{color:var(--accent)}
-.views{color:var(--text-dim);font-size:13px}.views.hot{color:var(--success);font-weight:600}
-.date-txt{color:var(--text-muted);font-size:12px;white-space:nowrap}
+.results{padding:22px 24px 40px;flex:1}
+.res-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--shadow);overflow:hidden;background:var(--paper-raised)}
+.res-table th{text-align:left;padding:12px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--bespoke);border-bottom:1.5px solid var(--line-strong);background:var(--bespoke-bg);white-space:nowrap}
+.res-table td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.res-table tbody tr:last-child td{border-bottom:none}
+.res-table tbody tr:nth-child(even) td{background:rgba(30,107,69,.02)}
+.res-table tbody tr:hover td{background:var(--mimeo-ink)}
+.title-cell{display:flex;align-items:flex-start;gap:10px}
+.thumb-sm{width:80px;height:45px;object-fit:cover;border-radius:6px;flex-shrink:0;background:var(--ink)}
+.title-txt a{color:var(--ink);text-decoration:none;font-weight:600;line-height:1.4;font-size:13.5px}
+.title-txt a:hover{color:var(--bespoke)}
+.ch-link{color:var(--ink-soft);text-decoration:none;font-size:12.5px;font-weight:600}.ch-link:hover{color:var(--bespoke)}
+.views{color:var(--ink-soft);font-size:13px}.views.hot{color:var(--bespoke);font-weight:800}
+.date-txt{color:var(--ink-faint);font-size:12px;white-space:nowrap}
 .act-cell{display:flex;gap:3px}
 
 /* GRID */
-.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.v-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .15s}.v-card:hover{border-color:var(--border2)}
-.card-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--surface3);display:block}
-.card-body{padding:11px}
-.card-title{font-weight:600;line-height:1.4;margin-bottom:7px;font-size:13px}
-.card-title a{color:inherit;text-decoration:none}.card-title a:hover{color:var(--accent)}
-.card-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim)}
-.card-acts{display:flex;gap:5px;margin-top:9px}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.v-card{background:var(--paper-raised);border:1px solid var(--line);border-radius:11px;overflow:hidden;transition:border-color .15s ease,box-shadow .15s ease,transform .12s ease}
+.v-card:hover{border-color:var(--mimeo);box-shadow:var(--shadow);transform:translateY(-2px)}
+.card-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--ink);display:block}
+.card-body{padding:11px 13px 13px}
+.card-title{font-family:var(--font-display);font-weight:800;line-height:1.4;margin-bottom:7px;font-size:13px}
+.card-title a{color:var(--ink);text-decoration:none}.card-title a:hover{color:var(--bespoke)}
+.card-meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--ink-faint)}
+.card-acts{display:flex;gap:6px;margin-top:10px}
 
 /* EMPTY */
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;text-align:center;color:var(--text-dim)}
-.empty-ico{font-size:48px;margin-bottom:14px;opacity:.4}
-.empty h3{font-size:18px;color:var(--text);margin-bottom:6px}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:90px 20px;text-align:center;color:var(--ink-soft)}
+.empty-ico{width:56px;height:56px;border-radius:50%;background:var(--bespoke-bg);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
+.empty h3{font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin-bottom:6px}
+.empty p{font-size:13.5px}
+.empty strong{color:var(--bespoke)}
 
 /* TOAST */
-.toast-wrap{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:7px;z-index:1000}
-.toast{padding:11px 15px;border-radius:var(--r);font-size:13px;font-weight:500;max-width:340px;animation:slideIn .2s ease;box-shadow:0 4px 20px rgba(0,0,0,.5)}
-.toast-err{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
-.toast-ok{background:#14532d;color:#86efac;border:1px solid #166534}
-.toast-info{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.toast-wrap{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:8px;z-index:1000}
+.toast{padding:11px 16px;border-radius:12px;font-size:13px;font-weight:600;max-width:340px;animation:slideIn .2s var(--ease);box-shadow:var(--shadow-lg);background:var(--paper-raised);color:var(--ink);border:1px solid var(--line)}
+.toast-err{border-left:4px solid var(--warn)}
+.toast-ok{border-left:4px solid var(--bespoke)}
+.toast-info{border-left:4px solid var(--line-strong)}
 
-.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:999px;border:2px solid var(--paper)}
 
-/* PAGE NAVIGATION */
-.page-nav{display:flex;gap:2px;background:var(--surface2);padding:2px;border-radius:var(--r)}
-.page-nav-btn{padding:5px 14px;border-radius:6px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;font-family:inherit}
-.page-nav-btn.active{background:var(--accent);color:#fff}
-.page-nav-btn:not(.active):hover{background:var(--surface3);color:var(--text)}
+/* THUMBNAILS PAGE (same format as the Shots library Thumbnails tab) */
+#thumbsPage{display:none;padding:32px;background:var(--paper)}
+.thumbs-box{width:100%;max-width:1357px;margin:0 auto;background:var(--paper-raised);border-radius:16px;overflow:clip;box-shadow:0 30px 70px -22px rgba(0,0,0,.5)} /* clip, not hidden, so the creator nav can stick */
+.thumbs-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:23px 28px 16px;border-bottom:1px solid var(--line)}
+.thumbs-head > div:first-child{min-width:0;flex:1 1 auto}
+.thumbs-head-right{display:flex;align-items:center;gap:10px;flex:0 0 auto;flex-wrap:wrap;justify-content:flex-end}
+.thumbs-eyebrow{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--bespoke)}
+.thumbs-head h2{font-family:var(--font-display);font-weight:800;font-size:clamp(18px,4.5vw,23px);margin:2px 0 0;color:var(--ink);line-height:1.25}
+.thumbs-status{font-size:13.5px;color:var(--ink-faint)}
+.thumbs-nav{position:sticky;top:52px;z-index:2;display:flex;flex-wrap:wrap;gap:9px;padding:14px 28px;background:var(--paper-raised);border-bottom:1px solid var(--line)}
+.thumbs-nav:empty{display:none}
+.thumbs-nav-btn{border:1px solid var(--line-strong);background:var(--paper);color:var(--ink-soft);cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:14.5px;padding:8px 16px;border-radius:999px;transition:background .15s ease,color .15s ease,border-color .15s ease}
+.thumbs-nav-btn:hover{color:var(--ink);border-color:var(--ink-soft)}
+.thumbs-nav-btn.active{background:var(--bespoke);border-color:var(--bespoke);color:#fff}
+.thumbs-scroll{padding:7px 28px 28px}
+.thumbs-channel{border:1px solid var(--line);border-radius:16px;padding:18px 21px 21px;margin-top:21px;background:var(--paper)}
+.thumbs-channel[hidden]{display:none}
+.thumbs-channel-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;margin:0 0 16px}
+.thumbs-channel-name{margin:0;font-family:var(--font-display);font-weight:800;font-size:19.5px;color:var(--ink)}
+.thumbs-channel-head a{color:var(--ink-faint);font-size:14.5px;font-weight:600;text-decoration:none}
+.thumbs-channel-head a:hover{color:var(--ink);text-decoration:underline}
+.thumbs-channel-count{margin-left:auto;font-size:13.5px;color:var(--ink-faint)}
+.thumbs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(322px,1fr));gap:21px}
+.thumbs-card{display:flex;flex-direction:column;text-align:left;border:1px solid var(--line);border-radius:13px;background:var(--paper);overflow:hidden;text-decoration:none;color:inherit;transition:border-color .15s ease,box-shadow .15s ease,transform .12s ease}
+.thumbs-card:hover{border-color:var(--mimeo);box-shadow:var(--shadow);transform:translateY(-2px)}
+.thumbs-card-media{width:100%;aspect-ratio:16/9;background:var(--ink);overflow:hidden}
+.thumbs-card-media img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs-card-body{padding:12px 14px 14px}
+.thumbs-card-title{font-family:var(--font-display);font-weight:700;font-size:15px;line-height:1.35;color:var(--ink);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.thumbs-empty{padding:26px;text-align:center;color:var(--ink-faint);font-style:italic}
+@media (max-width:720px){
+  #thumbsPage{padding:0}
+  .thumbs-box{border-radius:0;box-shadow:none}
+  .thumbs-nav{padding:10px 16px}
+  .thumbs-channel{padding:14px 12px}
+}
+@media (max-width:480px){
+  .thumbs-head{padding:16px 16px 12px;flex-direction:column}
+  .thumbs-scroll{padding:6px 16px 20px}
+  .thumbs-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+}
 
-/* MY TOPICS PAGE */
-#myTitlesPage{display:none}
-.tp-page{max-width:1100px;margin:0 auto;padding:36px 24px 80px}
-.tp-header{text-align:center;margin-bottom:36px}
-.tp-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(229,57,53,0.08);border:1px solid rgba(229,57,53,0.25);border-radius:100px;padding:4px 16px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
-.tp-eyebrow-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;flex-shrink:0}
-.tp-title{font-size:clamp(20px,3vw,32px);font-weight:800;letter-spacing:-0.02em;color:var(--text);margin-bottom:6px}
-.tp-sub{font-size:13px;color:var(--text-muted);max-width:460px;margin:0 auto}
-.tp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:10px;align-items:start}
-.tp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;transition:border-color .15s;cursor:pointer;user-select:none}
-.tp-card:hover,.tp-card.open{border-color:var(--border2)}
-.tp-card-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.tp-num{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
-.tp-card-title{font-size:16px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:5px}
-.tp-card-desc{font-size:12px;color:var(--text-dim);line-height:1.55}
-.tp-chevron{font-size:11px;color:var(--text-muted);flex-shrink:0;margin-top:16px;transition:transform .2s}
-.tp-card.open .tp-chevron{transform:rotate(180deg);color:var(--accent)}
-.tp-card-body{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
-.tp-card.open .tp-card-body{display:block}
-.tp-bullets{list-style:none;display:flex;flex-direction:column;gap:6px;padding:0;margin:0}
-.tp-bullets li{font-size:12px;color:var(--text-dim);line-height:1.55;padding-left:16px;position:relative}
-.tp-bullets li::before{content:'—';position:absolute;left:0;color:var(--accent);font-weight:700}
-.tp-sub-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin:12px 0 6px;padding:0}
-
-/* FUNNEL PAGE */
-.fn-page{max-width:860px;margin:0 auto;padding:36px 24px 80px}
-.fn-header{text-align:center;margin-bottom:40px}
-.fn-header-title{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-.02em;color:var(--text);margin-bottom:6px}
-.fn-header-sub{font-size:14px;color:var(--text-muted)}
-.fn-section{margin-bottom:24px;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
-.fn-section-hdr{padding:16px 22px;display:flex;align-items:center;gap:12px;background:var(--surface)}
-.fn-badge{font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;padding:4px 13px;border-radius:100px;flex-shrink:0}
-.fn-badge-tofu{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
-.fn-badge-mofu{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
-.fn-badge-bofu{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
-.fn-section-name{font-size:17px;font-weight:700;color:var(--text)}
-.fn-section-meta{font-size:13px;color:var(--text-muted);margin-left:auto}
-.fn-group{border-top:1px solid var(--border)}
-.fn-group-hdr{padding:12px 22px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;background:var(--surface);transition:background .1s}
-.fn-group-hdr:hover{background:var(--surface2)}
-.fn-group-name{font-size:14px;font-weight:700;color:var(--text-dim);flex:1}
-.fn-group-count{font-size:12px;color:var(--text-muted);background:var(--surface3);border:1px solid var(--border);padding:1px 8px;border-radius:10px}
-.fn-group-chev{font-size:10px;color:var(--text-muted);transition:transform .2s;margin-left:4px}
-.fn-group.closed .fn-group-chev{transform:rotate(-90deg)}
-.fn-group-body{padding-bottom:8px}
-.fn-group.closed .fn-group-body{display:none}
-.fn-sub-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text-dim);padding:12px 22px 5px;display:flex;align-items:center;gap:10px}
-.fn-sub-label::after{content:'';flex:1;height:1px;background:var(--border2)}
-.fn-item{display:flex;align-items:flex-start;gap:10px;padding:7px 22px;transition:background .1s}
-.fn-item:hover{background:var(--surface2)}
-.fn-dot{width:5px;height:5px;background:var(--border2);border-radius:50%;flex-shrink:0;margin-top:8px}
-.fn-title{font-size:15px;color:var(--text);line-height:1.5;flex:1}
-.fn-desc{font-size:13px;color:var(--text-dim);margin-top:4px;line-height:1.55}
-.fn-adhoc{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:4px;flex-shrink:0;white-space:nowrap;margin-top:4px;background:var(--surface3);color:var(--text-muted);border:1px solid var(--border2)}
-
-/* STUFF PAGE */
-.stuff-page{max-width:1200px;margin:0 auto;padding:36px 24px 80px}
-.stuff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:24px}
-.stuff-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .15s}
-.stuff-card:hover{border-color:var(--border2)}
-.stuff-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;cursor:pointer}
+/* RESPONSIVE */
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+  .fw-grid{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .toolbar,.fw-wrap,.results{padding-left:16px;padding-right:16px}
+}
 </style>
 </head>
 <body>
 
-<div class="hdr">
-  <div class="logo"><div class="logo-icon">▶</div> YT Title Researcher</div>
-  <div class="page-nav">
-    <button class="page-nav-btn active" id="pNavResearch" onclick="setPage('research')">Research</button>
-    <button class="page-nav-btn" id="pNavMyTitles" onclick="setPage('mytitles')">My Titles</button>
-    <button class="page-nav-btn" id="pNavStuff" onclick="setPage('stuff')">Stuff</button>
-  </div>
-  <div class="hdr-space"></div>
-  <div class="hdr-stats">
-    <span><strong id="statFw">0</strong> frameworks</span>
-    <span><strong id="statTotal">0</strong> titles</span>
-    <span><strong id="statResolved">0</strong>/<strong id="statChTotal">0</strong> channels</span>
-  </div>
+<div class="top-tabs">
+  <button type="button" class="top-tab-btn active" id="pNavResearch" onclick="setPage('research')">Titles</button>
+  <button type="button" class="top-tab-btn" id="pNavThumbs" onclick="setPage('thumbs')">Thumbnails</button>
 </div>
 
 <div class="layout" id="researchPage">
 <aside class="sidebar">
 
   <div class="s-sec">
-    <div class="s-label">Your Topic Words</div>
-    <input type="text" id="topicWords" placeholder="cold email, copywriting, agency..."
-           oninput="rebuildFrameworks()">
-    <div class="s-hint">These replace with <span style="color:#c084fc;font-weight:600">[Topic]</span> in frameworks so you can see the structure</div>
-  </div>
-
-  <div class="s-sec">
-    <div class="s-label">Niche Preset</div>
-    <div class="niche-tabs" id="nicheTabs">
-      <div class="niche-tab active" data-niche="business">Business</div>
-      <div class="niche-tab" data-niche="finance">Finance</div>
-      <div class="niche-tab" data-niche="fitness">Fitness</div>
-      <div class="niche-tab" data-niche="tech">Tech</div>
-      <div class="niche-tab" data-niche="custom">Custom</div>
-    </div>
-  </div>
-
-  <div class="s-sec">
-    <div class="mode-tabs">
-      <div class="mode-tab active" id="mTab1" onclick="setMode('channels')">By Channel</div>
-      <div class="mode-tab" id="mTab2" onclick="setMode('keywords')">By Keyword</div>
-    </div>
-
     <div id="chPanel">
       <div class="s-label">
         <span id="chCountLabel">Channels (0)</span>
@@ -329,25 +318,6 @@ textarea{resize:vertical}
         <button class="btn btn-sec btn-sm" onclick="addCh()">Add</button>
       </div>
     </div>
-
-    <div id="kwPanel" style="display:none">
-      <div class="s-label">Keywords (one per line)</div>
-      <textarea id="kwInput" style="height:90px" placeholder="cold email strategy&#10;how to get B2B clients&#10;outreach tips"></textarea>
-    </div>
-  </div>
-
-  <div class="s-sec">
-    <div class="s-label">Options</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div>
-        <label class="s-hint" style="display:block;margin-bottom:3px">Videos per channel</label>
-        <select id="maxVids"><option value="50">50</option><option value="100" selected>100</option><option value="200">200</option><option value="500">500</option></select>
-      </div>
-      <div>
-        <label class="s-hint" style="display:block;margin-bottom:3px">Fetch view counts</label>
-        <select id="doStats"><option value="1" selected>Yes</option><option value="0">No (faster)</option></select>
-      </div>
-    </div>
   </div>
 
   <div class="prog-wrap" id="progWrap">
@@ -364,7 +334,7 @@ textarea{resize:vertical}
 <main style="display:flex;flex-direction:column;min-width:0">
   <div class="toolbar">
     <div class="tb-search">
-      <span class="search-ico">🔍</span>
+      <span class="search-ico"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
       <input type="text" id="filterTxt" placeholder="Filter..." oninput="applyFilters()">
     </div>
     <select id="sortSel" onchange="applyFilters()" style="width:148px">
@@ -392,321 +362,27 @@ textarea{resize:vertical}
     <div class="empty" style="padding:80px 20px;text-align:center">
       <div class="empty-ico">🎬</div>
       <h3>No titles yet</h3>
-      <p>Add your topic words in the sidebar, then click <strong>Fetch Titles</strong></p>
+      <p>Click <strong>Fetch Titles</strong> in the sidebar to start</p>
     </div>
   </div>
 </main>
 </div>
 
-<div id="myTitlesPage">
-  <div class="fn-page">
-    <div class="fn-header">
-      <div class="tp-eyebrow"><span class="tp-eyebrow-dot"></span>Lincko Content Strategy</div>
-      <h2 class="fn-header-title">My Titles</h2>
-      <p class="fn-header-sub">Content mapped across the funnel — click any group header to collapse</p>
-    </div>
-
-    <!-- ── TOFU ── -->
-    <div class="fn-section">
-      <div class="fn-section-hdr">
-        <span class="fn-badge fn-badge-tofu">TOFU</span>
-        <span class="fn-section-name">Top of Funnel</span>
-        <span class="fn-section-meta">Awareness &amp; attraction</span>
-      </div>
-
-      <div class="fn-group" id="fg-tofu-1">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-tofu-1')">
-          <span class="fn-group-name">How-To (Attack Other Channels)</span>
-          <span class="fn-group-count">4</span>
-          <span class="fn-group-chev">▾</span>
+<div id="thumbsPage">
+  <div class="thumbs-box">
+    <div class="thumbs-head">
+      <div><div class="thumbs-eyebrow">Reference Library</div><h2>Thumbnails</h2></div>
+      <div class="thumbs-head-right">
+        <span class="thumbs-status" id="thStatus"></span>
+        <div class="view-toggle">
+          <button class="view-btn active" id="thNewest" onclick="setThumbOrder('newest')">Newest first</button>
+          <button class="view-btn" id="thOldest" onclick="setThumbOrder('oldest')">Oldest first</button>
         </div>
-        <div class="fn-group-body">
-          <div class="fn-sub-label">AI</div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why AI Is Ruining Your Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why AI Outreach Will Never Sign Whale Clients</span></div>
-          <div class="fn-sub-label">Cold Email</div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Cold Email Can't Sign Whale Clients</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Cold Email Is Dying In 2026</span></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-tofu-2">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-tofu-2')">
-          <span class="fn-group-name">How-To (Do Better Outreach)</span>
-          <span class="fn-group-count">7</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Book A Call With Someone Who Ignores Cold Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Do Better Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Earn A Reply From Someone 10x Bigger Than You</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Follow-Up</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Get In Front Of Someone With A Gatekeeper</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Get Inbound Leads From Your Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Guarantee A Response</span></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-tofu-3">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-tofu-3')">
-          <span class="fn-group-name">How-To (Other)</span>
-          <span class="fn-group-count">1</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How to Book A Call with X</span></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-tofu-4">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-tofu-4')">
-          <span class="fn-group-name">Your Unique Story</span>
-          <span class="fn-group-count">2</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How I Went from 9-5 to Business Owner</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How I Went from 9-5 to Creating Incredible Outreach</span></div>
-        </div>
+        <button class="btn btn-sec btn-sm" id="thRefresh" onclick="loadThumbs(true)">Refresh</button>
       </div>
     </div>
-
-    <!-- ── MOFU ── -->
-    <div class="fn-section">
-      <div class="fn-section-hdr">
-        <span class="fn-badge fn-badge-mofu">MOFU</span>
-        <span class="fn-section-name">Middle of Funnel</span>
-        <span class="fn-section-meta">Education &amp; authority</span>
-      </div>
-
-      <div class="fn-group" id="fg-mofu-1">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-1')">
-          <span class="fn-group-name">Frameworks</span>
-          <span class="fn-group-count">8</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The 4-Layer Prospect Research System</div><div class="fn-desc">A way to dig deeper on one prospect by going through four levels of research instead of just looking at their website.</div></div></div>
-          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The 5 Laws Of Signing Whale Clients</div><div class="fn-desc">Five simple rules you have to follow if you want big clients to take you seriously.</div></div></div>
-          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Dream Client List Framework (10-25 Names)</div><div class="fn-desc">A way to pick a short list of the best possible clients to chase, instead of going after hundreds at once.</div></div></div>
-          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Filter Stack (Pattern / Effort / Relevance)</div><div class="fn-desc">The three checks a senior buyer runs on your outreach in the first two seconds to decide if it's worth opening.</div></div></div>
-          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Insanity &amp; Results Framework</div><div class="fn-desc">A way to write outreach by leading with the craziest thing you did, then the result you got, then what it means for the person reading.</div></div></div>
-          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Internal Forwarding Chain Map</div><div class="fn-desc">A way to think about your outreach getting passed around inside a company, so it still works when other people read it.</div></div></div>
-          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Pre-Sell Sequence Framework</div><div class="fn-desc">A way to do most of the selling before the first call even happens.</div></div></div>
-          <div class="fn-item"><span class="fn-dot"></span><div><div class="fn-title">The Whale Client Filter (LTV / Authority / Network / Case Study Fit)</div><div class="fn-desc">A way to score whether a prospect is actually a whale by checking four things: how much they're worth, how senior they are, who they know, and whether they'd make a great case study.</div></div></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-mofu-2">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-2')">
-          <span class="fn-group-name">How-To (Industry Breakdown)</span>
-          <span class="fn-group-count">1</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Whales As An X</span></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-mofu-3">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-3')">
-          <span class="fn-group-name">How-To (Mechanical)</span>
-          <span class="fn-group-count">11</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Audit Your Own Outbound</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build A Dream Client List</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Calculate True Whale LTV</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Create Creative Outbound</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Design Outreach For The Internal Forwarding Chain</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make A Solo VSL</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make A Strategy Doc</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make A Super Loom</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make Outreach Shareable</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Pre-Sell A Whale Before The First Call</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Write Outreach For A Roomful Of Stakeholders</span></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-mofu-4">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-4')">
-          <span class="fn-group-name">Long Style (Deep Dive / Expert Rant)</span>
-          <span class="fn-group-count">52</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Breaking Down A Bad Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Cold Email vs Creative Outbound</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Good vs Bad Outreach For The Same Prospect</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How I Went From 9-5 To Business Owner</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How I Went From 9-5 To Creating Incredible Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Audit Your Own Outbound</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Book A Call With Someone Who Ignores Cold Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build A Business Through Creative Outbound</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build A Dream Client List</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build And Work A Dream 100</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Calculate True Whale LTV</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Close Whale Clients</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Create Creative Outbound</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Design Outreach For The Internal Forwarding Chain</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Diagnose And Fix Your Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Do Better Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Earn A Reply From Someone 10x Bigger Than You</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Follow Up</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Follow Up And Convert</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Get In Front Of Someone With A Gatekeeper</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Get Inbound Leads From Your Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Guarantee A Response</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Make Outreach Shareable</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Pre-Sell A Whale</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Pre-Sell A Whale Before The First Call</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Replace Your Current Outbound Channel</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Replace Your Entire Sales Process</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Whales In Your Industry</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Your First Whale</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Turn Cold Leads Into Red-Hot Leads</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Write Outreach For A Roomful Of Stakeholders</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">My Founder Story</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The 4-Layer Prospect Research System</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The 5 Laws Of Signing Whale Clients</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Dream Client List Framework</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Filter Stack</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Insanity &amp; Results Framework</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Internal Forwarding Chain Map</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Pre-Sell Sequence Framework</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Roadmap To Your First Whale</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Whale Client Filter</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Whale Economics</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why AI Is Ruining Your Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why AI Outreach Will Never Sign Whale Clients</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Cold Email Can't Sign Whale Clients</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Cold Email Is Dying In 2026</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why The Market Is Tired Of Low-Effort Messages</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Follow-Ups Aren't Working</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Offer Isn't The Problem</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Gets Ignored</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Stopped Working</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Works On Small Clients But Not Whales</span></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-mofu-5">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-5')">
-          <span class="fn-group-name">Outreach Breakdown</span>
-          <span class="fn-group-count">6</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why The Market Is Tired Of Low-Effort Messages</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Follow-Ups Aren't Working</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Offer Isn't The Problem</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Gets Ignored</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Stopped Working</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Why Your Outreach Works On Small Clients But Not Whales</span></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-mofu-6">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-mofu-6')">
-          <span class="fn-group-name">Outreach Teardown</span>
-          <span class="fn-group-count">3</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Breaking Down A Bad Outreach (And How To Fix It)</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Side-By-Side: Cold Email vs Creative Outbound</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Side-By-Side: Good vs Bad Outreach For The Same Prospect</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── BOFU ── -->
-    <div class="fn-section">
-      <div class="fn-section-hdr">
-        <span class="fn-badge fn-badge-bofu">BOFU</span>
-        <span class="fn-section-name">Bottom of Funnel</span>
-        <span class="fn-section-meta">Decision &amp; conversion</span>
-      </div>
-
-      <div class="fn-group" id="fg-bofu-1">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-bofu-1')">
-          <span class="fn-group-name">Analyzing D100</span>
-          <span class="fn-group-count">2</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Analyzing My D100</span><span class="fn-adhoc">Ad hoc</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Analyzing Others D100</span><span class="fn-adhoc">Ad hoc</span></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-bofu-2">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-bofu-2')">
-          <span class="fn-group-name">Course</span>
-          <span class="fn-group-count">19</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-sub-label">Full Course</div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build And Work A Dream 100</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Close Whale Clients</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Diagnose And Fix Your Outreach</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Do Creative Outbound</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Follow Up And Convert</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Pre-Sell A Whale</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Replace Your Current Outbound Channel</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Whales In Your Industry</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Your First Whale</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Turn Cold Leads Into Red-Hot Leads</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">My Founder Story</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Roadmap To Your First Whale</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Whale Economics</span></div>
-          <div class="fn-sub-label">Hyper-Long Course</div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Become The Best Operator In Your Space</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Build A Business Through Creative Outbound</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Replace Your Entire Sales Process</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">How To Sign Whale Clients (A-Z)</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Complete Outbound System</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">The Complete Whale Acquisition System</span></div>
-        </div>
-      </div>
-
-      <div class="fn-group" id="fg-bofu-3">
-        <div class="fn-group-hdr" onclick="toggleGroup('fg-bofu-3')">
-          <span class="fn-group-name">Social Proof</span>
-          <span class="fn-group-count">3</span>
-          <span class="fn-group-chev">▾</span>
-        </div>
-        <div class="fn-group-body">
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Case Study Interview</span><span class="fn-adhoc">Ad hoc</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Case Study Interview (Hybrid)</span><span class="fn-adhoc">Ad hoc</span></div>
-          <div class="fn-item"><span class="fn-dot"></span><span class="fn-title">Social Proof Breakdown</span><span class="fn-adhoc">Ad hoc</span></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<div id="stuffPage" style="display:none">
-  <div class="stuff-page">
-    <div class="tp-header">
-      <div class="tp-eyebrow"><span class="tp-eyebrow-dot"></span>Just Some Photos</div>
-      <h2 class="tp-title">Stuff</h2>
-      <p class="tp-sub">A quick place to grab these images</p>
-    </div>
-    <div class="stuff-grid">
-      <div class="stuff-card"><a href="stuff/20220731_014252_1000047255.jpg" target="_blank"><img src="stuff/20220731_014252_1000047255.jpg" loading="lazy"></a></div>
-      <div class="stuff-card"><a href="stuff/20221103_143401_1000046882.jpg" target="_blank"><img src="stuff/20221103_143401_1000046882.jpg" loading="lazy"></a></div>
-      <div class="stuff-card"><a href="stuff/20221202_075209_1000048250.jpg" target="_blank"><img src="stuff/20221202_075209_1000048250.jpg" loading="lazy"></a></div>
-      <div class="stuff-card"><a href="stuff/20241119_035046_IMG_1766.jpg" target="_blank"><img src="stuff/20241119_035046_IMG_1766.jpg" loading="lazy"></a></div>
-      <div class="stuff-card"><a href="stuff/20250210_073951_IMG_3069.jpg" target="_blank"><img src="stuff/20250210_073951_IMG_3069.jpg" loading="lazy"></a></div>
-      <div class="stuff-card"><a href="stuff/IMG_9879.jpg" target="_blank"><img src="stuff/IMG_9879.jpg" loading="lazy"></a></div>
-      <div class="stuff-card"><a href="stuff/20260314_IMG_WA0022.jpg" target="_blank"><img src="stuff/20260314_IMG_WA0022.jpg" loading="lazy"></a></div>
-      <div class="stuff-card"><a href="stuff/20250312_093812_IMG_3232.jpg" target="_blank"><img src="stuff/20250312_093812_IMG_3232.jpg" loading="lazy"></a></div>
-      <div class="stuff-card"><a href="stuff/20260703_144527.jpg" target="_blank"><img src="stuff/20260703_144527.jpg" loading="lazy"></a></div>
-    </div>
+    <div class="thumbs-nav" id="thumbsNav" aria-label="Choose creator"></div>
+    <div class="thumbs-scroll" id="thContent"><div class="thumbs-empty">Loading thumbnails…</div></div>
   </div>
 </div>
 
@@ -720,32 +396,31 @@ let frameworks = [];
 let fwCatFilter = '';
 let fwSortBy = 'cross-channel';
 let channels = [];
-let mode = 'channels';
 let view = 'frameworks';
 let expandedCards = new Set();
 let autoResolving = false;
 
 // ── CATEGORY CONFIG ───────────────────────────────────────────────
 const CAT = {
-  'List':           '#3b82f6',
-  'How To':         '#06b6d4',
-  'Results':        '#22c55e',
-  'Income/Results': '#22c55e',
-  'Mistakes':       '#ef4444',
-  'Why':            '#f59e0b',
-  'Problem':        '#ef4444',
-  'Warning':        '#ef4444',
-  'Truth/Secret':   '#ef4444',
-  'Lessons':        '#8b5cf6',
-  'Story':          '#8b5cf6',
-  'Transformation': '#8b5cf6',
-  'Experiment':     '#06b6d4',
-  'Comparison':     '#06b6d4',
-  'Guide':          '#06b6d4',
-  'Experience':     '#f59e0b',
-  'Question':       '#7c3aed',
-  'Case Study':     '#22c55e',
-  'Other':          '#4a4a6a',
+  'List':           '#1F5A93',
+  'How To':         '#0E7490',
+  'Results':        '#1E6B45',
+  'Income/Results': '#1E6B45',
+  'Mistakes':       '#A33B2A',
+  'Why':            '#B4691A',
+  'Problem':        '#A33B2A',
+  'Warning':        '#A33B2A',
+  'Truth/Secret':   '#A33B2A',
+  'Lessons':        '#6A3FA0',
+  'Story':          '#6A3FA0',
+  'Transformation': '#6A3FA0',
+  'Experiment':     '#0E7490',
+  'Comparison':     '#0E7490',
+  'Guide':          '#0E7490',
+  'Experience':     '#B4691A',
+  'Question':       '#6A3FA0',
+  'Case Study':     '#1E6B45',
+  'Other':          '#757E78',
 };
 
 // ── NICHE PRESETS ─────────────────────────────────────────────────
@@ -759,28 +434,21 @@ const NICHES = {
       'https://www.youtube.com/@SamPiliero',
       'https://www.youtube.com/@goglencoco',
       'https://www.youtube.com/@ed-lawrence',
-    ],
-    topicWords: 'cold email, copywriting, agency, outreach, leads, clients, B2B, SaaS',
-    keywords: ['cold email strategy','B2B lead generation','agency growth tips','how to get clients']
+      'https://www.youtube.com/@jaketrinder',
+    ]
   },
-  finance:  { channels:['@GrahamStephan','@AndreiJikh','@MarkTilbury','@MeetKevin'], topicWords:'investing,stocks,crypto,real estate,passive income', keywords:['how to invest','personal finance tips'] },
-  fitness:  { channels:['@JeffNippard','@AthleanX','@ChrisHeria','@HamzaAhmedOfficial'], topicWords:'workout,muscle,fat loss,gym,training', keywords:['best workout routine','how to lose weight'] },
-  tech:     { channels:['@mkbhd','@LinusTechTips','@fireship','@ThePrimeTimeagen'], topicWords:'coding,programming,AI,software,developer', keywords:['best AI tools','programming tutorial'] },
-  custom:   { channels:[], topicWords:'', keywords:[] }
+  finance:  { channels:['@GrahamStephan','@AndreiJikh','@MarkTilbury','@MeetKevin'] },
+  fitness:  { channels:['@JeffNippard','@AthleanX','@ChrisHeria','@HamzaAhmedOfficial'] },
+  tech:     { channels:['@mkbhd','@LinusTechTips','@fireship','@ThePrimeTimeagen'] },
+  custom:   { channels:[] }
 };
 
 // ── INIT ──────────────────────────────────────────────────────────
-document.querySelectorAll('.niche-tab').forEach(t =>
-  t.addEventListener('click', () => loadNiche(t.dataset.niche))
-);
 loadNiche('business');
 
 function loadNiche(n) {
-  document.querySelectorAll('.niche-tab').forEach(t => t.classList.toggle('active', t.dataset.niche === n));
   const p = NICHES[n]; if (!p) return;
   channels = p.channels.map(h => mkCh(h));
-  document.getElementById('kwInput').value = p.keywords.join('\n');
-  document.getElementById('topicWords').value = p.topicWords || '';
   renderChList();
   autoResolveChannels();
 }
@@ -849,9 +517,6 @@ async function autoResolveChannels() {
 
 function renderChList() {
   const q = (document.getElementById('chSearchInput')?.value||'').toLowerCase();
-  const ok = channels.filter(c=>c.status==='ok').length;
-  document.getElementById('statResolved').textContent = ok;
-  document.getElementById('statChTotal').textContent = channels.length;
   document.getElementById('chCountLabel').textContent = `Channels (${channels.length})`;
 
   const visible = channels.filter(c => !q || c.name.toLowerCase().includes(q) || c.input.toLowerCase().includes(q));
@@ -920,14 +585,16 @@ function applyChData(ch,item) {
   ch.status='ok';
 }
 
-async function fetchChVideos(ch, max) {
-  const vids=[]; let token=null, page=0, pages=Math.ceil(max/50);
+// since (optional): stop paging once uploads are older than this Date
+async function fetchChVideos(ch, max, since) {
+  const vids=[]; let token=null, page=0, pages=Math.ceil(max/50), reachedCutoff=false;
   do {
     const p={part:'snippet',playlistId:ch.uploadsId,maxResults:50};
     if (token) p.pageToken=token;
     const d = await yt('playlistItems',p);
     for (const it of d.items||[]) {
       if (['Deleted video','Private video'].includes(it.snippet.title)) continue;
+      if (since && new Date(it.snippet.publishedAt) < since) { reachedCutoff=true; continue; }
       vids.push({
         videoId:it.snippet.resourceId.videoId, title:it.snippet.title,
         date:it.snippet.publishedAt,
@@ -936,16 +603,16 @@ async function fetchChVideos(ch, max) {
       });
     }
     token=d.nextPageToken; page++;
-    if (vids.length>=max) break;
+    if (vids.length>=max || reachedCutoff) break;
   } while (token && page<pages);
   ch.count=vids.length;
   return vids.slice(0,max);
 }
 
-// Fetches duration (always) + view counts (if includeStats).
+// Fetches duration + livestream flag (always) + view counts (if includeStats).
 // Returns number of videos removed as Shorts (< 2 min).
 async function fetchVideoDetails(vids, includeStats) {
-  const part = includeStats ? 'contentDetails,statistics' : 'contentDetails';
+  const part = includeStats ? 'snippet,contentDetails,liveStreamingDetails,statistics' : 'snippet,contentDetails,liveStreamingDetails';
   const ids = vids.map(v => v.videoId);
   const map = {};
   const batches = [];
@@ -956,6 +623,8 @@ async function fetchVideoDetails(vids, includeStats) {
       for (const it of d.items || []) {
         map[it.id] = {
           duration: parseDuration(it.contentDetails?.duration),
+          // past streams keep liveStreamingDetails; live/upcoming ones flag liveBroadcastContent
+          isLive: !!it.liveStreamingDetails || (it.snippet?.liveBroadcastContent && it.snippet.liveBroadcastContent !== 'none'),
           views: includeStats ? (+it.statistics?.viewCount || 0) : undefined
         };
       }
@@ -965,6 +634,7 @@ async function fetchVideoDetails(vids, includeStats) {
     const data = map[v.videoId];
     if (!data) return;
     v.duration = data.duration;
+    v.isLive = data.isLive;
     if (data.views !== undefined) v.views = data.views;
   });
 }
@@ -974,17 +644,6 @@ function parseDuration(iso) {
   const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
   if (!m) return null;
   return (parseInt(m[1]||0) * 3600) + (parseInt(m[2]||0) * 60) + parseInt(m[3]||0);
-}
-
-async function searchKw(kw) {
-  try {
-    const d=await yt('search',{part:'snippet',q:kw,type:'video',maxResults:50,order:'viewCount'});
-    return (d.items||[]).map(it=>({
-      videoId:it.id.videoId, title:it.snippet.title, date:it.snippet.publishedAt,
-      thumb:it.snippet.thumbnails?.medium?.url||'',
-      channelName:it.snippet.channelTitle, channelId:it.snippet.channelId, views:null
-    }));
-  } catch(e) { toast(`"${kw}": ${e.message}`,'err'); return []; }
 }
 
 async function runPool(items, n, fn, onProg) {
@@ -1007,7 +666,7 @@ async function startFetch() {
   document.getElementById('progWrap').classList.add('show');
 
   try {
-    mode==='channels' ? await fetchByChannels() : await fetchByKeywords();
+    await fetchByChannels();
   } catch(e) { toast('Error: '+e.message,'err'); }
 
   fetching=false; btn.innerHTML='Fetch Titles'; btn.disabled=false;
@@ -1023,8 +682,8 @@ async function startFetch() {
 
 async function fetchByChannels() {
   if (!channels.length) { toast('No channels configured','err'); return; }
-  const max=+document.getElementById('maxVids').value;
-  const stats=document.getElementById('doStats').value==='1';
+  const max=500;
+  const stats=true;
   const w=8;
 
   channels.forEach(c=>{ if(c.status!=='ok') c.status='loading'; }); renderChList();
@@ -1043,36 +702,12 @@ async function fetchByChannels() {
   }, (done,total)=>prog(40+done/total*45,'Fetching videos...',`${done} / ${total} channels`));
 
   if (allVideos.length) {
-    prog(88, `Filtering shorts & ${stats?'fetching views':'checking durations'}...`, `${allVideos.length} videos`);
+    prog(88, `Filtering shorts & livestreams${stats?', fetching views':''}...`, `${allVideos.length} videos`);
     await fetchVideoDetails(allVideos, stats);
     const before = allVideos.length;
-    allVideos = allVideos.filter(v => v.duration == null || v.duration >= 120);
+    allVideos = allVideos.filter(v => !v.isLive && (v.duration == null || v.duration >= 120));
     const removed = before - allVideos.length;
-    if (removed > 0) prog(96, `Removed ${removed} short-form videos`, `${allVideos.length} remaining`);
-  }
-  prog(100,'Done!',`${allVideos.length} titles`);
-}
-
-async function fetchByKeywords() {
-  const kws=document.getElementById('kwInput').value.trim().split('\n').map(s=>s.trim()).filter(Boolean);
-  if (!kws.length) { toast('No keywords entered','err'); return; }
-  const stats=document.getElementById('doStats').value==='1';
-  const w=8;
-
-  await runPool(kws, w, async kw=>{
-    allVideos.push(...await searchKw(kw));
-  }, (done,total)=>prog(done/total*80,'Searching keywords...',`${done} / ${total}`));
-
-  const seen=new Set();
-  allVideos=allVideos.filter(v=>seen.has(v.videoId)?false:(seen.add(v.videoId),true));
-
-  if (allVideos.length) {
-    prog(85, `Filtering shorts & ${stats?'fetching views':'checking durations'}...`, `${allVideos.length} videos`);
-    await fetchVideoDetails(allVideos, stats);
-    const before = allVideos.length;
-    allVideos = allVideos.filter(v => v.duration == null || v.duration >= 120);
-    const removed = before - allVideos.length;
-    if (removed > 0) prog(96, `Removed ${removed} short-form videos`, `${allVideos.length} remaining`);
+    if (removed > 0) prog(96, `Removed ${removed} shorts & livestreams`, `${allVideos.length} remaining`);
   }
   prog(100,'Done!',`${allVideos.length} titles`);
 }
@@ -1084,8 +719,10 @@ function prog(pct,txt,cnt='') {
 }
 
 // ── FRAMEWORK EXTRACTION ──────────────────────────────────────────
+const TOPIC_WORDS = 'cold email, copywriting, agency, outreach, leads, clients, B2B, SaaS';
+
 function getTopicPhrases() {
-  return document.getElementById('topicWords').value
+  return TOPIC_WORDS
     .split(',').map(s=>s.trim()).filter(s=>s.length>1)
     .sort((a,b)=>b.length-a.length); // longest first so "cold email" matches before "email"
 }
@@ -1259,7 +896,6 @@ function buildFrameworks(videos) {
 
 function rebuildFrameworks() {
   frameworks = buildFrameworks(allVideos);
-  document.getElementById('statFw').textContent = frameworks.length;
   if (view==='frameworks') renderView();
 }
 
@@ -1303,7 +939,6 @@ function applyFilters() {
     if (sort==='channel') return a.channelName.localeCompare(b.channelName);
     return 0;
   });
-  document.getElementById('statTotal').textContent = shown.length;
   renderView();
 }
 
@@ -1335,7 +970,7 @@ function renderFrameworksView(el) {
   if (!fws.length) {
     el.innerHTML = allVideos.length
       ? `<div class="empty"><div class="empty-ico">🔍</div><h3>No frameworks match</h3><p>Try a different filter or category</p></div>`
-      : `<div class="empty"><div class="empty-ico">🎬</div><h3>No titles yet</h3><p>Add your topic words in the sidebar, then click <strong>Fetch Titles</strong></p></div>`;
+      : `<div class="empty"><div class="empty-ico">🎬</div><h3>No titles yet</h3><p>Click <strong>Fetch Titles</strong> in the sidebar to start</p></div>`;
     return;
   }
 
@@ -1393,7 +1028,7 @@ function renderFrameworksView(el) {
     <div class="fw-cat-bar">
       <button class="fw-cat-pill ${!fwCatFilter?'active':''}" onclick="setFwCat('')">All (${frameworks.length})</button>
       ${allCats.map(c=>{
-        const col=CAT[c]||'#4a4a6a';
+        const col=CAT[c]||'#757E78';
         const cnt=frameworks.filter(f=>f.category===c).length;
         return `<button class="fw-cat-pill ${fwCatFilter===c?'active':''}"
           onclick="setFwCat('${c}')"
@@ -1409,7 +1044,7 @@ function renderFrameworksView(el) {
 function setFwSort(s) { fwSortBy = s; renderView(); }
 
 function renderFwCard(fw, i) {
-  const col = CAT[fw.category] || '#4a4a6a';
+  const col = CAT[fw.category] || '#757E78';
   const exs = expandedCards.has(i) ? fw.videos : fw.videos.slice(0,3);
   const hasMore = fw.videos.length > 3 && !expandedCards.has(i);
 
@@ -1574,14 +1209,6 @@ function exportCSV() {
 }
 
 // ── UI ────────────────────────────────────────────────────────────
-function setMode(m) {
-  mode=m;
-  document.getElementById('mTab1').classList.toggle('active',m==='channels');
-  document.getElementById('mTab2').classList.toggle('active',m==='keywords');
-  document.getElementById('chPanel').style.display=m==='channels'?'block':'none';
-  document.getElementById('kwPanel').style.display=m==='keywords'?'block':'none';
-}
-
 function setView(v) {
   view=v;
   document.getElementById('vFw').classList.toggle('active',v==='frameworks');
@@ -1615,22 +1242,159 @@ function esc(s) { if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&
 document.getElementById('sortSel').style.display='none';
 document.getElementById('chFilter').style.display='none';
 
-// ── PAGE TOGGLE ───────────────────────────────────────────────────
-let currentPage = 'research';
-
+// ── THUMBNAILS PAGE ───────────────────────────────────────────────
+// Creators shown on the Thumbnails tab (displayed alphabetically by channel name).
+const THUMB_CHANNELS = [
+  '@colethomasgordon',
+  '@JeremyHaynesTraining',
+  '@sooweigoh',
+  '@ed-lawrence',
+  '@jaketrinder',
+  '@goglencoco',
+  '@realmattgray',
+];
+const THUMB_CACHE_KEY = 'ytThumbCache.v1';
+const THUMB_MAX_AGE_DAYS = 365; // only show thumbnails from the last year
+function thumbCutoff() { return new Date(Date.now() - THUMB_MAX_AGE_DAYS * 86400000); }
+let thumbData = null;      // [{handle, name, thumb, id, videos:[{videoId,title,date,views}]}]
+let thumbOrder = 'newest';
+let thumbLoading = false;
 
 function setPage(p) {
-  currentPage = p;
   document.getElementById('researchPage').style.display = p === 'research' ? '' : 'none';
-  document.getElementById('myTitlesPage').style.display = p === 'mytitles' ? 'block' : 'none';
-  document.getElementById('stuffPage').style.display = p === 'stuff' ? 'block' : 'none';
+  document.getElementById('thumbsPage').style.display = p === 'thumbs' ? 'block' : 'none';
   document.getElementById('pNavResearch').classList.toggle('active', p === 'research');
-  document.getElementById('pNavMyTitles').classList.toggle('active', p === 'mytitles');
-  document.getElementById('pNavStuff').classList.toggle('active', p === 'stuff');
+  document.getElementById('pNavThumbs').classList.toggle('active', p === 'thumbs');
+  if (p === 'thumbs' && !thumbData) loadThumbs(false);
 }
 
-function toggleTopic(card) { card.classList.toggle('open'); }
-function toggleGroup(id) { document.getElementById(id).classList.toggle('closed'); }
+function setThumbOrder(o) {
+  thumbOrder = o;
+  document.getElementById('thNewest').classList.toggle('active', o === 'newest');
+  document.getElementById('thOldest').classList.toggle('active', o === 'oldest');
+  renderThumbs();
+}
+
+function readThumbCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem(THUMB_CACHE_KEY) || 'null');
+    // Only reuse the cache if it was built from the same creator list
+    if (c && c.handles === THUMB_CHANNELS.join(',')) return c;
+  } catch {}
+  return null;
+}
+
+function writeThumbCache(data) {
+  try { localStorage.setItem(THUMB_CACHE_KEY, JSON.stringify({ handles: THUMB_CHANNELS.join(','), ts: Date.now(), data })); } catch {}
+}
+
+async function loadThumbs(force) {
+  if (thumbLoading) return;
+  if (!force) {
+    const c = readThumbCache();
+    if (c) { thumbData = c.data; renderThumbs(); setThumbStatus(`Updated ${fmtD(new Date(c.ts).toISOString())}`); return; }
+  }
+  thumbLoading = true;
+  const btn = document.getElementById('thRefresh');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin" style="border-color:rgba(20,24,27,.2);border-top-color:var(--bespoke)"></span> Loading';
+  if (!thumbData) document.getElementById('thContent').innerHTML =
+    `<div class="thumbs-empty">Pulling every long-form upload from the last year for ${THUMB_CHANNELS.length} creators…</div>`;
+
+  const results = THUMB_CHANNELS.map(h => ({ handle: h, name: h, thumb: null, id: null, videos: [], err: false }));
+  let done = 0;
+  setThumbStatus(`Loading 0 / ${THUMB_CHANNELS.length} creators...`);
+  await runPool(THUMB_CHANNELS, 6, async (h, i) => {
+    const ch = mkCh(h);
+    try {
+      await resolveChannel(ch);
+      if (ch.status !== 'ok') throw new Error('not found');
+      // Page back until the 1-year cutoff (Shorts-heavy channels can post 500+ uploads a year)
+      let vids = await fetchChVideos(ch, 5000, thumbCutoff());
+      if (vids.length) await fetchVideoDetails(vids, true);
+      vids = vids.filter(v => !v.isLive && (v.duration == null || v.duration >= 120));
+      Object.assign(results[i], {
+        name: ch.name, thumb: ch.thumb, id: ch.id,
+        videos: vids.map(v => ({ videoId: v.videoId, title: v.title, date: v.date, views: v.views }))
+      });
+    } catch (e) {
+      results[i].err = true;
+      toast(`${h}: couldn't load`, 'err');
+    }
+    done++;
+    setThumbStatus(`Loading ${done} / ${THUMB_CHANNELS.length} creators...`);
+  });
+
+  thumbData = results;
+  writeThumbCache(results);
+  thumbLoading = false;
+  btn.disabled = false; btn.textContent = 'Refresh';
+  setThumbStatus('Updated just now');
+  renderThumbs();
+}
+
+function setThumbStatus(t) { document.getElementById('thStatus').textContent = t; }
+
+const THUMB_CREATOR_KEY = 'ytThumbsCreator';
+let thumbCreator = null;   // handle of the creator being shown, or 'all'
+
+function thumbCardHtml(v) {
+  const base = `https://i.ytimg.com/vi/${esc(v.videoId)}/`;
+  return `<a class="thumbs-card" href="https://www.youtube.com/watch?v=${esc(v.videoId)}" target="_blank" rel="noopener" title="${esc(v.title)}">
+    <div class="thumbs-card-media"><img src="${base}maxresdefault.jpg" data-fallback="${base}hqdefault.jpg" alt="${esc(v.title)}" loading="lazy"></div>
+    <div class="thumbs-card-body"><h4 class="thumbs-card-title">${esc(v.title)}</h4></div>
+  </a>`;
+}
+
+function renderThumbs() {
+  if (!thumbData) return;
+  // Re-apply the cutoff at render so cached data never shows anything older than a year
+  const cutoff = thumbCutoff();
+  const recent = c => c.videos.filter(v => new Date(v.date) >= cutoff);
+  const creators = [...thumbData].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+
+  const nav = document.getElementById('thumbsNav');
+  nav.innerHTML = `<button type="button" class="thumbs-nav-btn" data-handle="all">All</button>` +
+    creators.map(c => `<button type="button" class="thumbs-nav-btn" data-handle="${esc(c.handle)}">${esc(c.name)}</button>`).join('');
+
+  const scroll = document.getElementById('thContent');
+  scroll.innerHTML = creators.map(c => {
+    const vids = recent(c).sort((a, b) =>
+      thumbOrder === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date));
+    return `<section class="thumbs-channel" data-handle="${esc(c.handle)}">
+      <div class="thumbs-channel-head">
+        <h3 class="thumbs-channel-name">${esc(c.name)}</h3>
+        <a href="https://www.youtube.com/${esc(c.handle)}/videos" target="_blank" rel="noopener">${esc(c.handle)}</a>
+        <span class="thumbs-channel-count">${c.err ? "Couldn't load this channel" : `${vids.length} videos`}</span>
+      </div>
+      <div class="thumbs-grid">${vids.map(thumbCardHtml).join('')}</div>
+    </section>`;
+  }).join('');
+
+  nav.querySelectorAll('.thumbs-nav-btn').forEach(b => b.addEventListener('click', () => showThumbCreator(b.dataset.handle, true)));
+  if (thumbCreator === null) { try { thumbCreator = localStorage.getItem(THUMB_CREATOR_KEY); } catch {} }
+  showThumbCreator(thumbCreator, false);
+
+  // maxresdefault doesn't exist for every video; YouTube serves a 120x90 grey placeholder instead of a 404.
+  scroll.querySelectorAll('img[data-fallback]').forEach(img => {
+    const swap = () => { if (img.dataset.fallback) { img.src = img.dataset.fallback; img.removeAttribute('data-fallback'); } };
+    img.addEventListener('error', swap);
+    img.addEventListener('load', () => { if (img.naturalWidth <= 120) swap(); });
+  });
+}
+
+// One creator card at a time (or 'all' for one continuous scroll): the nav buttons switch what's shown.
+function showThumbCreator(handle, scrollTop) {
+  const secs = [...document.querySelectorAll('#thContent .thumbs-channel')];
+  if (!secs.length) return;
+  if (handle !== 'all' && !secs.some(s => s.dataset.handle === handle)) handle = secs[0].dataset.handle;
+  thumbCreator = handle;
+  document.querySelectorAll('#thumbsNav .thumbs-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.handle === handle));
+  secs.forEach(s => s.hidden = handle !== 'all' && s.dataset.handle !== handle);
+  if (scrollTop) window.scrollTo({ top: 0 });
+  try { localStorage.setItem(THUMB_CREATOR_KEY, handle); } catch {}
+}
+
 
 </script>
 </body>
