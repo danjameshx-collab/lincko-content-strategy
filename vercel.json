@@ -4,6 +4,7 @@
   "framework": null,
   "rewrites": [
     { "source": "/", "destination": "/Claude Code/Lincko/Content/YT Scraper/index.html" },
+    { "source": "/logo.png", "destination": "/Claude Code/Lincko/Content/YT Scraper/logo.png" },
     { "source": "/stuff/:path*", "destination": "/Claude Code/Lincko/Content/YT Scraper/stuff/:path*" }
   ]
 }
